@@ -7,7 +7,7 @@ bl_info = {
     'location': 'T-Panel > BIS',
     'wiki_url': 'http://b3d.interplanety.ru/bis/',
     'tracker_url': 'http://b3d.interplanety.ru/bis/',
-    'description': 'BIS - Blender Interplanety Store'
+    'description': 'BIS - Blender Interplanety Storage'
 }
 
 import sys
