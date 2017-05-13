@@ -5,9 +5,9 @@ import bpy.utils.previews
 import base64
 import os
 
-class BIS_getNodesInfoFromStore(bpy.types.Operator):
-    bl_idname = 'bis.get_nodes_info_from_store'
-    bl_label = 'BIS_AddToIStore'
+class BIS_getNodesInfoFromStorage(bpy.types.Operator):
+    bl_idname = 'bis.get_nodes_info_from_storage'
+    bl_label = 'BIS_AddToIStorage'
     bl_description = 'Add nodegroup to common part of BIS'
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -15,8 +15,8 @@ class BIS_getNodesInfoFromStore(bpy.types.Operator):
 
         request = sys.modules[modulesNames['WebRequests']].WebRequest.sendRequest({
             'for': 'search_nodes',
-            'search_filter': bpy.context.window_manager.bis_get_nodes_info_from_store_vars.searchFilter,
-            'update_preview': bpy.context.window_manager.bis_get_nodes_info_from_store_vars.updatePreviews
+            'search_filter': bpy.context.window_manager.bis_get_nodes_info_from_storage_vars.searchFilter,
+            'update_preview': bpy.context.window_manager.bis_get_nodes_info_from_storage_vars.updatePreviews
         })
         searchRez = json.loads(request.text)
         if searchRez['stat'] == 'T':
@@ -101,9 +101,9 @@ class PreviewManager():
 
     @staticmethod
     def onPreviewSelect(self, context):
-        bpy.ops.bis.get_node_from_store(nodeGroupId = int(self.previews))
+        bpy.ops.bis.get_node_from_storage(nodeGroupId = int(self.previews))
 
-class BIS_getNodesInfoFromStoreVars(bpy.types.PropertyGroup):
+class BIS_getNodesInfoFromStorageVars(bpy.types.PropertyGroup):
     searchFilter = bpy.props.StringProperty(
         name = 'Search',
         description = 'Filter to search',
@@ -120,12 +120,12 @@ class BIS_getNodesInfoFromStoreVars(bpy.types.PropertyGroup):
     )
 
 def register():
-    bpy.utils.register_class(BIS_getNodesInfoFromStore)
-    bpy.utils.register_class(BIS_getNodesInfoFromStoreVars)
-    bpy.types.WindowManager.bis_get_nodes_info_from_store_vars = bpy.props.PointerProperty(type = BIS_getNodesInfoFromStoreVars)
+    bpy.utils.register_class(BIS_getNodesInfoFromStorage)
+    bpy.utils.register_class(BIS_getNodesInfoFromStorageVars)
+    bpy.types.WindowManager.bis_get_nodes_info_from_storage_vars = bpy.props.PointerProperty(type = BIS_getNodesInfoFromStorageVars)
 
 def unregister():
-    del bpy.types.WindowManager.bis_get_nodes_info_from_store_vars
+    del bpy.types.WindowManager.bis_get_nodes_info_from_storage_vars
     PreviewManager.unregister()
-    bpy.utils.unregister_class(BIS_getNodesInfoFromStoreVars)
-    bpy.utils.unregister_class(BIS_getNodesInfoFromStore)
+    bpy.utils.unregister_class(BIS_getNodesInfoFromStorageVars)
+    bpy.utils.unregister_class(BIS_getNodesInfoFromStorage)
