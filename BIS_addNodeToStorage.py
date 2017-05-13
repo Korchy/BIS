@@ -34,9 +34,9 @@ class BIS_addNodeToStorageVars(bpy.types.PropertyGroup):
 def register():
     bpy.utils.register_class(BIS_addNodeToStorage)
     bpy.utils.register_class(BIS_addNodeToStorageVars)
-    bpy.types.Scene.bis_add_node_to_storage_vars = bpy.props.PointerProperty(type = BIS_addNodeToStorage)
+    bpy.types.Scene.bis_add_node_to_storage_vars = bpy.props.PointerProperty(type = BIS_addNodeToStorageVars)
 
 def unregister():
-    del bpy.types.Scene.bis_add_nodes_to_storage_vars
+    del bpy.types.Scene.bis_add_node_to_storage_vars
     bpy.utils.unregister_class(BIS_addNodeToStorageVars)
     bpy.utils.unregister_class(BIS_addNodeToStorage)
