@@ -2,9 +2,9 @@ import bpy
 import sys
 import json
 
-class BIS_getNodeFromStore(bpy.types.Operator):
-    bl_idname = 'bis.get_node_from_store'
-    bl_label = 'BIS_GetFromStore'
+class BIS_getNodeFromStorage(bpy.types.Operator):
+    bl_idname = 'bis.get_node_from_storage'
+    bl_label = 'BIS_GetFromStorage'
     bl_description = 'Get nodegroup from common part of BIS'
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -29,7 +29,7 @@ class BIS_getNodeFromStore(bpy.types.Operator):
         return {'FINISHED'}
 
 def register():
-    bpy.utils.register_class(BIS_getNodeFromStore)
+    bpy.utils.register_class(BIS_getNodeFromStorage)
 
 def unregister():
-    bpy.utils.unregister_class(BIS_getNodeFromStore)
+    bpy.utils.unregister_class(BIS_getNodeFromStorage)
