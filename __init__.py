@@ -13,7 +13,7 @@ bl_info = {
 import sys
 import importlib
 
-modulesNames = ['BIS_addNodeToStore', 'BIS_getNodeFromStore', 'BIS_getNodesFromStore', 'WebRequests', 'BIS_mainPanel', 'MessageBox', 'NodeManager']
+modulesNames = ['BIS_addNodeToStorage', 'BIS_getNodeFromStorage', 'BIS_getNodesFromStorage', 'WebRequests', 'BIS_mainPanel', 'MessageBox', 'NodeManager']
 
 modulesFullNames = {}
 for currentModuleName in modulesNames:
