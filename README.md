@@ -1,2 +1,2 @@
 # BIS
-Blender Interplanety Store
+Blender Interplanety Storage
