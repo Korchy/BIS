@@ -2,9 +2,9 @@ import bpy
 import sys
 import json
 
-class BIS_addNodeToStore(bpy.types.Operator):
-    bl_idname = 'bis.add_node_to_store'
-    bl_label = 'BIS_AddToIStore'
+class BIS_addNodeToStorage(bpy.types.Operator):
+    bl_idname = 'bis.add_node_to_storage'
+    bl_label = 'BIS_AddToIStorage'
     bl_description = 'Add nodegroup to common part of BIS'
     bl_options = {'REGISTER', 'UNDO'}
 
@@ -15,16 +15,16 @@ class BIS_addNodeToStore(bpy.types.Operator):
                 'for': 'set_node_group',
                 'node_group': json.dumps(nodeGroupJson),
                 'node_group_name': nodeGroupJson['name'],
-                'node_group_tags': bpy.context.scene.bis_add_node_to_store_vars.tags
+                'node_group_tags': bpy.context.scene.bis_add_node_to_storage_vars.tags
             })
-            bpy.context.scene.bis_add_node_to_store_vars.tags = ''
+            bpy.context.scene.bis_add_node_to_storage_vars.tags = ''
             requestRez = json.loads(request.text)
             bpy.ops.message.messagebox('INVOKE_DEFAULT', message = requestRez['stat'])
         else:
             bpy.ops.message.messagebox('INVOKE_DEFAULT', message = 'No NodeGroup selected')
         return {'FINISHED'}
 
-class BIS_addNodeToStoreVars(bpy.types.PropertyGroup):
+class BIS_addNodeToStorageVars(bpy.types.PropertyGroup):
     tags = bpy.props.StringProperty(
         name = 'Tags',
         description = 'Tags',
@@ -32,11 +32,11 @@ class BIS_addNodeToStoreVars(bpy.types.PropertyGroup):
     )
 
 def register():
-    bpy.utils.register_class(BIS_addNodeToStore)
-    bpy.utils.register_class(BIS_addNodeToStoreVars)
-    bpy.types.Scene.bis_add_node_to_store_vars = bpy.props.PointerProperty(type = BIS_addNodeToStoreVars)
+    bpy.utils.register_class(BIS_addNodeToStorage)
+    bpy.utils.register_class(BIS_addNodeToStorageVars)
+    bpy.types.Scene.bis_add_node_to_storage_vars = bpy.props.PointerProperty(type = BIS_addNodeToStorage)
 
 def unregister():
-    del bpy.types.Scene.bis_add_nodes_to_store_vars
-    bpy.utils.unregister_class(BIS_addNodeToStoreVars)
-    bpy.utils.unregister_class(BIS_addNodeToStore)
+    del bpy.types.Scene.bis_add_nodes_to_storage_vars
+    bpy.utils.unregister_class(BIS_addNodeToStorageVars)
+    bpy.utils.unregister_class(BIS_addNodeToStorage)
