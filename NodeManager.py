@@ -23,31 +23,41 @@ class NodeManager():
                 nodeGroupTreeNodesIndexed.append([node, inputs, outputs])
             # Nodes
             for node in nodeGroupTreeNodesIndexed:
+                nodeClass = NodeCommon
                 if hasattr(sys.modules[modulesNames['NodeManager']], 'Node' + node[0].bl_idname):
-                    currentNode = getattr(sys.modules[modulesNames['NodeManager']], 'Node' + node[0].bl_idname).nodeToJson(node[0])
-                else:
-                    currentNode = NodeCommon.nodeToJson(node[0])
+                    nodeClass = getattr(sys.modules[modulesNames['NodeManager']], 'Node' + node[0].bl_idname)
+                currentNode = nodeClass.nodeToJson(node[0])
                 for input in node[1]:
+                    ioName = 'IO' + input.bl_idname
                     if node[0].bl_idname == 'NodeGroupInput' or node[0].bl_idname == 'NodeGroupOutput':
-                        currentNode['inputs'].append(getattr(sys.modules[modulesNames['NodeManager']], 'IO' + node[0].bl_idname).ioToJson(input))
-                    else:
-                        currentNode['inputs'].append(getattr(sys.modules[modulesNames['NodeManager']], 'IO' + input.bl_idname).ioToJson(input))
+                        ioName = 'IO' + node[0].bl_idname
+                    ioClass = IOCommon
+                    if hasattr(sys.modules[modulesNames['NodeManager']], ioName):
+                        ioClass = getattr(sys.modules[modulesNames['NodeManager']], ioName)
+                    currentNode['inputs'].append(ioClass.ioToJson(input))
                 for output in node[2]:
+                    ioName = 'IO' + output.bl_idname
                     if node[0].bl_idname == 'NodeGroupInput' or node[0].bl_idname == 'NodeGroupOutput':
-                        currentNode['outputs'].append(getattr(sys.modules[modulesNames['NodeManager']], 'IO' + node[0].bl_idname).ioToJson(output))
-                    else:
-                        currentNode['outputs'].append(getattr(sys.modules[modulesNames['NodeManager']], 'IO' + output.bl_idname).ioToJson(output))
+                        ioName = 'IO' + node[0].bl_idname
+                    ioClass = IOCommon
+                    if hasattr(sys.modules[modulesNames['NodeManager']], ioName):
+                        ioClass = getattr(sys.modules[modulesNames['NodeManager']], ioName)
+                    currentNode['outputs'].append(ioClass.ioToJson(output))
                 groupInJson['nodes'].append(currentNode)
             # GroupInputs
             group_input_number = 0
             for input in nodeGroupTree.inputs:
-                groupInJson['GroupInput'].append(getattr(sys.modules[modulesNames['NodeManager']], 'GIO' + input.bl_socket_idname).gioToJson(input,
-                                                                                                                                        nodeGroup.inputs[group_input_number]
-                                                                                                                                        ))
+                gioClass = GIOCommon
+                if hasattr(sys.modules[modulesNames['NodeManager']], 'GIO' + input.bl_socket_idname):
+                    gioClass = getattr(sys.modules[modulesNames['NodeManager']], 'GIO' + input.bl_socket_idname)
+                groupInJson['GroupInput'].append(gioClass.gioToJson(input, nodeGroup.inputs[group_input_number]))
                 group_input_number += 1
             # GroupOutputs
             for output in nodeGroupTree.outputs:
-                groupInJson['GroupOutput'].append(getattr(sys.modules[modulesNames['NodeManager']], 'GIO' + output.bl_socket_idname).gioToJson(output))
+                gioClass = GIOCommon
+                if hasattr(sys.modules[modulesNames['NodeManager']], 'GIO' + output.bl_socket_idname):
+                    gioClass = getattr(sys.modules[modulesNames['NodeManager']], 'GIO' + output.bl_socket_idname)
+                groupInJson['GroupOutput'].append(gioClass.gioToJson(output))
             # Links
             for link in nodeGroupTree.links:
                 fromNodeIndex = 0
@@ -79,37 +89,41 @@ class NodeManager():
         # GroupInputs
         inputNumber = 0
         for inputInJson in groupInJson['GroupInput']:
-            getattr(sys.modules[modulesNames['NodeManager']], 'GIO' + inputInJson['bl_type']).jsonToGi(group = group,
-                                                                                                  groupNode = groupNode,
-                                                                                                  inputNumber = inputNumber,
-                                                                                                  inputInJson = inputInJson
-                                                                                                  )
+            gioClass = GIOCommon
+            if hasattr(sys.modules[modulesNames['NodeManager']], 'GIO' + inputInJson['bl_type']):
+                gioClass = getattr(sys.modules[modulesNames['NodeManager']], 'GIO' + inputInJson['bl_type'])
+            gioClass.jsonToGi(group = group,
+                              groupNode = groupNode,
+                              inputNumber = inputNumber,
+                              inputInJson = inputInJson)
             inputNumber += 1
         # GroupOutputs
         for outputInJson in groupInJson['GroupOutput']:
-            getattr(sys.modules[modulesNames['NodeManager']], 'GIO' + outputInJson['bl_type']).jsonToGo(group = group,
-                                                                                                  outputInJson = outputInJson
-                                                                                                   )
+            gioClass = GIOCommon
+            if hasattr(sys.modules[modulesNames['NodeManager']], 'GIO' + outputInJson['bl_type']):
+                gioClass = getattr(sys.modules[modulesNames['NodeManager']], 'GIO' + outputInJson['bl_type'])
+            gioClass.jsonToGo(group = group,
+                              outputInJson = outputInJson)
         # Nodes
         for nodeInJson in groupInJson['nodes']:
             currentNode = None
+            nodeClass = NodeCommon
             if hasattr(sys.modules[modulesNames['NodeManager']], 'Node' + nodeInJson['bl_type']):
-                currentNode = getattr(sys.modules[modulesNames['NodeManager']], 'Node' + nodeInJson['bl_type']).jsonToNode(group = group,
-                                                                                                                      nodeInJson = nodeInJson
-                                                                                                                      )
-            else:
-                currentNode = NodeCommon.jsonToNode(group = group,
-                                                    nodeInJson = nodeInJson
-                                                    )
+                nodeClass = getattr(sys.modules[modulesNames['NodeManager']], 'Node' + nodeInJson['bl_type'])
+            currentNode = nodeClass.jsonToNode(group = group,
+                                               nodeInJson = nodeInJson)
             if currentNode:
                 # Node Inputs
                 currentInputs = []
                 inputNumber = 0
                 for nodeInputInJson in nodeInJson['inputs']:
                     if nodeInputInJson:
-                        getattr(sys.modules[modulesNames['NodeManager']], 'IO' + nodeInputInJson['bl_type']).jsonToI(node = currentNode,
-                                                                                                                 inputNumber = inputNumber,
-                                                                                                                 inputInJson = nodeInputInJson)
+                        ioClass = IOCommon
+                        if hasattr(sys.modules[modulesNames['NodeManager']], 'IO' + nodeInputInJson['bl_type']):
+                            ioClass = getattr(sys.modules[modulesNames['NodeManager']], 'IO' + nodeInputInJson['bl_type'])
+                        ioClass.jsonToI(node = currentNode,
+                                        inputNumber = inputNumber,
+                                        inputInJson = nodeInputInJson)
                     currentInputs.append(currentNode.inputs[inputNumber])
                     inputNumber += 1
                 # Node Outputs
@@ -163,6 +177,18 @@ class NodeShaderNodeBsdfGlossy(NodeCommon):
     def jsonToNode(group, nodeInJson):
         currentNode = super(NodeShaderNodeBsdfGlossy, NodeShaderNodeBsdfGlossy).jsonToNode(group, nodeInJson)
         currentNode.distribution = nodeInJson['distribution']
+        return currentNode
+
+class NodeShaderNodeAttribute(NodeCommon):
+    @staticmethod
+    def nodeToJson(node):
+        nodeJson = super(NodeShaderNodeAttribute, NodeShaderNodeAttribute).nodeToJson(node)
+        nodeJson['attribute_name'] = node.attribute_name
+        return nodeJson
+    @staticmethod
+    def jsonToNode(group, nodeInJson):
+        currentNode = super(NodeShaderNodeAttribute, NodeShaderNodeAttribute).jsonToNode(group, nodeInJson)
+        currentNode.attribute_name = nodeInJson['attribute_name']
         return currentNode
 
 # Node IO
@@ -337,10 +363,10 @@ class GIONodeSocketVector(GIOCommon):
 class GIONodeSocketShader(GIOCommon):
     pass
 
-class GIONodeSocketFloatFactor(GIOCommon):
+class GIONodeSocketFloat(GIOCommon):
     @staticmethod
     def gioToJson(io, gio = None):
-        gioJson = super(GIONodeSocketFloatFactor, GIONodeSocketFloatFactor).gioToJson(io, gio)
+        gioJson = super(GIONodeSocketFloat, GIONodeSocketFloat).gioToJson(io, gio)
         gioJson['default_value'] = io.default_value
         gioJson['min_value'] = io.min_value
         gioJson['max_value'] = io.max_value
@@ -361,3 +387,6 @@ class GIONodeSocketFloatFactor(GIOCommon):
         currentOutput = super(GIONodeSocketColor, GIONodeSocketColor).jsonToGo(group, outputInJson)
         currentOutput.default_value = outputInJson['default_value']
         return currentOutput
+
+class GIONodeSocketFloatFactor(GIONodeSocketFloat):
+    pass
