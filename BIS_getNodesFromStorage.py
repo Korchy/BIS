@@ -38,12 +38,17 @@ class PreviewManager():
 
     previewsPaths = []
     previewsItems = []
-    previewsCollection = bpy.utils.previews.new()
+    previewsCollection = None
+
+    @staticmethod
+    def register():
+        PreviewManager.previewsCollection = bpy.utils.previews.new()
 
     @staticmethod
     def unregister():
         PreviewManager.clearCollection()
         bpy.utils.previews.remove(PreviewManager.previewsCollection)
+        PreviewManager.previewsCollection = None
 
     @staticmethod
     def createPreviews(data):
@@ -122,6 +127,7 @@ class BIS_getNodesInfoFromStorageVars(bpy.types.PropertyGroup):
 def register():
     bpy.utils.register_class(BIS_getNodesInfoFromStorage)
     bpy.utils.register_class(BIS_getNodesInfoFromStorageVars)
+    PreviewManager.register()
     bpy.types.WindowManager.bis_get_nodes_info_from_storage_vars = bpy.props.PointerProperty(type = BIS_getNodesInfoFromStorageVars)
 
 def unregister():
