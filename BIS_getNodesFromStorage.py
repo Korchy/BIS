@@ -8,7 +8,7 @@ import os
 class BIS_getNodesInfoFromStorage(bpy.types.Operator):
     bl_idname = 'bis.get_nodes_info_from_storage'
     bl_label = 'BIS_AddToIStorage'
-    bl_description = 'Add nodegroup to common part of BIS'
+    bl_description = 'Search nodegroups in BIS'
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
