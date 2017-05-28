@@ -3,7 +3,7 @@ import sys
 
 class BIS_nodesPanel(bpy.types.Panel):
     bl_idname = 'bis.nodes_panel'
-    bl_label = 'Blender Interplanety Storage'
+    bl_label = 'BIS'
     bl_space_type = 'NODE_EDITOR'
     bl_region_type = 'TOOLS'
     bl_category = 'BIS'
