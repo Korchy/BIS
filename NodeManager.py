@@ -81,12 +81,6 @@ class NodeManager():
                             toNodeInputIndex = nodeData[1].index(link.to_socket)
                     nodeIndex += 1
                 groupInJson['links'].append([fromNodeIndex, fromNodeOutputIndex, toNodeIndex, toNodeInputIndex])
-
-            # Write to file
-            import os
-            with open(os.path.dirname(bpy.data.filepath) + os.sep + 'GroupNode.json', 'w') as currentFile:
-                json.dump(groupInJson, currentFile, indent = 4)
-
             return groupInJson
 
     @staticmethod
