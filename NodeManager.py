@@ -697,10 +697,8 @@ class NodeShaderNodeScript(NodeCommon):
     def nodeToJson(node):
         nodeJson = super(__class__, __class__).nodeToJson(node)
         nodeJson['script'] = ''
-        # nodeJson['script_body'] = ''
         if node.script:
             nodeJson['script'] = node.script.name
-            # nodeJson['script_body'] = node.script.as_string()
         nodeJson['filepath'] = ''
         if node.filepath:
             if node.filepath[:2] == '//':
@@ -718,8 +716,6 @@ class NodeShaderNodeScript(NodeCommon):
             if nodeInJson['script'] in bpy.data.texts:
                 currentNode.script = bpy.data.texts[nodeInJson['script']]
         if nodeInJson['filepath']:
-            # print(nodeInJson['filepath'])
-            # print(os.path.exists(nodeInJson['filepath']))
             if os.path.exists(nodeInJson['filepath']) and os.path.isfile(nodeInJson['filepath']):
                 currentNode.filepath = nodeInJson['filepath']
         currentNode.use_auto_update = nodeInJson['use_auto_update']
