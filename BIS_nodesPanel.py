@@ -1,8 +1,8 @@
 import bpy
 import sys
 
-class BIS_mainPanel(bpy.types.Panel):
-    bl_idname = 'bis.panel'
+class BIS_nodesPanel(bpy.types.Panel):
+    bl_idname = 'bis.nodes_panel'
     bl_label = 'Blender Interplanety Storage'
     bl_space_type = 'NODE_EDITOR'
     bl_region_type = 'TOOLS'
@@ -28,7 +28,7 @@ class BIS_mainPanel(bpy.types.Panel):
             self.layout.operator('dialog.web_auth', icon = 'WORLD', text = 'Please login')
 
 def register():
-    bpy.utils.register_class(BIS_mainPanel)
+    bpy.utils.register_class(BIS_nodesPanel)
 
 def unregister():
-    bpy.utils.unregister_class(BIS_mainPanel)
+    bpy.utils.unregister_class(BIS_nodesPanel)
