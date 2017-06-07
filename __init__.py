@@ -2,7 +2,7 @@ bl_info = {
     'name': 'BIS',
     'category': 'Material',
     'author': 'Nikita Akimov',
-    'version': (0, 0, 1),
+    'version': (0, 0, 3),
     'blender': (2, 78, 0),
     'location': 'T-Panel > BIS',
     'wiki_url': 'http://b3d.interplanety.ru/bis/',
@@ -13,8 +13,9 @@ bl_info = {
 import sys
 import importlib
 
-modulesNames = ['BIS_addNodeToStorage', 'BIS_getNodeFromStorage', 'BIS_getNodesFromStorage', 'WebRequests',
-                'BIS_nodesPanel', 'BIS_textsPanel', 'MessageBox', 'NodeManager', 'JsonEx']
+modulesNames = ['BIS_addNodeToStorage', 'BIS_getNodeFromStorage', 'BIS_getNodesFromStorage', 'BIS_nodesPanel', 'NodeManager',
+                'BIS_addTextToStorage', 'BIS_getTextFromStorage', 'BIS_getTextsFromStorage', 'BIS_textsPanel', 'TextManager',
+                'WebRequests', 'MessageBox', 'JsonEx', 'BIS_Items']
 
 modulesFullNames = {}
 for currentModuleName in modulesNames:
