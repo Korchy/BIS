@@ -23,7 +23,14 @@ class BIS_getNodeFromStorage(bpy.types.Operator):
             if requestRez['stat'] != 'T':
                 bpy.ops.message.messagebox('INVOKE_DEFAULT', message = requestRez['stat'])
             else:
-                sys.modules[modulesNames['NodeManager']].NodeManager.jsonToNodeGroup(requestRez['data'])
+                if bpy.context.active_object:
+                    if not bpy.context.active_object.active_material:
+                        bpy.context.active_object.active_material = bpy.data.materials.new(name = 'Material')
+                        bpy.context.active_object.active_material.use_nodes = True
+                        for currentNode in bpy.context.active_object.active_material.node_tree.nodes:
+                            if currentNode.bl_idname != 'ShaderNodeOutputMaterial':
+                                bpy.context.active_object.active_material.node_tree.nodes.remove(currentNode)
+                    sys.modules[modulesNames['NodeManager']].NodeManager.jsonToNodeGroup(bpy.context.active_object.active_material.node_tree, requestRez['data'])
         else:
             bpy.ops.message.messagebox('INVOKE_DEFAULT', message = 'No NodeGroup To Get')
         return {'FINISHED'}
