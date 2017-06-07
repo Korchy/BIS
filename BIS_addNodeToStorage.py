@@ -8,8 +8,12 @@ class BIS_addNodeToStorage(bpy.types.Operator):
     bl_description = 'Add nodegroup to common part of BIS'
     bl_options = {'REGISTER', 'UNDO'}
 
+    showMessage = bpy.props.BoolProperty(
+        default = False
+    )
+
     def execute(self, context):
-        if(bpy.context.active_node and bpy.context.active_node.type == 'GROUP'):    # context.active_node - ShaderNodeGroup
+        if(bpy.context.active_node and bpy.context.active_node.type == 'GROUP'):
             nodeGroupJson = sys.modules[modulesNames['NodeManager']].NodeManager.nodeGroupToJson(bpy.context.active_object.active_material.node_tree.nodes.active)
             request = sys.modules[modulesNames['WebRequests']].WebRequest.sendRequest({
                 'for': 'set_node_group',
@@ -19,7 +23,8 @@ class BIS_addNodeToStorage(bpy.types.Operator):
             })
             bpy.context.scene.bis_add_node_to_storage_vars.tags = ''
             requestRez = json.loads(request.text)
-            bpy.ops.message.messagebox('INVOKE_DEFAULT', message = requestRez['stat'])
+            if self.showMessage:
+                bpy.ops.message.messagebox('INVOKE_DEFAULT', message = requestRez['stat'])
         else:
             bpy.ops.message.messagebox('INVOKE_DEFAULT', message = 'No NodeGroup selected')
         return {'FINISHED'}
