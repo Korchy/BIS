@@ -10,11 +10,12 @@ class BIS_nodesPanel(bpy.types.Panel):
 
     def draw(self, context):
         if sys.modules[modulesNames['WebRequests']].WebAuthVars.logged:
-            self.layout.operator('dialog.web_auth', icon = 'FILE_TICK', text = 'Logged')
+            self.layout.operator('dialog.web_auth', icon = 'FILE_TICK', text = 'Sign out')
             self.layout.separator()
             self.layout.separator()
             self.layout.prop(bpy.context.scene.bis_add_node_to_storage_vars, 'tags')
-            self.layout.operator('bis.add_node_to_storage', icon = 'SCRIPTWIN', text = 'Add nodegroup to BIS')
+            button = self.layout.operator('bis.add_node_to_storage', icon = 'SCRIPTWIN', text = 'Add nodegroup to BIS')
+            button.showMessage = True
             self.layout.separator()
             self.layout.separator()
             self.layout.prop(bpy.context.window_manager.bis_get_nodes_info_from_storage_vars, 'searchFilter')
@@ -22,10 +23,10 @@ class BIS_nodesPanel(bpy.types.Panel):
             self.layout.prop(bpy.context.window_manager.bis_get_nodes_info_from_storage_vars, 'updatePreviews')
             self.layout.separator()
             self.layout.separator()
-            self.layout.template_icon_view(bpy.context.window_manager.bis_get_nodes_info_from_storage_vars, 'previews')
-            self.layout.prop(bpy.context.window_manager.bis_get_nodes_info_from_storage_vars, 'previews')
+            self.layout.template_icon_view(bpy.context.window_manager.bis_get_nodes_info_from_storage_vars, 'items')
+            self.layout.prop(bpy.context.window_manager.bis_get_nodes_info_from_storage_vars, 'items')
         else:
-            self.layout.operator('dialog.web_auth', icon = 'WORLD', text = 'Please login')
+            self.layout.operator('dialog.web_auth', icon = 'WORLD', text = 'Sign in')
 
 def register():
     bpy.utils.register_class(BIS_nodesPanel)
