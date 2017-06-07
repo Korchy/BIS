@@ -1,9 +1,6 @@
 import bpy
 import sys
 import json
-import bpy.utils.previews
-import base64
-import os
 
 class BIS_getNodesInfoFromStorage(bpy.types.Operator):
     bl_idname = 'bis.get_nodes_info_from_storage'
@@ -12,7 +9,6 @@ class BIS_getNodesInfoFromStorage(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-
         request = sys.modules[modulesNames['WebRequests']].WebRequest.sendRequest({
             'for': 'search_nodes',
             'search_filter': bpy.context.window_manager.bis_get_nodes_info_from_storage_vars.searchFilter,
@@ -20,7 +16,7 @@ class BIS_getNodesInfoFromStorage(bpy.types.Operator):
         })
         searchRez = json.loads(request.text)
         if searchRez['stat'] == 'T':
-            previewToUpdate = PreviewManager.updatePreviewsFromData(searchRez['data'])
+            previewToUpdate = sys.modules[modulesNames['BIS_Items']].BIS_Items.updatePreviewsFromData(searchRez['data'], context.area.spaces.active.type)
             if previewToUpdate:
                 request = sys.modules[modulesNames['WebRequests']].WebRequest.sendRequest({
                     'for': 'update_previews',
@@ -28,85 +24,9 @@ class BIS_getNodesInfoFromStorage(bpy.types.Operator):
                 })
                 previewsUpdateRez = json.loads(request.text)
                 if previewsUpdateRez['stat'] == 'T':
-                    PreviewManager.updatePreviewsFromData(previewsUpdateRez['data'])
-
-            PreviewManager.clearCollection()
-            PreviewManager.createPreviews(searchRez['data'])
+                    sys.modules[modulesNames['BIS_Items']].BIS_Items.updatePreviewsFromData(previewsUpdateRez['data'], context.area.spaces.active.type)
+            sys.modules[modulesNames['BIS_Items']].BIS_Items.createItemsList(searchRez['data'], context.area.spaces.active.type)
         return {'FINISHED'}
-
-class PreviewManager():
-
-    previewsPaths = []
-    previewsItems = []
-    previewsCollection = None
-
-    @staticmethod
-    def register():
-        PreviewManager.previewsCollection = bpy.utils.previews.new()
-
-    @staticmethod
-    def unregister():
-        PreviewManager.clearCollection()
-        bpy.utils.previews.remove(PreviewManager.previewsCollection)
-        PreviewManager.previewsCollection = None
-
-    @staticmethod
-    def createPreviews(data):
-        for itemInfo in data:
-            path = PreviewManager.getPreviewPath(int(itemInfo['id']))
-            if path not in PreviewManager.previewsPaths:
-                name = itemInfo['name']
-                thumb = PreviewManager.previewsCollection.load(path, path, 'IMAGE')
-                PreviewManager.previewsItems.append((itemInfo['id'], name, "", thumb.icon_id, int(itemInfo['id'])))
-                PreviewManager.previewsPaths.append(path)
-
-    @staticmethod
-    def getPreviews(self, context):
-        if context is None:
-            return []
-        return PreviewManager.previewsItems
-
-    @staticmethod
-    def clearCollection():
-        if PreviewManager.previewsCollection:
-            PreviewManager.previewsCollection.clear()
-            PreviewManager.previewsPaths.clear()
-            PreviewManager.previewsItems.clear()
-
-    @staticmethod
-    def getPreviewRelativeDir(id):
-        dir = 0
-        while id > dir:
-            dir += 10000
-        return 'prev_ng' + os.path.sep + str(dir - (0 if dir == 0 else 10000)) + '-' + str(dir)
-
-    @staticmethod
-    def getPreviewDir(id):
-        return os.path.dirname(__file__) + os.path.sep + PreviewManager.getPreviewRelativeDir(id)
-
-    @staticmethod
-    def getPreviewPath(id):
-        return PreviewManager.getPreviewDir(id) + os.path.sep + str(id) + '.jpg'
-
-    @staticmethod
-    def updatePreviewsFromData(data):
-        previewToUpdate = ''
-        for prewiewInfo in data:
-            previewDir = PreviewManager.getPreviewDir(int(prewiewInfo['id']))
-            if prewiewInfo['preview']:
-                previewContent = base64.b64decode(prewiewInfo['preview'])
-                if not os.path.exists(previewDir):
-                    os.makedirs(previewDir)
-                with open(PreviewManager.getPreviewPath(int(prewiewInfo['id'])), 'wb') as currentPreview:
-                    currentPreview.write(previewContent)
-            else:
-                if not os.path.exists(PreviewManager.getPreviewPath(int(prewiewInfo['id']))):
-                    previewToUpdate += ('' if previewToUpdate == '' else ',') + prewiewInfo['id']
-        return previewToUpdate
-
-    @staticmethod
-    def onPreviewSelect(self, context):
-        bpy.ops.bis.get_node_from_storage(nodeGroupId = int(self.previews))
 
 class BIS_getNodesInfoFromStorageVars(bpy.types.PropertyGroup):
     searchFilter = bpy.props.StringProperty(
@@ -119,19 +39,17 @@ class BIS_getNodesInfoFromStorageVars(bpy.types.PropertyGroup):
         description = 'Update previews from server',
         default = False
     )
-    previews = bpy.props.EnumProperty(
-        items = PreviewManager.getPreviews,
-        update = PreviewManager.onPreviewSelect
+    items = bpy.props.EnumProperty(
+        items = lambda self, context: sys.modules[modulesNames['BIS_Items']].BIS_Items.getPreviews(self, context) if 'modulesNames' in globals() else [],
+        update = lambda self, context: sys.modules[modulesNames['BIS_Items']].BIS_Items.onPreviewSelect(self, context) if 'modulesNames' in globals() else None
     )
 
 def register():
     bpy.utils.register_class(BIS_getNodesInfoFromStorage)
     bpy.utils.register_class(BIS_getNodesInfoFromStorageVars)
-    PreviewManager.register()
     bpy.types.WindowManager.bis_get_nodes_info_from_storage_vars = bpy.props.PointerProperty(type = BIS_getNodesInfoFromStorageVars)
 
 def unregister():
     del bpy.types.WindowManager.bis_get_nodes_info_from_storage_vars
-    PreviewManager.unregister()
     bpy.utils.unregister_class(BIS_getNodesInfoFromStorageVars)
     bpy.utils.unregister_class(BIS_getNodesInfoFromStorage)
