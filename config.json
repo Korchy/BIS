@@ -1,5 +1,6 @@
 {
 	"host": "https://bis.interplanety.ru",
 	"requestbase": "blender",
-	"userLogin": ""
+	"userLogin": "",
+	"token": ""
 }
