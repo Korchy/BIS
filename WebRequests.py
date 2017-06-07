@@ -148,6 +148,7 @@ def register():
 def unregister():
     bpy.utils.unregister_class(WebAuth)
     bpy.utils.unregister_class(WebAuthVars)
+    WebRequestsVars.closeSession()
 
 if __name__ == "__main__":
     register()
