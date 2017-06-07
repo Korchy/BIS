@@ -8,161 +8,22 @@ class NodeManager():
     @staticmethod
     def nodeGroupToJson(nodeGroup):
         if nodeGroup.type == 'GROUP':
-            nodeGroupTree = nodeGroup.node_tree
-            nodeGroupTreeNodes = nodeGroupTree.nodes
-            groupInJson = json.loads('{"name": "", "nodes": [], "links": [], "GroupInput" : [], "GroupOutput" : []}')
-            jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
-            groupInJson['name'] = nodeGroupTree.name
-            groupInJson['width'] = nodeGroup.width
-            groupInJson['use_custom_color'] = nodeGroup.use_custom_color
-            groupInJson['color'] = jsonEx.colorToJson(nodeGroup.color)
-            # indexing
-            nodeGroupTreeNodesIndexed = []
-            for node in nodeGroupTreeNodes:
-                inputs = []
-                for input in node.inputs:
-                    inputs.append(input)
-                outputs = []
-                for output in node.outputs:
-                    outputs.append(output)
-                nodeGroupTreeNodesIndexed.append([node, inputs, outputs])
-            # Nodes
-            for node in nodeGroupTreeNodesIndexed:
-                nodeClass = NodeCommon
-                if hasattr(sys.modules[modulesNames['NodeManager']], 'Node' + node[0].bl_idname):
-                    nodeClass = getattr(sys.modules[modulesNames['NodeManager']], 'Node' + node[0].bl_idname)
-                currentNode = nodeClass.nodeToJson(node[0])
-                for input in node[1]:
-                    ioName = 'IO' + input.bl_idname
-                    if node[0].bl_idname == 'NodeGroupInput' or node[0].bl_idname == 'NodeGroupOutput':
-                        ioName = 'IO' + node[0].bl_idname
-                    ioClass = IOCommon
-                    if hasattr(sys.modules[modulesNames['NodeManager']], ioName):
-                        ioClass = getattr(sys.modules[modulesNames['NodeManager']], ioName)
-                    currentNode['inputs'].append(ioClass.ioToJson(input))
-                for output in node[2]:
-                    ioName = 'IO' + output.bl_idname
-                    if node[0].bl_idname == 'NodeGroupInput' or node[0].bl_idname == 'NodeGroupOutput':
-                        ioName = 'IO' + node[0].bl_idname
-                    ioClass = IOCommon
-                    if hasattr(sys.modules[modulesNames['NodeManager']], ioName):
-                        ioClass = getattr(sys.modules[modulesNames['NodeManager']], ioName)
-                    currentNode['outputs'].append(ioClass.ioToJson(output))
-                groupInJson['nodes'].append(currentNode)
-            # GroupInputs
-            group_input_number = 0
-            for input in nodeGroupTree.inputs:
-                gioClass = GIOCommon
-                if hasattr(sys.modules[modulesNames['NodeManager']], 'GIO' + input.bl_socket_idname):
-                    gioClass = getattr(sys.modules[modulesNames['NodeManager']], 'GIO' + input.bl_socket_idname)
-                groupInJson['GroupInput'].append(gioClass.gioToJson(input, nodeGroup.inputs[group_input_number]))
-                group_input_number += 1
-            # GroupOutputs
-            for output in nodeGroupTree.outputs:
-                gioClass = GIOCommon
-                if hasattr(sys.modules[modulesNames['NodeManager']], 'GIO' + output.bl_socket_idname):
-                    gioClass = getattr(sys.modules[modulesNames['NodeManager']], 'GIO' + output.bl_socket_idname)
-                groupInJson['GroupOutput'].append(gioClass.gioToJson(output))
-            # Links
-            for link in nodeGroupTree.links:
-                fromNodeIndex = 0
-                fromNodeOutputIndex = 0
-                toNodeIndex = 0
-                toNodeInputIndex = 0
-                nodeIndex = 0
-                for nodeData in nodeGroupTreeNodesIndexed:
-                    if link.from_node in nodeData:
-                        fromNodeIndex = nodeIndex
-                        if link.from_socket in nodeData[2]:
-                            fromNodeOutputIndex = nodeData[2].index(link.from_socket)
-                    if link.to_node in nodeData:
-                        toNodeIndex = nodeIndex
-                        if link.to_socket in nodeData[1]:
-                            toNodeInputIndex = nodeData[1].index(link.to_socket)
-                    nodeIndex += 1
-                groupInJson['links'].append([fromNodeIndex, fromNodeOutputIndex, toNodeIndex, toNodeInputIndex])
+            groupInJson = NodeShaderNodeGroup.nodeToJson(nodeGroup)
             return groupInJson
 
     @staticmethod
-    def jsonToNodeGroup(jsonNodeGroup):
-        groupInJson = json.loads(jsonNodeGroup)
-        group = bpy.data.node_groups.new(type = 'ShaderNodeTree', name = groupInJson['name'])
-        if bpy.context.object:
-            if not bpy.context.object.active_material:
-                bpy.context.object.active_material = bpy.data.materials.new(name = 'Material')
-                bpy.context.object.active_material.use_nodes = True
-                for currentNode in bpy.context.object.active_material.node_tree.nodes:
-                    if currentNode.bl_idname != 'ShaderNodeOutputMaterial':
-                        bpy.context.object.active_material.node_tree.nodes.remove(currentNode)
-            groupNode = bpy.context.object.active_material.node_tree.nodes.new(type = 'ShaderNodeGroup')
-            jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
-            groupNode.location = (0, 0)
-            groupNode.width = groupInJson['width']
-            groupNode.use_custom_color = groupInJson['use_custom_color']
-            jsonEx.colorLoadFromJson(groupNode.color, groupInJson['color'])
-            groupNode.node_tree = group
-            nodeGroupTreeNodesIndexed = []
-            # GroupInputs
-            inputNumber = 0
-            for inputInJson in groupInJson['GroupInput']:
-                gioClass = GIOCommon
-                if hasattr(sys.modules[modulesNames['NodeManager']], 'GIO' + inputInJson['bl_type']):
-                    gioClass = getattr(sys.modules[modulesNames['NodeManager']], 'GIO' + inputInJson['bl_type'])
-                gioClass.jsonToGi(group = group,
-                                  groupNode = groupNode,
-                                  inputNumber = inputNumber,
-                                  inputInJson = inputInJson)
-                inputNumber += 1
-            # GroupOutputs
-            for outputInJson in groupInJson['GroupOutput']:
-                gioClass = GIOCommon
-                if hasattr(sys.modules[modulesNames['NodeManager']], 'GIO' + outputInJson['bl_type']):
-                    gioClass = getattr(sys.modules[modulesNames['NodeManager']], 'GIO' + outputInJson['bl_type'])
-                gioClass.jsonToGo(group = group,
-                                  outputInJson = outputInJson)
-            # Nodes
-            for nodeInJson in groupInJson['nodes']:
-                currentNode = None
-                nodeClass = NodeCommon
-                if hasattr(sys.modules[modulesNames['NodeManager']], 'Node' + nodeInJson['bl_type']):
-                    nodeClass = getattr(sys.modules[modulesNames['NodeManager']], 'Node' + nodeInJson['bl_type'])
-                currentNode = nodeClass.jsonToNode(group = group,
-                                                   nodeInJson = nodeInJson)
-                if currentNode:
-                    # Node Inputs
-                    currentInputs = []
-                    for inputNumber, nodeInputInJson in enumerate(nodeInJson['inputs']):
-                        if len(currentNode.inputs) > inputNumber:
-                            if nodeInputInJson:
-                                ioClass = IOCommon
-                                if hasattr(sys.modules[modulesNames['NodeManager']], 'IO' + nodeInputInJson['bl_type']):
-                                    ioClass = getattr(sys.modules[modulesNames['NodeManager']], 'IO' + nodeInputInJson['bl_type'])
-                                if currentNode.inputs[inputNumber].bl_idname == nodeInputInJson['bl_type']:
-                                    ioClass.jsonToI(node = currentNode,
-                                                    inputNumber = inputNumber,
-                                                    inputInJson = nodeInputInJson)
-                            currentInputs.append(currentNode.inputs[inputNumber])
-                    # Node Outputs
-                    currentOutputs = []
-                    for outputNumber, nodeOutputInJson in enumerate(nodeInJson['outputs']):
-                        if len(currentNode.outputs) > outputNumber:
-                            if nodeOutputInJson:
-                                ioClass = IOCommon
-                                if hasattr(sys.modules[modulesNames['NodeManager']], 'IO' + nodeOutputInJson['bl_type']):
-                                    ioClass = getattr(sys.modules[modulesNames['NodeManager']], 'IO' + nodeOutputInJson['bl_type'])
-                                if currentNode.outputs[outputNumber].bl_idname == nodeOutputInJson['bl_type']:
-                                    ioClass.jsonToO(node = currentNode,
-                                                    outputNumber = outputNumber,
-                                                    outputInJson = nodeOutputInJson)
-                            currentOutputs.append(currentNode.outputs[outputNumber])
-                    nodeGroupTreeNodesIndexed.append([currentInputs, currentOutputs])
-            # Links
-            for linkInJson in groupInJson['links']:
-                if linkInJson[1] in range(len(nodeGroupTreeNodesIndexed[linkInJson[0]][1])) and linkInJson[3] in range(len(nodeGroupTreeNodesIndexed[linkInJson[2]][0])):
-                    fromOutput = nodeGroupTreeNodesIndexed[linkInJson[0]][1][linkInJson[1]]
-                    toInput = nodeGroupTreeNodesIndexed[linkInJson[2]][0][linkInJson[3]]
-                    group.links.new(fromOutput, toInput)
-        return group
+    def jsonToNodeGroup(destNodeTree, jsonNodeGroup):
+        nodeInJson = json.loads(jsonNodeGroup)
+        currentNode = None
+        if destNodeTree:
+            groupInJson = json.loads(jsonNodeGroup)
+            nodeClass = NodeCommon
+            if hasattr(sys.modules[modulesNames['NodeManager']], 'Node' + nodeInJson['bl_type']):
+                nodeClass = getattr(sys.modules[modulesNames['NodeManager']], 'Node' + nodeInJson['bl_type'])
+            currentNode = nodeClass.jsonToNode(nodeTree = destNodeTree,
+                                               nodeInJson = nodeInJson)
+            currentNode.location = (0, 0)
+        return currentNode
 
 # Node
 class NodeCommon():
@@ -184,9 +45,9 @@ class NodeCommon():
             'outputs': []
         }
     @staticmethod
-    def jsonToNode(group, nodeInJson):
+    def jsonToNode(nodeTree, nodeInJson):
         jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
-        currentNode = group.nodes.new(type = nodeInJson['bl_type'])
+        currentNode = nodeTree.nodes.new(type = nodeInJson['bl_type'])
         currentNode.name = nodeInJson['name']
         currentNode.hide = nodeInJson['hide']
         currentNode.label = nodeInJson['label']
@@ -204,8 +65,8 @@ class NodeShaderNodeBsdfGlossy(NodeCommon):
         nodeJson['distribution'] = node.distribution
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         currentNode.distribution = nodeInJson['distribution']
         return currentNode
 
@@ -225,8 +86,8 @@ class NodeShaderNodeAttribute(NodeCommon):
         nodeJson['attribute_name'] = node.attribute_name
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         currentNode.attribute_name = nodeInJson['attribute_name']
         return currentNode
 
@@ -239,8 +100,8 @@ class NodeShaderNodeTangent(NodeCommon):
         nodeJson['uv_map'] = node.uv_map
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         currentNode.direction_type = nodeInJson['direction_type']
         currentNode.axis = nodeInJson['axis']
         currentNode.uv_map = nodeInJson['uv_map']
@@ -254,8 +115,8 @@ class NodeShaderNodeUVMap(NodeCommon):
         nodeJson['uv_map'] = node.uv_map
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         currentNode.from_dupli = nodeInJson['from_dupli']
         currentNode.uv_map = nodeInJson['uv_map']
         return currentNode
@@ -270,8 +131,8 @@ class NodeShaderNodeTexCoord(NodeCommon):
         nodeJson['from_dupli'] = node.from_dupli
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         if nodeInJson['object']:
             if nodeInJson['object'] in bpy.data.objects:
                 currentNode.object = bpy.data.objects[nodeInJson['object']]
@@ -298,8 +159,8 @@ class NodeShaderNodeTexPointDensity(NodeCommon):
         nodeJson['vertex_attribute_name'] = node.vertex_attribute_name
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         if nodeInJson['object']:
             if nodeInJson['object'] in bpy.data.objects:
                 currentNode.object = bpy.data.objects[nodeInJson['object']]
@@ -333,8 +194,8 @@ class NodeShaderNodeTexEnvironment(NodeCommon):
         nodeJson['color_mapping'] = CMCommon.cmToJson(node.color_mapping)
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         if nodeInJson['image']:
             if os.path.exists(nodeInJson['image']) and os.path.isfile(nodeInJson['image']):
                 if os.path.basename(nodeInJson['image']) in bpy.data.images:
@@ -360,8 +221,8 @@ class NodeShaderNodeTexImage(NodeShaderNodeTexEnvironment):
         nodeJson['extension'] = node.extension
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         currentNode.projection_blend = nodeInJson['projection_blend']
         currentNode.extension = nodeInJson['extension']
         return currentNode
@@ -374,8 +235,8 @@ class NodeShaderNodeTexChecker(NodeCommon):
         nodeJson['color_mapping'] = CMCommon.cmToJson(node.color_mapping)
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         TMCommon.jsonToTm(currentNode, nodeInJson['texture_mapping'])
         CMCommon.jsonToCm(currentNode, nodeInJson['color_mapping'])
         return currentNode
@@ -390,8 +251,8 @@ class NodeShaderNodeTexBrick(NodeShaderNodeTexChecker):
         nodeJson['squash'] = node.squash
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         currentNode.offset_frequency = nodeInJson['offset_frequency']
         currentNode.squash_frequency = nodeInJson['squash_frequency']
         currentNode.offset = nodeInJson['offset']
@@ -405,8 +266,8 @@ class NodeShaderNodeTexGradient(NodeShaderNodeTexChecker):
         nodeJson['gradient_type'] = node.gradient_type
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         currentNode.gradient_type = nodeInJson['gradient_type']
         return currentNode
 
@@ -417,8 +278,8 @@ class NodeShaderNodeTexMagic(NodeShaderNodeTexChecker):
         nodeJson['turbulence_depth'] = node.turbulence_depth
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         currentNode.turbulence_depth = nodeInJson['turbulence_depth']
         return currentNode
 
@@ -429,8 +290,8 @@ class NodeShaderNodeTexMusgrave(NodeShaderNodeTexChecker):
         nodeJson['musgrave_type'] = node.musgrave_type
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         currentNode.musgrave_type = nodeInJson['musgrave_type']
         return currentNode
 
@@ -441,8 +302,8 @@ class NodeShaderNodeTexVoronoi(NodeShaderNodeTexChecker):
         nodeJson['coloring'] = node.coloring
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         currentNode.coloring = nodeInJson['coloring']
         return currentNode
 
@@ -454,8 +315,8 @@ class NodeShaderNodeTexWave(NodeShaderNodeTexChecker):
         nodeJson['wave_profile'] = node.wave_profile
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         currentNode.wave_type = nodeInJson['wave_type']
         currentNode.wave_profile = nodeInJson['wave_profile']
         return currentNode
@@ -471,8 +332,8 @@ class NodeShaderNodeTexSky(NodeShaderNodeTexChecker):
         nodeJson['ground_albedo'] = node.ground_albedo
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
         currentNode.sky_type = nodeInJson['sky_type']
         jsonEx.vector3LoadFromJson(currentNode.sun_direction, nodeInJson['sun_direction'])
@@ -490,8 +351,8 @@ class NodeShaderNodeWireframe(NodeCommon):
         nodeJson['use_pixel_size'] = node.use_pixel_size
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         currentNode.use_pixel_size = nodeInJson['use_pixel_size']
         return currentNode
 
@@ -502,8 +363,8 @@ class NodeShaderNodeBsdfHair(NodeCommon):
         nodeJson['component'] = node.component
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         currentNode.component = nodeInJson['component']
         return currentNode
 
@@ -517,8 +378,8 @@ class NodeShaderNodeSubsurfaceScattering(NodeCommon):
         nodeJson['falloff'] = node.falloff
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         currentNode.falloff = nodeInJson['falloff']
         return currentNode
 
@@ -531,8 +392,8 @@ class NodeShaderNodeMixRGB(NodeCommon):
         nodeJson['use_clamp'] = node.use_clamp
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         currentNode.blend_type = nodeInJson['blend_type']
         currentNode.use_alpha = nodeInJson['use_alpha']
         currentNode.use_clamp = nodeInJson['use_clamp']
@@ -587,8 +448,8 @@ class NodeShaderNodeRGBCurve(NodeCommon):
         nodeJson['mapping'] = CurveMapping.cumToJson(node.mapping)
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         CurveMapping.jsonToCum(currentNode.mapping, nodeInJson['mapping'])
         return currentNode
 
@@ -602,8 +463,8 @@ class NodeShaderNodeBump(NodeCommon):
         nodeJson['invert'] = node.invert
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         currentNode.invert = nodeInJson['invert']
         return currentNode
 
@@ -616,8 +477,8 @@ class NodeShaderNodeVectorTransform(NodeCommon):
         nodeJson['convert_to'] = node.convert_to
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         currentNode.vector_type = nodeInJson['vector_type']
         currentNode.convert_from = nodeInJson['convert_from']
         currentNode.convert_to = nodeInJson['convert_to']
@@ -630,8 +491,8 @@ class NodeShaderNodeValToRGB(NodeCommon):
         nodeJson['color_ramp'] = NodeColorRamp.crToJson(node.color_ramp)
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         NodeColorRamp.jsonToCr(currentNode.color_ramp, nodeInJson['color_ramp'])
         return currentNode
 
@@ -651,8 +512,8 @@ class NodeShaderNodeMapping(NodeCommon):
         return nodeJson
 
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
         currentNode.vector_type = nodeInJson['vector_type']
         jsonEx.vector3LoadFromJson(currentNode.translation, nodeInJson['translation'])
@@ -673,8 +534,8 @@ class NodeShaderNodeMath(NodeCommon):
         return nodeJson
 
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         currentNode.operation = nodeInJson['operation']
         currentNode.use_clamp = nodeInJson['use_clamp']
         return currentNode
@@ -687,8 +548,8 @@ class NodeShaderNodeVectorMath(NodeCommon):
         return nodeJson
 
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         currentNode.operation = nodeInJson['operation']
         return currentNode
 
@@ -697,8 +558,13 @@ class NodeShaderNodeScript(NodeCommon):
     def nodeToJson(node):
         nodeJson = super(__class__, __class__).nodeToJson(node)
         nodeJson['script'] = ''
+        nodeJson['script_bis_id'] = None
         if node.script:
             nodeJson['script'] = node.script.name
+            rez = sys.modules[modulesNames['TextManager']].TextManager.toBis(bpy.data.texts[node.script.name])
+            nodeJson['script_bis_id'] = ''
+            if rez['stat'] == 'OK':
+                nodeJson['script_bis_id'] = rez['data']['id']
         nodeJson['filepath'] = ''
         if node.filepath:
             if node.filepath[:2] == '//':
@@ -709,9 +575,11 @@ class NodeShaderNodeScript(NodeCommon):
         nodeJson['use_auto_update'] = node.use_auto_update
         return nodeJson
     @staticmethod
-    def jsonToNode(group, nodeInJson):
-        currentNode = super(__class__, __class__).jsonToNode(group, nodeInJson)
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         currentNode.mode = nodeInJson['mode']
+        if nodeInJson['script_bis_id']:
+            sys.modules[modulesNames['TextManager']].TextManager.fromBis(nodeInJson['script_bis_id'])
         if nodeInJson['script']:
             if nodeInJson['script'] in bpy.data.texts:
                 currentNode.script = bpy.data.texts[nodeInJson['script']]
@@ -720,6 +588,146 @@ class NodeShaderNodeScript(NodeCommon):
                 currentNode.filepath = nodeInJson['filepath']
         currentNode.use_auto_update = nodeInJson['use_auto_update']
         currentNode.update()
+        return currentNode
+
+class NodeShaderNodeGroup(NodeCommon):
+    @staticmethod
+    def nodeToJson(node):
+        nodeJson = super(__class__, __class__).nodeToJson(node)
+        nodeJson['nodes'] = []
+        nodeJson['links'] = []
+        nodeJson['GroupInput'] = []
+        nodeJson['GroupOutput'] = []
+        nodeGroupTree = node.node_tree
+        nodeJson['name'] = nodeGroupTree.name
+        # indexing
+        nodeGroupTreeNodes = nodeGroupTree.nodes
+        nodeGroupTreeNodesIndexed = []
+        for currentNode in nodeGroupTreeNodes:
+            inputs = []
+            for input in currentNode.inputs:
+                inputs.append(input)
+            outputs = []
+            for output in currentNode.outputs:
+                outputs.append(output)
+            nodeGroupTreeNodesIndexed.append([currentNode, inputs, outputs])
+        # Nodes
+        for currentNode in nodeGroupTreeNodesIndexed:
+            nodeClass = NodeCommon
+            if hasattr(sys.modules[modulesNames['NodeManager']], 'Node' + currentNode[0].bl_idname):
+                nodeClass = getattr(sys.modules[modulesNames['NodeManager']], 'Node' + currentNode[0].bl_idname)
+            currentNodeJson = nodeClass.nodeToJson(currentNode[0])
+            for input in currentNode[1]:
+                ioName = 'IO' + input.bl_idname
+                if currentNode[0].bl_idname == 'NodeGroupInput' or currentNode[0].bl_idname == 'NodeGroupOutput':
+                    ioName = 'IO' + currentNode[0].bl_idname
+                ioClass = IOCommon
+                if hasattr(sys.modules[modulesNames['NodeManager']], ioName):
+                    ioClass = getattr(sys.modules[modulesNames['NodeManager']], ioName)
+                    currentNodeJson['inputs'].append(ioClass.ioToJson(input))
+            for output in currentNode[2]:
+                ioName = 'IO' + output.bl_idname
+                if currentNode[0].bl_idname == 'NodeGroupInput' or currentNode[0].bl_idname == 'NodeGroupOutput':
+                    ioName = 'IO' + currentNode[0].bl_idname
+                ioClass = IOCommon
+                if hasattr(sys.modules[modulesNames['NodeManager']], ioName):
+                    ioClass = getattr(sys.modules[modulesNames['NodeManager']], ioName)
+                    currentNodeJson['outputs'].append(ioClass.ioToJson(output))
+            nodeJson['nodes'].append(currentNodeJson)
+        # GroupInputs
+        for i, input in enumerate(nodeGroupTree.inputs):
+            gioClass = GIOCommon
+            if hasattr(sys.modules[modulesNames['NodeManager']], 'GIO' + input.bl_socket_idname):
+                gioClass = getattr(sys.modules[modulesNames['NodeManager']], 'GIO' + input.bl_socket_idname)
+            nodeJson['GroupInput'].append(gioClass.gioToJson(input, node.inputs[i]))
+        # GroupOutputs
+        for output in nodeGroupTree.outputs:
+            gioClass = GIOCommon
+            if hasattr(sys.modules[modulesNames['NodeManager']], 'GIO' + output.bl_socket_idname):
+                gioClass = getattr(sys.modules[modulesNames['NodeManager']], 'GIO' + output.bl_socket_idname)
+            nodeJson['GroupOutput'].append(gioClass.gioToJson(output))
+        # Links
+        for link in nodeGroupTree.links:
+            fromNodeIndex = 0
+            fromNodeOutputIndex = 0
+            toNodeIndex = 0
+            toNodeInputIndex = 0
+            nodeIndex = 0
+            for nodeData in nodeGroupTreeNodesIndexed:
+                if link.from_node in nodeData:
+                    fromNodeIndex = nodeIndex
+                    if link.from_socket in nodeData[2]:
+                        fromNodeOutputIndex = nodeData[2].index(link.from_socket)
+                if link.to_node in nodeData:
+                    toNodeIndex = nodeIndex
+                    if link.to_socket in nodeData[1]:
+                        toNodeInputIndex = nodeData[1].index(link.to_socket)
+                nodeIndex += 1
+            nodeJson['links'].append([fromNodeIndex, fromNodeOutputIndex, toNodeIndex, toNodeInputIndex])
+        return nodeJson
+    @staticmethod
+    def jsonToNode(nodeTree, nodeInJson):
+        currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
+        currentNode.node_tree = bpy.data.node_groups.new(type = 'ShaderNodeTree', name = nodeInJson['name'])
+        nodeGroupTreeNodesIndexed = []
+        # GroupInputs
+        for i, inputInJson in enumerate(nodeInJson['GroupInput']):
+            gioClass = GIOCommon
+            if hasattr(sys.modules[modulesNames['NodeManager']], 'GIO' + inputInJson['bl_type']):
+                gioClass = getattr(sys.modules[modulesNames['NodeManager']], 'GIO' + inputInJson['bl_type'])
+            gioClass.jsonToGi(nodeTree = currentNode.node_tree,
+                              groupNode = currentNode,
+                              inputNumber = i,
+                              inputInJson = inputInJson)
+        # GroupOutputs
+        for outputInJson in nodeInJson['GroupOutput']:
+            gioClass = GIOCommon
+            if hasattr(sys.modules[modulesNames['NodeManager']], 'GIO' + outputInJson['bl_type']):
+                gioClass = getattr(sys.modules[modulesNames['NodeManager']], 'GIO' + outputInJson['bl_type'])
+            gioClass.jsonToGo(nodeTree = currentNode.node_tree,
+                              outputInJson = outputInJson)
+        # Nodes
+        for currentNodeInJson in nodeInJson['nodes']:
+            cNode = None
+            nodeClass = NodeCommon
+            if hasattr(sys.modules[modulesNames['NodeManager']], 'Node' + currentNodeInJson['bl_type']):
+                nodeClass = getattr(sys.modules[modulesNames['NodeManager']], 'Node' + currentNodeInJson['bl_type'])
+            cNode = nodeClass.jsonToNode(nodeTree = currentNode.node_tree,
+                                               nodeInJson = currentNodeInJson)
+            if cNode:
+                # Node Inputs
+                currentInputs = []
+                for inputNumber, nodeInputInJson in enumerate(currentNodeInJson['inputs']):
+                    if len(cNode.inputs) > inputNumber:
+                        if nodeInputInJson:
+                            ioClass = IOCommon
+                            if hasattr(sys.modules[modulesNames['NodeManager']], 'IO' + nodeInputInJson['bl_type']):
+                                ioClass = getattr(sys.modules[modulesNames['NodeManager']], 'IO' + nodeInputInJson['bl_type'])
+                            if cNode.inputs[inputNumber].bl_idname == nodeInputInJson['bl_type']:
+                                ioClass.jsonToI(node = cNode,
+                                                inputNumber = inputNumber,
+                                                inputInJson = nodeInputInJson)
+                        currentInputs.append(cNode.inputs[inputNumber])
+                # Node Outputs
+                currentOutputs = []
+                for outputNumber, nodeOutputInJson in enumerate(currentNodeInJson['outputs']):
+                    if len(cNode.outputs) > outputNumber:
+                        if nodeOutputInJson:
+                            ioClass = IOCommon
+                            if hasattr(sys.modules[modulesNames['NodeManager']], 'IO' + nodeOutputInJson['bl_type']):
+                                ioClass = getattr(sys.modules[modulesNames['NodeManager']], 'IO' + nodeOutputInJson['bl_type'])
+                            if cNode.outputs[outputNumber].bl_idname == nodeOutputInJson['bl_type']:
+                                ioClass.jsonToO(node = cNode,
+                                                outputNumber = outputNumber,
+                                                outputInJson = nodeOutputInJson)
+                        currentOutputs.append(cNode.outputs[outputNumber])
+                nodeGroupTreeNodesIndexed.append([currentInputs, currentOutputs])
+        # Links
+        for linkInJson in nodeInJson['links']:
+            if linkInJson[1] in range(len(nodeGroupTreeNodesIndexed[linkInJson[0]][1])) and linkInJson[3] in range(len(nodeGroupTreeNodesIndexed[linkInJson[2]][0])):
+                fromOutput = nodeGroupTreeNodesIndexed[linkInJson[0]][1][linkInJson[1]]
+                toInput = nodeGroupTreeNodesIndexed[linkInJson[2]][0][linkInJson[3]]
+                currentNode.node_tree.links.new(fromOutput, toInput)
         return currentNode
 
 # Node TextureMapping
@@ -976,6 +984,9 @@ class IONodeSocketFloatAngle(IONodeSocketFloat):
 class IONodeSocketFloatUnsigned(IONodeSocketFloat):
     pass
 
+class IONodeSocketInt(IONodeSocketFloat):
+    pass
+
 class IONodeGroupInput():
     @staticmethod
     def ioToJson(io):
@@ -999,11 +1010,11 @@ class GIOCommon():
             'name': io.name
         }
     @staticmethod
-    def jsonToGi(group, groupNode, inputNumber, inputInJson):
-        return group.inputs.new(type = inputInJson['bl_type'], name = inputInJson['name'])
+    def jsonToGi(nodeTree, groupNode, inputNumber, inputInJson):
+        return nodeTree.inputs.new(type = inputInJson['bl_type'], name = inputInJson['name'])
     @staticmethod
-    def jsonToGo(group, outputInJson):
-        return group.outputs.new(type = outputInJson['bl_type'], name = outputInJson['name'])
+    def jsonToGo(nodeTree, outputInJson):
+        return nodeTree.outputs.new(type = outputInJson['bl_type'], name = outputInJson['name'])
 
 class GIONodeSocketColor(GIOCommon):
     @staticmethod
@@ -1015,16 +1026,16 @@ class GIONodeSocketColor(GIOCommon):
             gioJson['value'] = jsonEx.propArrayToJson(gio.default_value)
         return gioJson
     @staticmethod
-    def jsonToGi(group, groupNode, inputNumber, inputInJson):
-        currentInput = super(__class__, __class__).jsonToGi(group, groupNode, inputNumber, inputInJson)
+    def jsonToGi(nodeTree, groupNode, inputNumber, inputInJson):
+        currentInput = super(__class__, __class__).jsonToGi(nodeTree, groupNode, inputNumber, inputInJson)
         jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
         jsonEx.propArrayLoadFromJson(currentInput.default_value, inputInJson['default_value'])
         if inputInJson['value']:
             jsonEx.propArrayLoadFromJson(groupNode.inputs[inputNumber].default_value, inputInJson['value'])
         return currentInput
     @staticmethod
-    def jsonToGo(group, outputInJson):
-        currentOutput = super(__class__, __class__).jsonToGo(group, outputInJson)
+    def jsonToGo(nodeTree, outputInJson):
+        currentOutput = super(__class__, __class__).jsonToGo(nodeTree, outputInJson)
         jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
         jsonEx.propArrayLoadFromJson(currentOutput.default_value, outputInJson['default_value'])
         return currentOutput
@@ -1042,21 +1053,20 @@ class GIONodeSocketFloat(GIOCommon):
         gioJson['default_value'] = io.default_value
         gioJson['min_value'] = io.min_value
         gioJson['max_value'] = io.max_value
-        gioJson['default_value'] = io.default_value
         if gio:
             gioJson['value'] = gio.default_value
         return gioJson
     @staticmethod
-    def jsonToGi(group, groupNode, inputNumber, inputInJson):
-        currentInput = super(__class__, __class__).jsonToGi(group, groupNode, inputNumber, inputInJson)
+    def jsonToGi(nodeTree, groupNode, inputNumber, inputInJson):
+        currentInput = super(__class__, __class__).jsonToGi(nodeTree, groupNode, inputNumber, inputInJson)
         currentInput.default_value = inputInJson['default_value']
         currentInput.min_value = inputInJson['min_value']
         currentInput.max_value = inputInJson['max_value']
         groupNode.inputs[inputNumber].default_value = inputInJson['value']
         return currentInput
     @staticmethod
-    def jsonToGo(group, outputInJson):
-        currentOutput = super(__class__, __class__).jsonToGo(group, outputInJson)
+    def jsonToGo(nodeTree, outputInJson):
+        currentOutput = super(__class__, __class__).jsonToGo(nodeTree, outputInJson)
         currentOutput.default_value = outputInJson['default_value']
         return currentOutput
 
@@ -1067,4 +1077,7 @@ class GIONodeSocketFloatAngle(GIONodeSocketFloat):
     pass
 
 class GIONodeSocketFloatUnsigned(GIONodeSocketFloat):
+    pass
+
+class GIONodeSocketInt(GIONodeSocketFloat):
     pass
