@@ -9,3 +9,7 @@ Version history:
 
 0.0.2
 - Supports all cyceles nodes from groups (Shift + a): Input, Output, Shader, Texture, Color
+
+0.0.3
+- Supports all cyceles nodes
+- Supports saving texts from Text editor
