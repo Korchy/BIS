@@ -46,7 +46,7 @@ class WebAuth(bpy.types.Operator):
 
     def execute(self, context):
         if WebAuthVars.logged:
-            self.logOff()
+            __class__.logOff()
         else:
             self.logIn()
         for area in bpy.context.screen.areas:
@@ -83,30 +83,47 @@ class WebAuth(bpy.types.Operator):
 
     def logIn(self):
         if WebAuthVars.token:
-            WebAuthVars.logged = True
+            if __class__.checkTokenValid(WebAuthVars.userLogin, WebAuthVars.token):
+                WebAuthVars.logged = True
+            else:
+                __class__.logOff()
         else:
             session = WebRequestsVars.getSession()
             data = {'requestbase': WebAuthVars.requestBase, 'userlogin': self.userLogin, 'userpassword': self.userPassword}
             self.userPassword = ''
             request = session.post(WebAuthVars.host+'/blender_auth', data = data)
             requestRez = json.loads(request.text)
-            if requestRez['stat'] == 'T':
+            if requestRez['stat'] == 'OK':
                 WebAuthVars.logged = True
-                WebAuthVars.token = requestRez['token']
+                WebAuthVars.token = requestRez['data']['token']
                 WebAuthVars.userLogin = self.userLogin
-                self.saveConfig(userLogin = WebAuthVars.userLogin,
+                __class__.saveConfig(userLogin = WebAuthVars.userLogin,
                                 token = WebAuthVars.token if self.userStayLogged else '')
             else:
-                bpy.ops.message.messagebox('INVOKE_DEFAULT', message = requestRez['txt'])
-                self.logOff()
+                bpy.ops.message.messagebox('INVOKE_DEFAULT', message = requestRez['data']['txt'])
+                __class__.logOff()
 
-    def logOff(self):
+    @staticmethod
+    def logOff():
         WebAuthVars.token = ''
         WebAuthVars.logged = False
         WebRequestsVars.closeSession()
-        self.saveConfig(userLogin = WebAuthVars.userLogin)
+        __class__.saveConfig(userLogin = WebAuthVars.userLogin)
 
-    def saveConfig(self, userLogin = '', token = ''):
+    @staticmethod
+    def checkTokenValid(userLogin = '', token = ''):
+        session = WebRequestsVars.getSession()
+        data = {'requestbase': WebAuthVars.requestBase, 'userlogin': userLogin, 'token': token}
+        request = session.post(WebAuthVars.host + '/blender_auth', data = data)
+        requestRez = json.loads(request.text)
+        if requestRez['stat'] != 'OK':
+            print(requestRez['stat'] + ': ' + (requestRez['data']['text'] if 'data' in requestRez else ''))
+            return False
+        else:
+            return True
+
+    @staticmethod
+    def saveConfig(userLogin = '', token = ''):
         with open(os.path.dirname(os.path.abspath(__file__)) + os.sep + 'config.json', 'r+') as configFile:
             jsonData = json.load(configFile)
             jsonData['token'] = token
@@ -134,10 +151,16 @@ class WebRequestsVars():
 class WebRequest():
     @staticmethod
     def sendRequest(data = {}):
+        session = WebRequestsVars.getSession()
         requestData = {'requestbase': WebAuthVars.requestBase, 'token': WebAuthVars.token}
         requestData.update(data)
-        session = WebRequestsVars.getSession()
         request = session.post(WebAuthVars.host+'/blender_request', data = requestData)
+        try:
+            requestRez = json.loads(request.text)
+            if requestRez['stat'] != 'OK':
+                print(requestRez['stat'] + ': ' + (requestRez['data']['text'] if 'data' in requestRez else ''))
+        except ValueError as error:
+            print(request.text)
         return request
 
 def register():
