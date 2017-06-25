@@ -14,12 +14,21 @@ class BIS_addNodeToStorage(bpy.types.Operator):
 
     def execute(self, context):
         if(bpy.context.active_node and bpy.context.active_node.type == 'GROUP'):
-            nodeGroupJson = sys.modules[modulesNames['NodeManager']].NodeManager.nodeGroupToJson(bpy.context.active_object.active_material.node_tree.nodes.active)
+            activeNode = bpy.context.active_node
+            nodeGroupTags = ''
+            if bpy.context.area.spaces.active.tree_type == 'ShaderNodeTree':
+                activeNode = bpy.context.active_object.active_material.node_tree.nodes.active
+                nodeGroupTags = 'shader'
+            elif bpy.context.area.spaces.active.tree_type == 'CompositorNodeTree':
+                nodeGroupTags = 'compositing'
+            nodeGroupJson = sys.modules[modulesNames['NodeManager']].NodeManager.nodeGroupToJson(activeNode)
+            if bpy.context.scene.bis_add_node_to_storage_vars.tags != '':
+                nodeGroupTags += (';' if nodeGroupTags else '') + bpy.context.scene.bis_add_node_to_storage_vars.tags
             request = sys.modules[modulesNames['WebRequests']].WebRequest.sendRequest({
                 'for': 'set_node_group',
                 'node_group': json.dumps(nodeGroupJson),
                 'node_group_name': nodeGroupJson['name'],
-                'node_group_tags': bpy.context.scene.bis_add_node_to_storage_vars.tags
+                'node_group_tags': (nodeGroupTags).strip()
             })
             bpy.context.scene.bis_add_node_to_storage_vars.tags = ''
             requestRez = json.loads(request.text)
