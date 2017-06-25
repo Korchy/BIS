@@ -9,14 +9,18 @@ class NodeManager():
     def nodeGroupToJson(nodeGroup):
         if nodeGroup.type == 'GROUP':
             groupInJson = NodeShaderNodeGroup.nodeToJson(nodeGroup)
+
+            # Write to file
+            import os
+            with open(os.path.dirname(bpy.data.filepath) + os.sep + 'GroupNode.json', 'w') as currentFile:
+                json.dump(groupInJson, currentFile, indent = 4)
+
             return groupInJson
 
     @staticmethod
-    def jsonToNodeGroup(destNodeTree, jsonNodeGroup):
-        nodeInJson = json.loads(jsonNodeGroup)
+    def jsonToNodeGroup(destNodeTree, nodeInJson):
         currentNode = None
         if destNodeTree:
-            groupInJson = json.loads(jsonNodeGroup)
             nodeClass = NodeCommon
             if hasattr(sys.modules[modulesNames['NodeManager']], 'Node' + nodeInJson['bl_type']):
                 nodeClass = getattr(sys.modules[modulesNames['NodeManager']], 'Node' + nodeInJson['bl_type'])
