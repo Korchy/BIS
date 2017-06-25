@@ -23,6 +23,13 @@ class BIS_getNodeFromStorage(bpy.types.Operator):
             if requestRez['stat'] != 'OK':
                 bpy.ops.message.messagebox('INVOKE_DEFAULT', message = requestRez['stat']['text'])
             else:
+                nodeInJson = json.loads(requestRez['data']['item'])
+                destNodeTree = None
+                if nodeInJson['bl_type'] == 'CompositorNodeGroup':
+                    print(bpy.context.area.spaces.active.node_tree)
+                    destNodeTree = bpy.context.area.spaces.active.node_tree
+                elif nodeInJson['bl_type'] == 'ShaderNodeGroup':
+                    destNodeTree = bpy.context.active_object.active_material.node_tree
                 if bpy.context.active_object:
                     if not bpy.context.active_object.active_material:
                         bpy.context.active_object.active_material = bpy.data.materials.new(name = 'Material')
@@ -30,7 +37,7 @@ class BIS_getNodeFromStorage(bpy.types.Operator):
                         for currentNode in bpy.context.active_object.active_material.node_tree.nodes:
                             if currentNode.bl_idname != 'ShaderNodeOutputMaterial':
                                 bpy.context.active_object.active_material.node_tree.nodes.remove(currentNode)
-                    sys.modules[modulesNames['NodeManager']].NodeManager.jsonToNodeGroup(bpy.context.active_object.active_material.node_tree, requestRez['data']['item'])
+                    sys.modules[modulesNames['NodeManager']].NodeManager.jsonToNodeGroup(destNodeTree, nodeInJson)
         else:
             bpy.ops.message.messagebox('INVOKE_DEFAULT', message = 'No NodeGroup To Get')
         return {'FINISHED'}
