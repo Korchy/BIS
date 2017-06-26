@@ -78,7 +78,7 @@ class BIS_Items():
     @staticmethod
     def onPreviewSelect(self, context):
         if context.area.spaces.active.type == 'NODE_EDITOR':
-            bpy.ops.bis.get_node_from_storage(nodeGroupId = int(self.items))
+            bpy.ops.bis.get_nodegroup_from_storage(nodeGroupId = int(self.items))
         elif context.area.spaces.active.type == 'TEXT_EDITOR':
             bpy.ops.bis.get_text_from_storage(textId = int(self.items))
 
