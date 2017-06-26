@@ -13,8 +13,8 @@ class BIS_nodesPanel(bpy.types.Panel):
             self.layout.operator('dialog.web_auth', icon = 'FILE_TICK', text = 'Sign out')
             self.layout.separator()
             self.layout.separator()
-            self.layout.prop(bpy.context.scene.bis_add_node_to_storage_vars, 'tags')
-            button = self.layout.operator('bis.add_node_to_storage', icon = 'SCRIPTWIN', text = 'Add nodegroup to BIS')
+            self.layout.prop(bpy.context.scene.bis_add_nodegroup_to_storage_vars, 'tags')
+            button = self.layout.operator('bis.add_nodegroup_to_storage', icon = 'SCRIPTWIN', text = 'Add nodegroup to BIS')
             button.showMessage = True
             self.layout.separator()
             self.layout.separator()
