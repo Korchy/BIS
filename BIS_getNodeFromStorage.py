@@ -38,7 +38,7 @@ class BIS_getNodeFromStorage(bpy.types.Operator):
                             for currentNode in bpy.context.active_object.active_material.node_tree.nodes:
                                 if currentNode.bl_idname != 'ShaderNodeOutputMaterial':
                                     bpy.context.active_object.active_material.node_tree.nodes.remove(currentNode)
-                        if bpy.context.active_object.active_material.node_tree.bl_idname == 'ShaderNodeTree':
+                        if bpy.context.area.spaces.active.node_tree.bl_idname == 'ShaderNodeTree':
                             destNodeTree = bpy.context.active_object.active_material.node_tree
                 if nodeInJson and destNodeTree:
                     sys.modules[modulesNames['NodeManager']].NodeManager.jsonToNodeGroup(destNodeTree, nodeInJson)
