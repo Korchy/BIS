@@ -3,7 +3,7 @@ import sys
 import json
 
 class BIS_getNodeFromStorage(bpy.types.Operator):
-    bl_idname = 'bis.get_node_from_storage'
+    bl_idname = 'bis.get_nodegroup_from_storage'
     bl_label = 'BIS_GetFromStorage'
     bl_description = 'Get nodegroup from common part of BIS'
     bl_options = {'REGISTER', 'UNDO'}
@@ -26,17 +26,19 @@ class BIS_getNodeFromStorage(bpy.types.Operator):
                 nodeInJson = json.loads(requestRez['data']['item'])
                 destNodeTree = None
                 if nodeInJson['bl_type'] == 'CompositorNodeGroup':
-                    print(bpy.context.area.spaces.active.node_tree)
                     destNodeTree = bpy.context.area.spaces.active.node_tree
+                    if not bpy.context.screen.scene.use_nodes:
+                        bpy.context.screen.scene.use_nodes = True
                 elif nodeInJson['bl_type'] == 'ShaderNodeGroup':
                     destNodeTree = bpy.context.active_object.active_material.node_tree
-                if bpy.context.active_object:
-                    if not bpy.context.active_object.active_material:
-                        bpy.context.active_object.active_material = bpy.data.materials.new(name = 'Material')
-                        bpy.context.active_object.active_material.use_nodes = True
-                        for currentNode in bpy.context.active_object.active_material.node_tree.nodes:
-                            if currentNode.bl_idname != 'ShaderNodeOutputMaterial':
-                                bpy.context.active_object.active_material.node_tree.nodes.remove(currentNode)
+                    if bpy.context.active_object:
+                        if not bpy.context.active_object.active_material:
+                            bpy.context.active_object.active_material = bpy.data.materials.new(name = 'Material')
+                            bpy.context.active_object.active_material.use_nodes = True
+                            for currentNode in bpy.context.active_object.active_material.node_tree.nodes:
+                                if currentNode.bl_idname != 'ShaderNodeOutputMaterial':
+                                    bpy.context.active_object.active_material.node_tree.nodes.remove(currentNode)
+                if nodeInJson and destNodeTree:
                     sys.modules[modulesNames['NodeManager']].NodeManager.jsonToNodeGroup(destNodeTree, nodeInJson)
         else:
             bpy.ops.message.messagebox('INVOKE_DEFAULT', message = 'No NodeGroup To Get')
