@@ -10,6 +10,12 @@ class NodeManager():
         groupInJson = None
         if nodeGroup.type == 'GROUP':
             groupInJson = NodeShaderNodeGroup.nodeToJson(nodeGroup)
+
+            # Write to file
+            import os
+            with open(os.path.dirname(bpy.data.filepath) + os.sep + 'GroupNode.json', 'w') as currentFile:
+                json.dump(groupInJson, currentFile, indent = 4)
+
         return groupInJson
 
     @staticmethod
@@ -968,6 +974,8 @@ class IONodeSocketFloat(IOCommon):
     @staticmethod
     def ioToJson(io):
         ioJson = super(__class__, __class__).ioToJson(io)
+        if ioJson['bl_type'] == 'NodeSocketFloat':  # Older compatibility (example: MixRGB)
+            ioJson['bl_type'] = 'NodeSocketFloatFactor'
         ioJson['default_value'] = io.default_value
         return ioJson
     @staticmethod
