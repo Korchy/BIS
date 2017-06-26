@@ -7,15 +7,10 @@ class NodeManager():
 
     @staticmethod
     def nodeGroupToJson(nodeGroup):
+        groupInJson = None
         if nodeGroup.type == 'GROUP':
             groupInJson = NodeShaderNodeGroup.nodeToJson(nodeGroup)
-
-            # Write to file
-            import os
-            with open(os.path.dirname(bpy.data.filepath) + os.sep + 'GroupNode.json', 'w') as currentFile:
-                json.dump(groupInJson, currentFile, indent = 4)
-
-            return groupInJson
+        return groupInJson
 
     @staticmethod
     def jsonToNodeGroup(destNodeTree, nodeInJson):
@@ -672,7 +667,8 @@ class NodeShaderNodeGroup(NodeCommon):
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
-        currentNode.node_tree = bpy.data.node_groups.new(type = 'ShaderNodeTree', name = nodeInJson['name'])
+        currentNode.node_tree = bpy.data.node_groups.new(type = bpy.context.area.spaces.active.tree_type,
+                                                         name = nodeInJson['name'])
         nodeGroupTreeNodesIndexed = []
         # GroupInputs
         for i, inputInJson in enumerate(nodeInJson['GroupInput']):
@@ -917,6 +913,10 @@ class CurveMapPoint():
         jsonEx.vector2LoadFromJson(cmp.location, cmpInJson['location'])
         cmp.handle_type = cmpInJson['handle_type']
         cmp.select = cmpInJson['select']
+
+# Compositing
+class NodeCompositorNodeGroup(NodeShaderNodeGroup):
+    pass
 
 # Node IO
 class IOCommon():
