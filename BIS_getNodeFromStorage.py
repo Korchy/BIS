@@ -26,11 +26,13 @@ class BIS_getNodeFromStorage(bpy.types.Operator):
                 nodeInJson = json.loads(requestRez['data']['item'])
                 destNodeTree = None
                 if nodeInJson['bl_type'] == 'CompositorNodeGroup':
-                    destNodeTree = bpy.context.area.spaces.active.node_tree
-                    if not bpy.context.screen.scene.use_nodes:
-                        bpy.context.screen.scene.use_nodes = True
+                    if bpy.context.area.spaces.active.node_tree.bl_idname == 'CompositorNodeTree':
+                        destNodeTree = bpy.context.area.spaces.active.node_tree
+                        if not bpy.context.screen.scene.use_nodes:
+                            bpy.context.screen.scene.use_nodes = True
                 elif nodeInJson['bl_type'] == 'ShaderNodeGroup':
-                    destNodeTree = bpy.context.active_object.active_material.node_tree
+                    if bpy.context.area.spaces.active.node_tree.bl_idname == 'ShaderNodeTree':
+                        destNodeTree = bpy.context.active_object.active_material.node_tree
                     if bpy.context.active_object:
                         if not bpy.context.active_object.active_material:
                             bpy.context.active_object.active_material = bpy.data.materials.new(name = 'Material')
