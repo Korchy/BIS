@@ -31,8 +31,6 @@ class BIS_getNodeFromStorage(bpy.types.Operator):
                         if not bpy.context.screen.scene.use_nodes:
                             bpy.context.screen.scene.use_nodes = True
                 elif nodeInJson['bl_type'] == 'ShaderNodeGroup':
-                    if bpy.context.area.spaces.active.node_tree.bl_idname == 'ShaderNodeTree':
-                        destNodeTree = bpy.context.active_object.active_material.node_tree
                     if bpy.context.active_object:
                         if not bpy.context.active_object.active_material:
                             bpy.context.active_object.active_material = bpy.data.materials.new(name = 'Material')
@@ -40,6 +38,8 @@ class BIS_getNodeFromStorage(bpy.types.Operator):
                             for currentNode in bpy.context.active_object.active_material.node_tree.nodes:
                                 if currentNode.bl_idname != 'ShaderNodeOutputMaterial':
                                     bpy.context.active_object.active_material.node_tree.nodes.remove(currentNode)
+                        if bpy.context.active_object.active_material.node_tree.bl_idname == 'ShaderNodeTree':
+                            destNodeTree = bpy.context.active_object.active_material.node_tree
                 if nodeInJson and destNodeTree:
                     sys.modules[modulesNames['NodeManager']].NodeManager.jsonToNodeGroup(destNodeTree, nodeInJson)
         else:
