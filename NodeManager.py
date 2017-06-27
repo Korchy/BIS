@@ -709,7 +709,7 @@ class NodeShaderNodeGroup(NodeCommon):
                             ioClass = IOCommon
                             if hasattr(sys.modules[modulesNames['NodeManager']], 'IO' + nodeInputInJson['bl_type']):
                                 ioClass = getattr(sys.modules[modulesNames['NodeManager']], 'IO' + nodeInputInJson['bl_type'])
-                            if cNode.inputs[inputNumber].bl_idname == nodeInputInJson['bl_type']:
+                            if __class__.ioTypesCompatibility(cNode.inputs[inputNumber].bl_idname, nodeInputInJson['bl_type']):
                                 ioClass.jsonToI(node = cNode,
                                                 inputNumber = inputNumber,
                                                 inputInJson = nodeInputInJson)
@@ -722,7 +722,7 @@ class NodeShaderNodeGroup(NodeCommon):
                             ioClass = IOCommon
                             if hasattr(sys.modules[modulesNames['NodeManager']], 'IO' + nodeOutputInJson['bl_type']):
                                 ioClass = getattr(sys.modules[modulesNames['NodeManager']], 'IO' + nodeOutputInJson['bl_type'])
-                            if cNode.outputs[outputNumber].bl_idname == nodeOutputInJson['bl_type']:
+                            if __class__.ioTypesCompatibility(cNode.outputs[outputNumber].bl_idname, nodeOutputInJson['bl_type']):
                                 ioClass.jsonToO(node = cNode,
                                                 outputNumber = outputNumber,
                                                 outputInJson = nodeOutputInJson)
@@ -735,6 +735,12 @@ class NodeShaderNodeGroup(NodeCommon):
                 toInput = nodeGroupTreeNodesIndexed[linkInJson[2]][0][linkInJson[3]]
                 currentNode.node_tree.links.new(fromOutput, toInput)
         return currentNode
+    @staticmethod
+    def ioTypesCompatibility(ioType1, ioType2):
+        # for older compatibilty SocketFloatFactor = SocketFloat (ex: MixRGB)
+        compatible = ['SocketFloat', 'SocketFloatFactor']
+        if ioType1 == ioType2 or (ioType1 in compatible and ioType2 in compatible):
+            return True
 
 # Node TextureMapping
 class TMCommon():
@@ -974,8 +980,6 @@ class IONodeSocketFloat(IOCommon):
     @staticmethod
     def ioToJson(io):
         ioJson = super(__class__, __class__).ioToJson(io)
-        if ioJson['bl_type'] == 'NodeSocketFloat':  # Older compatibility (example: MixRGB)
-            ioJson['bl_type'] = 'NodeSocketFloatFactor'
         ioJson['default_value'] = io.default_value
         return ioJson
     @staticmethod
