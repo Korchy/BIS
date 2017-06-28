@@ -738,7 +738,7 @@ class NodeShaderNodeGroup(NodeCommon):
     @staticmethod
     def ioTypesCompatibility(ioType1, ioType2):
         # for older compatibilty SocketFloatFactor = SocketFloat (ex: MixRGB)
-        compatible = ['SocketFloat', 'SocketFloatFactor']
+        compatible = ['NodeSocketFloat', 'NodeSocketFloatFactor']
         if ioType1 == ioType2 or (ioType1 in compatible and ioType2 in compatible):
             return True
 
