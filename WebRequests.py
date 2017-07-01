@@ -88,20 +88,19 @@ class WebAuth(bpy.types.Operator):
             else:
                 __class__.logOff()
         else:
-            session = WebRequestsVars.getSession()
-            data = {'requestbase': WebAuthVars.requestBase, 'userlogin': self.userLogin, 'userpassword': self.userPassword}
+            request = WebRequest.sendRequest(data = {'userlogin': self.userLogin, 'userpassword': self.userPassword}, hostTarget = 'blender_auth')
             self.userPassword = ''
-            request = session.post(WebAuthVars.host+'/blender_auth', data = data)
-            requestRez = json.loads(request.text)
-            if requestRez['stat'] == 'OK':
-                WebAuthVars.logged = True
-                WebAuthVars.token = requestRez['data']['token']
-                WebAuthVars.userLogin = self.userLogin
-                __class__.saveConfig(userLogin = WebAuthVars.userLogin,
-                                token = WebAuthVars.token if self.userStayLogged else '')
-            else:
-                bpy.ops.message.messagebox('INVOKE_DEFAULT', message = requestRez['data']['txt'])
-                __class__.logOff()
+            if request:
+                requestRez = json.loads(request.text)
+                if requestRez['stat'] == 'OK':
+                    WebAuthVars.logged = True
+                    WebAuthVars.token = requestRez['data']['token']
+                    WebAuthVars.userLogin = self.userLogin
+                    __class__.saveConfig(userLogin = WebAuthVars.userLogin,
+                                         token = WebAuthVars.token if self.userStayLogged else '')
+                else:
+                    bpy.ops.message.messagebox('INVOKE_DEFAULT', message = requestRez['data']['txt'])
+                    __class__.logOff()
 
     @staticmethod
     def logOff():
@@ -112,15 +111,12 @@ class WebAuth(bpy.types.Operator):
 
     @staticmethod
     def checkTokenValid(userLogin = '', token = ''):
-        session = WebRequestsVars.getSession()
-        data = {'requestbase': WebAuthVars.requestBase, 'userlogin': userLogin, 'token': token}
-        request = session.post(WebAuthVars.host + '/blender_auth', data = data)
-        requestRez = json.loads(request.text)
-        if requestRez['stat'] != 'OK':
-            print(requestRez['stat'] + ': ' + (requestRez['data']['text'] if 'data' in requestRez else ''))
-            return False
-        else:
-            return True
+        request = WebRequest.sendRequest(data = {'userlogin': userLogin, 'token': token}, hostTarget = 'blender_auth')
+        if request:
+            requestRez = json.loads(request.text)
+            if requestRez['stat'] == 'OK':
+                return True
+        return False
 
     @staticmethod
     def saveConfig(userLogin = '', token = ''):
@@ -150,17 +146,25 @@ class WebRequestsVars():
 
 class WebRequest():
     @staticmethod
-    def sendRequest(data = {}):
+    def sendRequest(data = {}, hostTarget = 'blender_request'):
         session = WebRequestsVars.getSession()
         requestData = {'requestbase': WebAuthVars.requestBase, 'token': WebAuthVars.token}
         requestData.update(data)
-        request = session.post(WebAuthVars.host+'/blender_request', data = requestData)
+        request = None
         try:
-            requestRez = json.loads(request.text)
-            if requestRez['stat'] != 'OK':
-                print(requestRez['stat'] + ': ' + (requestRez['data']['text'] if 'data' in requestRez else ''))
-        except ValueError as error:
-            print(request.text)
+            request = session.post(WebAuthVars.host + '/' + hostTarget, data = requestData)
+        except requests.exceptions.RequestException as error:
+            print('ERR: No internet connection to BIS')
+        if request:
+            requestRez = None
+            try:
+                requestRez = json.loads(request.text)
+            except ValueError as error:
+                request = None
+                print(request.text)
+            if requestRez:
+                if requestRez['stat'] != 'OK':
+                    print(requestRez['stat'] + ': ' + (requestRez['data']['text'] if 'data' in requestRez else ''))
         return request
 
 def register():
