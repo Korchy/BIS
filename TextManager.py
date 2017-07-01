@@ -37,9 +37,11 @@ class TextManager():
                 'text_name': textJson['name'],
                 'text_tags': tags
             })
-            rez = json.loads(request.text)
-            if rez['stat'] != 'OK':
-                bpy.ops.message.messagebox('INVOKE_DEFAULT', message = rez['data']['text'])
+            rez = {"stat": "ERR", "data": {"text": "Error to save"}}
+            if request:
+                rez = json.loads(request.text)
+                if rez['stat'] != 'OK':
+                    bpy.ops.message.messagebox('INVOKE_DEFAULT', message = rez['data']['text'])
             return rez
 
     @staticmethod
@@ -50,7 +52,8 @@ class TextManager():
                 'for': 'get_text',
                 'id': id
             })
-            rez = json.loads(request.text)
+            if request:
+                rez = json.loads(request.text)
         if rez['stat'] != 'OK':
             bpy.ops.message.messagebox('INVOKE_DEFAULT', message = rez['data']['text'])
         else:
