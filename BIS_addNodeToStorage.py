@@ -31,10 +31,11 @@ class BIS_addNodeToStorage(bpy.types.Operator):
                     'node_group_name': nodeGroupJson['name'],
                     'node_group_tags': (nodeGroupTags).strip()
                 })
-                bpy.context.scene.bis_add_nodegroup_to_storage_vars.tags = ''
-                requestRez = json.loads(request.text)
-                if self.showMessage:
-                    bpy.ops.message.messagebox('INVOKE_DEFAULT', message = requestRez['stat'])
+                if request:
+                    bpy.context.scene.bis_add_nodegroup_to_storage_vars.tags = ''
+                    requestRez = json.loads(request.text)
+                    if self.showMessage:
+                        bpy.ops.message.messagebox('INVOKE_DEFAULT', message = requestRez['stat'])
         else:
             bpy.ops.message.messagebox('INVOKE_DEFAULT', message = 'No NodeGroup selected')
         return {'FINISHED'}
