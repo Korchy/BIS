@@ -13,9 +13,10 @@ class BIS_getTextsInfoFromStorage(bpy.types.Operator):
             'for': 'search_texts',
             'search_filter': bpy.context.window_manager.bis_get_texts_info_from_storage_vars.searchFilter
         })
-        searchRez = json.loads(request.text)
-        if searchRez['stat'] == 'OK':
-            sys.modules[modulesNames['BIS_Items']].BIS_Items.createItemsList(searchRez['data']['items'], context.area.spaces.active.type, previews = False)
+        if request:
+            searchRez = json.loads(request.text)
+            if searchRez['stat'] == 'OK':
+                sys.modules[modulesNames['BIS_Items']].BIS_Items.createItemsList(searchRez['data']['items'], context.area.spaces.active.type, previews = False)
         return {'FINISHED'}
 
 class BIS_getTextsInfoFromStorageVars(bpy.types.PropertyGroup):
