@@ -7,9 +7,8 @@ BIS webpage: https://b3d.interplanety.ru/en/bis-online-blender-material-storage/
 
 BIS website: https://bis.interplanety.ru/en
 
-===============================================================================
-Installation and usage:
 ---
+Installation and usage:
 
 - Get zip archive with add-on distributive from GitHub.
 - In Blender: User Preferences — Add-ons — Install from file — specify downloaded archive.
@@ -25,9 +24,8 @@ Installation and usage:
 - If the stored to BIS nodegroup uses textures, only the relative paths to textures are saved in BIS. Uploading such material from the BIS, the add-on searches for the used textures along the saved paths on the user’s local computer.
 - Update materials previews images through the BIS website.
 
-===============================================================================
-Version history:
 ---
+Version history:
 
 0.0.1
 - Early access
