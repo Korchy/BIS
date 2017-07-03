@@ -1,7 +1,7 @@
 # BIS
 Blender Interplanety Storage (BIS) – the online material (shader) storage add-on for Blender 3D creation.
 
-<center><img src = "https://b3d.interplanety.ru/wp-content/upload_content/2017/07/00-400x301.jpg"></center>
+<img src = "https://b3d.interplanety.ru/wp-content/upload_content/2017/07/00-400x301.jpg">
 
 BIS webpage: https://b3d.interplanety.ru/en/bis-online-blender-material-storage/
 
@@ -17,8 +17,9 @@ Installation and usage:
 - Sign in with the username and password created on the BIS website.
 - To save a material (the group of nodes) to the BIS storage, select the desired node group and click “Add nodegroup to BIS”. Specify description tags in the "Tag" field before saving.
 - To restore material from the BIS storage – specify the name/tag in the “Search” field and click “Search in BIS”. Click on the preview window and select the necessary material from the drop-down list.
-&nbsp;
-&nbsp;
+
+---
+
 - 15 active cells are available. More materials stores to reserve pool. Send materials to reserve and restored currently needed to fit within available cells count.
 - If the stored to BIS nodegroup uses textures, only the relative paths to textures are saved in BIS. Uploading such material from the BIS, the add-on searches for the used textures along the saved paths on the user’s local computer.
 - Update materials previews images through the BIS website.
