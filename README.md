@@ -9,6 +9,7 @@ BIS website: https://bis.interplanety.ru/en
 
 ===============================================================================
 Installation and usage:
+---
 
 - Get zip archive with add-on distributive from GitHub.
 - In Blender: User Preferences — Add-ons — Install from file — specify downloaded archive.
@@ -26,6 +27,7 @@ Installation and usage:
 
 ===============================================================================
 Version history:
+---
 
 0.0.1
 - Early access
