@@ -2,7 +2,7 @@ bl_info = {
     'name': 'BIS',
     'category': 'Material',
     'author': 'Nikita Akimov',
-    'version': (0, 0, 3),
+    'version': (1, 0, 0),
     'blender': (2, 78, 0),
     'location': 'T-Panel > BIS',
     'wiki_url': 'http://b3d.interplanety.ru/bis/',
