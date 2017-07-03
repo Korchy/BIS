@@ -7,9 +7,9 @@ BIS webpage: https://b3d.interplanety.ru/en/bis-online-blender-material-storage/
 
 BIS website: https://bis.interplanety.ru/en
 
----
-Installation and usage:
 
+Installation and usage:
+---
 - Get zip archive with add-on distributive from GitHub.
 - In Blender: User Preferences — Add-ons — Install from file — specify downloaded archive.
 - Through your favorite browser visit the BIS website and register your account.
