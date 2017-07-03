@@ -24,9 +24,8 @@ Installation and usage:
 - If the stored to BIS nodegroup uses textures, only the relative paths to textures are saved in BIS. Uploading such material from the BIS, the add-on searches for the used textures along the saved paths on the user’s local computer.
 - Update materials previews images through the BIS website.
 
----
 Version history:
-
+---
 0.0.1
 - Early access
 
