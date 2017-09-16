@@ -8,6 +8,11 @@ BIS webpage: https://b3d.interplanety.ru/en/bis-online-blender-material-storage/
 BIS website: https://bis.interplanety.ru/en
 
 
+Supported Blender versions:
+---
+
+2.78, 2.79
+
 Installation and usage:
 ---
 - Get zip archive with add-on distributive from GitHub.
