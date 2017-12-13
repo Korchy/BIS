@@ -6,10 +6,10 @@ bl_info = {
     'category': 'Material',
     'author': 'Nikita Akimov',
     'version': (1, 0, 0),
-    'blender': (2, 78, 0),
+    'blender': (2, 79, 0),
     'location': 'T-Panel > BIS',
-    'wiki_url': 'http://b3d.interplanety.org/bis/',
-    'tracker_url': 'http://b3d.interplanety.org/bis/',
+    'wiki_url': 'https://b3d.interplanety.org/bis/',
+    'tracker_url': 'https://b3d.interplanety.org/bis/',
     'description': 'BIS - Blender Interplanety Storage'
 }
 
