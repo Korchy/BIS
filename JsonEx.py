@@ -1,4 +1,6 @@
-# import json
+# Nikita Akimov
+# interplanety@interplanety.org
+
 
 class JsonEx():
 

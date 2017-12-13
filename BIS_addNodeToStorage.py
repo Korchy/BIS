@@ -1,6 +1,10 @@
+# Nikita Akimov
+# interplanety@interplanety.org
+
 import bpy
 import sys
 import json
+
 
 class BIS_addNodeToStorage(bpy.types.Operator):
     bl_idname = 'bis.add_nodegroup_to_storage'
@@ -40,6 +44,7 @@ class BIS_addNodeToStorage(bpy.types.Operator):
             bpy.ops.message.messagebox('INVOKE_DEFAULT', message = 'No NodeGroup selected')
         return {'FINISHED'}
 
+
 class BIS_addNodeGroupToStorageVars(bpy.types.PropertyGroup):
     tags = bpy.props.StringProperty(
         name = 'Tags',
@@ -47,10 +52,12 @@ class BIS_addNodeGroupToStorageVars(bpy.types.PropertyGroup):
         default = ''
     )
 
+
 def register():
     bpy.utils.register_class(BIS_addNodeToStorage)
     bpy.utils.register_class(BIS_addNodeGroupToStorageVars)
     bpy.types.Scene.bis_add_nodegroup_to_storage_vars = bpy.props.PointerProperty(type = BIS_addNodeGroupToStorageVars)
+
 
 def unregister():
     del bpy.types.Scene.bis_add_nodegroup_to_storage_vars

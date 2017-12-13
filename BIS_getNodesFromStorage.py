@@ -1,6 +1,10 @@
+# Nikita Akimov
+# interplanety@interplanety.org
+
 import bpy
 import sys
 import json
+
 
 class BIS_getNodesInfoFromStorage(bpy.types.Operator):
     bl_idname = 'bis.get_nodes_info_from_storage'
@@ -31,6 +35,7 @@ class BIS_getNodesInfoFromStorage(bpy.types.Operator):
                 sys.modules[modulesNames['BIS_Items']].BIS_Items.createItemsList(searchRez['data']['items'], context.area.spaces.active.type)
         return {'FINISHED'}
 
+
 class BIS_getNodesInfoFromStorageVars(bpy.types.PropertyGroup):
     searchFilter = bpy.props.StringProperty(
         name = 'Search',
@@ -47,10 +52,12 @@ class BIS_getNodesInfoFromStorageVars(bpy.types.PropertyGroup):
         update = lambda self, context: sys.modules[modulesNames['BIS_Items']].BIS_Items.onPreviewSelect(self, context) if 'modulesNames' in globals() else None
     )
 
+
 def register():
     bpy.utils.register_class(BIS_getNodesInfoFromStorage)
     bpy.utils.register_class(BIS_getNodesInfoFromStorageVars)
     bpy.types.WindowManager.bis_get_nodes_info_from_storage_vars = bpy.props.PointerProperty(type = BIS_getNodesInfoFromStorageVars)
+
 
 def unregister():
     del bpy.types.WindowManager.bis_get_nodes_info_from_storage_vars

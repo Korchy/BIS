@@ -1,7 +1,11 @@
+# Nikita Akimov
+# interplanety@interplanety.org
+
 import bpy
 import json
 import os
 import requests
+
 
 class WebAuthVars(bpy.types.PropertyGroup):
     logged = bpy.props.BoolProperty(
@@ -22,6 +26,7 @@ class WebAuthVars(bpy.types.PropertyGroup):
     requestBase = bpy.props.StringProperty(
         default = ''
     )
+
 
 class WebAuth(bpy.types.Operator):
     bl_idname = "dialog.web_auth"
@@ -129,6 +134,7 @@ class WebAuth(bpy.types.Operator):
             json.dump(jsonData, configFile, indent = 4)
             configFile.close()
 
+
 class WebRequestsVars():
     session = None
 
@@ -143,6 +149,7 @@ class WebRequestsVars():
         if WebRequestsVars.session:
             WebRequestsVars.session.close()
             WebRequestsVars.session = None
+
 
 class WebRequest():
     @staticmethod
@@ -167,15 +174,18 @@ class WebRequest():
                     print(requestRez['stat'] + ': ' + (requestRez['data']['text'] if 'data' in requestRez else ''))
         return request
 
+
 def register():
     bpy.utils.register_class(WebAuthVars)
     bpy.utils.register_class(WebAuth)
     WebAuth.getInitData()
 
+
 def unregister():
     bpy.utils.unregister_class(WebAuth)
     bpy.utils.unregister_class(WebAuthVars)
     WebRequestsVars.closeSession()
+
 
 if __name__ == "__main__":
     register()

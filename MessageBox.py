@@ -1,4 +1,8 @@
+# Nikita Akimov
+# interplanety@interplanety.org
+
 import bpy
+
 
 class MessageBox(bpy.types.Operator):
     bl_idname = "message.messagebox"
@@ -22,11 +26,14 @@ class MessageBox(bpy.types.Operator):
         self.layout.label(self.message)
         self.layout.label("")
 
+
 def register():
     bpy.utils.register_class(MessageBox)
 
+
 def unregister():
     bpy.utils.unregister_class(MessageBox)
+
 
 if __name__ == "__main__":
     register()

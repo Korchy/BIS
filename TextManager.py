@@ -1,7 +1,11 @@
+# Nikita Akimov
+# interplanety@interplanety.org
+
 import json
 import bpy
 import base64
 import sys
+
 
 class TextManager():
 

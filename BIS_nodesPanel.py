@@ -1,5 +1,9 @@
+# Nikita Akimov
+# interplanety@interplanety.org
+
 import bpy
 import sys
+
 
 class BIS_nodesPanel(bpy.types.Panel):
     bl_idname = 'bis.nodes_panel'
@@ -28,8 +32,10 @@ class BIS_nodesPanel(bpy.types.Panel):
         else:
             self.layout.operator('dialog.web_auth', icon = 'WORLD', text = 'Sign in')
 
+
 def register():
     bpy.utils.register_class(BIS_nodesPanel)
+
 
 def unregister():
     bpy.utils.unregister_class(BIS_nodesPanel)

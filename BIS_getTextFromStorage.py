@@ -1,5 +1,9 @@
+# Nikita Akimov
+# interplanety@interplanety.org
+
 import bpy
 import sys
+
 
 class BIS_getTextFromStorage(bpy.types.Operator):
     bl_idname = 'bis.get_text_from_storage'
@@ -22,8 +26,10 @@ class BIS_getTextFromStorage(bpy.types.Operator):
                 bpy.ops.message.messagebox('INVOKE_DEFAULT', message = rez['data']['text'])
         return {'FINISHED'}
 
+
 def register():
     bpy.utils.register_class(BIS_getTextFromStorage)
+
 
 def unregister():
     bpy.utils.unregister_class(BIS_getTextFromStorage)

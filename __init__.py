@@ -1,3 +1,6 @@
+# Nikita Akimov
+# interplanety@interplanety.org
+
 bl_info = {
     'name': 'BIS',
     'category': 'Material',
@@ -5,8 +8,8 @@ bl_info = {
     'version': (1, 0, 0),
     'blender': (2, 78, 0),
     'location': 'T-Panel > BIS',
-    'wiki_url': 'http://b3d.interplanety.ru/bis/',
-    'tracker_url': 'http://b3d.interplanety.ru/bis/',
+    'wiki_url': 'http://b3d.interplanety.org/bis/',
+    'tracker_url': 'http://b3d.interplanety.org/bis/',
     'description': 'BIS - Blender Interplanety Storage'
 }
 
@@ -31,17 +34,20 @@ for currentModuleFullName in modulesFullNames.values():
         globals()[currentModuleFullName] = importlib.import_module(currentModuleFullName)
         setattr(globals()[currentModuleFullName], 'modulesNames', modulesFullNames)
 
+
 def register():
     for currentModuleName in modulesFullNames.values():
         if currentModuleName in sys.modules:
             if hasattr(sys.modules[currentModuleName], 'register'):
                 sys.modules[currentModuleName].register()
 
+
 def unregister():
     for currentModuleName in modulesFullNames.values():
         if currentModuleName in sys.modules:
             if hasattr(sys.modules[currentModuleName], 'unregister'):
                 sys.modules[currentModuleName].unregister()
+
 
 if __name__ == "__main__":
     register()

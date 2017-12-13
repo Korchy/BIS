@@ -1,5 +1,9 @@
+# Nikita Akimov
+# interplanety@interplanety.org
+
 import bpy
 import sys
+
 
 class BIS_addTextToStorage(bpy.types.Operator):
     bl_idname = 'bis.add_text_to_storage'
@@ -28,6 +32,7 @@ class BIS_addTextToStorage(bpy.types.Operator):
                 bpy.ops.message.messagebox('INVOKE_DEFAULT', message = rez['data']['text'])
         return {'FINISHED'}
 
+
 class BIS_addTextToStorageVars(bpy.types.PropertyGroup):
     tags = bpy.props.StringProperty(
         name = 'Tags',
@@ -35,10 +40,12 @@ class BIS_addTextToStorageVars(bpy.types.PropertyGroup):
         default = ''
     )
 
+
 def register():
     bpy.utils.register_class(BIS_addTextToStorage)
     bpy.utils.register_class(BIS_addTextToStorageVars)
     bpy.types.Scene.bis_add_text_to_storage_vars = bpy.props.PointerProperty(type = BIS_addTextToStorageVars)
+
 
 def unregister():
     del bpy.types.Scene.bis_add_text_to_storage_vars

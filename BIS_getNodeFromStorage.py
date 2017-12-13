@@ -1,6 +1,10 @@
+# Nikita Akimov
+# interplanety@interplanety.org
+
 import bpy
 import sys
 import json
+
 
 class BIS_getNodeFromStorage(bpy.types.Operator):
     bl_idname = 'bis.get_nodegroup_from_storage'
@@ -12,6 +16,7 @@ class BIS_getNodeFromStorage(bpy.types.Operator):
         name = 'NodeGroupId',
         default = 0
     )
+
 
     def execute(self, context):
         if(self.nodeGroupId):
@@ -47,8 +52,10 @@ class BIS_getNodeFromStorage(bpy.types.Operator):
             bpy.ops.message.messagebox('INVOKE_DEFAULT', message = 'No NodeGroup To Get')
         return {'FINISHED'}
 
+
 def register():
     bpy.utils.register_class(BIS_getNodeFromStorage)
+
 
 def unregister():
     bpy.utils.unregister_class(BIS_getNodeFromStorage)

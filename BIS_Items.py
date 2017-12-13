@@ -1,7 +1,11 @@
+# Nikita Akimov
+# interplanety@interplanety.org
+
 import bpy
 import os
 import base64
 import bpy.utils.previews
+
 
 class BIS_Items():
 
@@ -82,8 +86,10 @@ class BIS_Items():
         elif context.area.spaces.active.type == 'TEXT_EDITOR':
             bpy.ops.bis.get_text_from_storage(textId = int(self.items))
 
+
 def register():
     BIS_Items.register()
+
 
 def unregister():
     BIS_Items.unregister()

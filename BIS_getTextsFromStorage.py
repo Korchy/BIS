@@ -1,6 +1,10 @@
+# Nikita Akimov
+# interplanety@interplanety.org
+
 import bpy
 import sys
 import json
+
 
 class BIS_getTextsInfoFromStorage(bpy.types.Operator):
     bl_idname = 'bis.get_texts_info_from_storage'
@@ -19,6 +23,7 @@ class BIS_getTextsInfoFromStorage(bpy.types.Operator):
                 sys.modules[modulesNames['BIS_Items']].BIS_Items.createItemsList(searchRez['data']['items'], context.area.spaces.active.type, previews = False)
         return {'FINISHED'}
 
+
 class BIS_getTextsInfoFromStorageVars(bpy.types.PropertyGroup):
     searchFilter = bpy.props.StringProperty(
         name = 'Search',
@@ -30,10 +35,12 @@ class BIS_getTextsInfoFromStorageVars(bpy.types.PropertyGroup):
         update = lambda self, context: sys.modules[modulesNames['BIS_Items']].BIS_Items.onPreviewSelect(self, context) if 'modulesNames' in globals() else None
     )
 
+
 def register():
     bpy.utils.register_class(BIS_getTextsInfoFromStorage)
     bpy.utils.register_class(BIS_getTextsInfoFromStorageVars)
     bpy.types.WindowManager.bis_get_texts_info_from_storage_vars = bpy.props.PointerProperty(type = BIS_getTextsInfoFromStorageVars)
+
 
 def unregister():
     del bpy.types.WindowManager.bis_get_texts_info_from_storage_vars

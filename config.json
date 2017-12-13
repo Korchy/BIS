@@ -1,5 +1,5 @@
 {
-	"host": "https://bis.interplanety.ru",
+	"host": "https://bis.interplanety.org",
 	"requestbase": "blender",
 	"userLogin": "",
 	"token": ""
