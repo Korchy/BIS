@@ -1,11 +1,11 @@
 # BIS
 Blender Interplanety Storage (BIS) – the online material (shader) storage add-on for Blender 3D creation.
 
-<img src = "https://b3d.interplanety.ru/wp-content/upload_content/2017/07/00-400x301.jpg">
+<img src = "https://b3d.interplanety.org/wp-content/upload_content/2017/07/00-400x301.jpg">
 
-BIS webpage: https://b3d.interplanety.ru/en/bis-online-blender-material-storage/
+BIS webpage: https://b3d.interplanety.org/en/bis-online-blender-material-storage/
 
-BIS website: https://bis.interplanety.ru/en
+BIS website: https://bis.interplanety.org/en
 
 
 Supported Blender versions:

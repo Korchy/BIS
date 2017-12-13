@@ -8,8 +8,8 @@ bl_info = {
     'version': (1, 0, 0),
     'blender': (2, 79, 0),
     'location': 'T-Panel > BIS',
-    'wiki_url': 'https://b3d.interplanety.org/en/bis/',
-    'tracker_url': 'https://b3d.interplanety.org/en/bis/',
+    'wiki_url': 'https://b3d.interplanety.org/en/bis-online-blender-material-storage/',
+    'tracker_url': 'https://b3d.interplanety.org/en/bis-online-blender-material-storage/',
     'description': 'BIS - Blender Interplanety Storage'
 }
 
