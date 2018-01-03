@@ -41,6 +41,7 @@ class NodeCommon():
         jsonEx = JsonEx.JsonEx
         return {
             'type': node.type,
+            'tree_type': bpy.context.area.spaces.active.tree_type,
             'bl_type': node.bl_idname,
             'name': node.name,
             'label': node.label,
@@ -726,25 +727,25 @@ class NodeShaderNodeGroup(NodeCommon):
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
-        currentNode.node_tree = bpy.data.node_groups.new(type = bpy.context.area.spaces.active.tree_type,
-                                                         name = nodeInJson['name'])
+        tree_type = nodeInJson['tree_type'] if 'tree_type' in nodeInJson else bpy.context.area.spaces.active.tree_type
+        currentNode.node_tree = bpy.data.node_groups.new(type=tree_type, name=nodeInJson['name'])
         nodeGroupTreeNodesIndexed = []
         # GroupInputs
         for i, inputInJson in enumerate(nodeInJson['GroupInput']):
             gioClass = GIOCommon
             if hasattr(sys.modules[__name__], 'GIO' + inputInJson['bl_type']):
                 gioClass = getattr(sys.modules[__name__], 'GIO' + inputInJson['bl_type'])
-            gioClass.jsonToGi(nodeTree = currentNode.node_tree,
-                              groupNode = currentNode,
-                              inputNumber = i,
-                              inputInJson = inputInJson)
+            gioClass.jsonToGi(nodeTree=currentNode.node_tree,
+                              groupNode=currentNode,
+                              inputNumber=i,
+                              inputInJson=inputInJson)
         # GroupOutputs
         for outputInJson in nodeInJson['GroupOutput']:
             gioClass = GIOCommon
             if hasattr(sys.modules[__name__], 'GIO' + outputInJson['bl_type']):
                 gioClass = getattr(sys.modules[__name__], 'GIO' + outputInJson['bl_type'])
-            gioClass.jsonToGo(nodeTree = currentNode.node_tree,
-                              outputInJson = outputInJson)
+            gioClass.jsonToGo(nodeTree=currentNode.node_tree,
+                              outputInJson=outputInJson)
         # Nodes
         for currentNodeInJson in nodeInJson['nodes']:
             cNode = None
