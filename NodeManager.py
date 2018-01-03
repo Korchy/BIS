@@ -652,7 +652,7 @@ class NodeShaderNodeGroup(NodeCommon):
     @staticmethod
     def nodeToJson(node):
         nodeJson = super(__class__, __class__).nodeToJson(node)
-        nodeJson['tree_type'] = bpy.context.area.spaces.active.tree_type,
+        nodeJson['tree_type'] = bpy.context.area.spaces.active.tree_type
         nodeJson['nodes'] = []
         nodeJson['links'] = []
         nodeJson['GroupInput'] = []
