@@ -2,8 +2,9 @@
 # interplanety@interplanety.org
 
 import bpy
-import sys
 import json
+from . import WebRequests
+from . import NodeManager
 
 
 class BIS_getNodeFromStorage(bpy.types.Operator):
@@ -20,7 +21,7 @@ class BIS_getNodeFromStorage(bpy.types.Operator):
 
     def execute(self, context):
         if(self.nodeGroupId):
-            request = sys.modules[modulesNames['WebRequests']].WebRequest.sendRequest({
+            request = WebRequests.WebRequest.sendRequest({
                 'for': 'get_node_group',
                 'id': self.nodeGroupId
             })
@@ -47,7 +48,7 @@ class BIS_getNodeFromStorage(bpy.types.Operator):
                             if bpy.context.area.spaces.active.tree_type == 'ShaderNodeTree':
                                 destNodeTree = bpy.context.active_object.active_material.node_tree
                     if nodeInJson and destNodeTree:
-                        sys.modules[modulesNames['NodeManager']].NodeManager.jsonToNodeGroup(destNodeTree, nodeInJson)
+                        NodeManager.NodeManager.jsonToNodeGroup(destNodeTree, nodeInJson)
         else:
             bpy.ops.message.messagebox('INVOKE_DEFAULT', message = 'No NodeGroup To Get')
         return {'FINISHED'}

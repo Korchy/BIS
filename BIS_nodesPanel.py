@@ -2,7 +2,7 @@
 # interplanety@interplanety.org
 
 import bpy
-import sys
+from . import WebRequests
 
 
 class BIS_nodesPanel(bpy.types.Panel):
@@ -13,24 +13,24 @@ class BIS_nodesPanel(bpy.types.Panel):
     bl_category = 'BIS'
 
     def draw(self, context):
-        if sys.modules[modulesNames['WebRequests']].WebAuthVars.logged:
+        if WebRequests.WebAuthVars.logged:
             self.layout.operator('dialog.web_auth', icon = 'FILE_TICK', text = 'Sign out')
             self.layout.separator()
             self.layout.separator()
             self.layout.prop(bpy.context.scene.bis_add_nodegroup_to_storage_vars, 'tags')
-            button = self.layout.operator('bis.add_nodegroup_to_storage', icon = 'SCRIPTWIN', text = 'Add nodegroup to BIS')
+            button = self.layout.operator('bis.add_nodegroup_to_storage', icon='SCRIPTWIN', text='Add nodegroup to BIS')
             button.showMessage = True
             self.layout.separator()
             self.layout.separator()
             self.layout.prop(bpy.context.window_manager.bis_get_nodes_info_from_storage_vars, 'searchFilter')
-            self.layout.operator('bis.get_nodes_info_from_storage', icon = 'SCRIPTWIN', text = 'Search in BIS')
+            self.layout.operator('bis.get_nodes_info_from_storage', icon='SCRIPTWIN', text='Search in BIS')
             self.layout.prop(bpy.context.window_manager.bis_get_nodes_info_from_storage_vars, 'updatePreviews')
             self.layout.separator()
             self.layout.separator()
             self.layout.template_icon_view(bpy.context.window_manager.bis_get_nodes_info_from_storage_vars, 'items')
             self.layout.prop(bpy.context.window_manager.bis_get_nodes_info_from_storage_vars, 'items')
         else:
-            self.layout.operator('dialog.web_auth', icon = 'WORLD', text = 'Sign in')
+            self.layout.operator('dialog.web_auth', icon='WORLD', text='Sign in')
 
 
 def register():

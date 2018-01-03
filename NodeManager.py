@@ -1,10 +1,11 @@
 # Nikita Akimov
 # interplanety@interplanety.org
 
-import json
 import sys
 import bpy
 import os
+from . import JsonEx
+from . import TextManager
 
 
 class NodeManager():
@@ -14,12 +15,11 @@ class NodeManager():
         groupInJson = None
         if nodeGroup.type == 'GROUP':
             groupInJson = NodeShaderNodeGroup.nodeToJson(nodeGroup)
-
             # Write to file
-            import os
-            with open(os.path.dirname(bpy.data.filepath) + os.sep + 'GroupNode.json', 'w') as currentFile:
-                json.dump(groupInJson, currentFile, indent = 4)
-
+            # import os
+            # import json
+            # with open(os.path.dirname(bpy.data.filepath) + os.sep + 'GroupNode.json', 'w') as currentFile:
+            #     json.dump(groupInJson, currentFile, indent = 4)
         return groupInJson
 
     @staticmethod
@@ -27,10 +27,9 @@ class NodeManager():
         currentNode = None
         if destNodeTree:
             nodeClass = NodeCommon
-            if hasattr(sys.modules[modulesNames['NodeManager']], 'Node' + nodeInJson['bl_type']):
-                nodeClass = getattr(sys.modules[modulesNames['NodeManager']], 'Node' + nodeInJson['bl_type'])
-            currentNode = nodeClass.jsonToNode(nodeTree = destNodeTree,
-                                               nodeInJson = nodeInJson)
+            if hasattr(sys.modules[__name__], 'Node' + nodeInJson['bl_type']):
+                nodeClass = getattr(sys.modules[__name__], 'Node' + nodeInJson['bl_type'])
+            currentNode = nodeClass.jsonToNode(nodeTree=destNodeTree, nodeInJson=nodeInJson)
             currentNode.location = (0, 0)
         return currentNode
 
@@ -39,7 +38,7 @@ class NodeManager():
 class NodeCommon():
     @staticmethod
     def nodeToJson(node):
-        jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
+        jsonEx = JsonEx.JsonEx
         return {
             'type': node.type,
             'bl_type': node.bl_idname,
@@ -56,7 +55,7 @@ class NodeCommon():
         }
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
-        jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
+        jsonEx = JsonEx.JsonEx
         currentNode = nodeTree.nodes.new(type = nodeInJson['bl_type'])
         currentNode.name = nodeInJson['name']
         currentNode.hide = nodeInJson['hide']
@@ -354,7 +353,7 @@ class NodeShaderNodeTexSky(NodeShaderNodeTexChecker):
     @staticmethod
     def nodeToJson(node):
         nodeJson = super(__class__, __class__).nodeToJson(node)
-        jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
+        jsonEx = JsonEx.JsonEx
         nodeJson['sky_type'] = node.sky_type
         nodeJson['sun_direction'] = jsonEx.vector3ToJson(node.sun_direction)
         nodeJson['turbidity'] = node.turbidity
@@ -363,7 +362,7 @@ class NodeShaderNodeTexSky(NodeShaderNodeTexChecker):
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
-        jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
+        jsonEx = JsonEx.JsonEx
         currentNode.sky_type = nodeInJson['sky_type']
         jsonEx.vector3LoadFromJson(currentNode.sun_direction, nodeInJson['sun_direction'])
         currentNode.turbidity = nodeInJson['turbidity']
@@ -555,7 +554,7 @@ class NodeShaderNodeMapping(NodeCommon):
     @staticmethod
     def nodeToJson(node):
         nodeJson = super(__class__, __class__).nodeToJson(node)
-        jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
+        jsonEx = JsonEx.JsonEx
         nodeJson['vector_type'] = node.vector_type
         nodeJson['translation'] = jsonEx.vector3ToJson(node.translation)
         nodeJson['rotation'] = jsonEx.vector3ToJson(node.rotation)
@@ -569,7 +568,7 @@ class NodeShaderNodeMapping(NodeCommon):
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
-        jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
+        jsonEx = JsonEx.JsonEx
         currentNode.vector_type = nodeInJson['vector_type']
         jsonEx.vector3LoadFromJson(currentNode.translation, nodeInJson['translation'])
         jsonEx.vector3LoadFromJson(currentNode.rotation, nodeInJson['rotation'])
@@ -619,7 +618,7 @@ class NodeShaderNodeScript(NodeCommon):
         nodeJson['script_bis_id'] = None
         if node.script:
             nodeJson['script'] = node.script.name
-            rez = sys.modules[modulesNames['TextManager']].TextManager.toBis(bpy.data.texts[node.script.name])
+            rez = TextManager.TextManager.toBis(bpy.data.texts[node.script.name])
             nodeJson['script_bis_id'] = ''
             if rez['stat'] == 'OK':
                 nodeJson['script_bis_id'] = rez['data']['id']
@@ -637,7 +636,7 @@ class NodeShaderNodeScript(NodeCommon):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
         currentNode.mode = nodeInJson['mode']
         if nodeInJson['script_bis_id']:
-            sys.modules[modulesNames['TextManager']].TextManager.fromBis(nodeInJson['script_bis_id'])
+            TextManager.TextManager.fromBis(nodeInJson['script_bis_id'])
         if nodeInJson['script']:
             if nodeInJson['script'] in bpy.data.texts:
                 currentNode.script = bpy.data.texts[nodeInJson['script']]
@@ -673,37 +672,37 @@ class NodeShaderNodeGroup(NodeCommon):
         # Nodes
         for currentNode in nodeGroupTreeNodesIndexed:
             nodeClass = NodeCommon
-            if hasattr(sys.modules[modulesNames['NodeManager']], 'Node' + currentNode[0].bl_idname):
-                nodeClass = getattr(sys.modules[modulesNames['NodeManager']], 'Node' + currentNode[0].bl_idname)
+            if hasattr(sys.modules[__name__], 'Node' + currentNode[0].bl_idname):
+                nodeClass = getattr(sys.modules[__name__], 'Node' + currentNode[0].bl_idname)
             currentNodeJson = nodeClass.nodeToJson(currentNode[0])
             for input in currentNode[1]:
                 ioName = 'IO' + input.bl_idname
                 if currentNode[0].bl_idname == 'NodeGroupInput' or currentNode[0].bl_idname == 'NodeGroupOutput':
                     ioName = 'IO' + currentNode[0].bl_idname
                 ioClass = IOCommon
-                if hasattr(sys.modules[modulesNames['NodeManager']], ioName):
-                    ioClass = getattr(sys.modules[modulesNames['NodeManager']], ioName)
+                if hasattr(sys.modules[__name__], ioName):
+                    ioClass = getattr(sys.modules[__name__], ioName)
                     currentNodeJson['inputs'].append(ioClass.ioToJson(input))
             for output in currentNode[2]:
                 ioName = 'IO' + output.bl_idname
                 if currentNode[0].bl_idname == 'NodeGroupInput' or currentNode[0].bl_idname == 'NodeGroupOutput':
                     ioName = 'IO' + currentNode[0].bl_idname
                 ioClass = IOCommon
-                if hasattr(sys.modules[modulesNames['NodeManager']], ioName):
-                    ioClass = getattr(sys.modules[modulesNames['NodeManager']], ioName)
+                if hasattr(sys.modules[__name__], ioName):
+                    ioClass = getattr(sys.modules[__name__], ioName)
                     currentNodeJson['outputs'].append(ioClass.ioToJson(output))
             nodeJson['nodes'].append(currentNodeJson)
         # GroupInputs
         for i, input in enumerate(nodeGroupTree.inputs):
             gioClass = GIOCommon
-            if hasattr(sys.modules[modulesNames['NodeManager']], 'GIO' + input.bl_socket_idname):
-                gioClass = getattr(sys.modules[modulesNames['NodeManager']], 'GIO' + input.bl_socket_idname)
+            if hasattr(sys.modules[__name__], 'GIO' + input.bl_socket_idname):
+                gioClass = getattr(sys.modules[__name__], 'GIO' + input.bl_socket_idname)
             nodeJson['GroupInput'].append(gioClass.gioToJson(input, node.inputs[i]))
         # GroupOutputs
         for output in nodeGroupTree.outputs:
             gioClass = GIOCommon
-            if hasattr(sys.modules[modulesNames['NodeManager']], 'GIO' + output.bl_socket_idname):
-                gioClass = getattr(sys.modules[modulesNames['NodeManager']], 'GIO' + output.bl_socket_idname)
+            if hasattr(sys.modules[__name__], 'GIO' + output.bl_socket_idname):
+                gioClass = getattr(sys.modules[__name__], 'GIO' + output.bl_socket_idname)
             nodeJson['GroupOutput'].append(gioClass.gioToJson(output))
         # Links
         for link in nodeGroupTree.links:
@@ -733,8 +732,8 @@ class NodeShaderNodeGroup(NodeCommon):
         # GroupInputs
         for i, inputInJson in enumerate(nodeInJson['GroupInput']):
             gioClass = GIOCommon
-            if hasattr(sys.modules[modulesNames['NodeManager']], 'GIO' + inputInJson['bl_type']):
-                gioClass = getattr(sys.modules[modulesNames['NodeManager']], 'GIO' + inputInJson['bl_type'])
+            if hasattr(sys.modules[__name__], 'GIO' + inputInJson['bl_type']):
+                gioClass = getattr(sys.modules[__name__], 'GIO' + inputInJson['bl_type'])
             gioClass.jsonToGi(nodeTree = currentNode.node_tree,
                               groupNode = currentNode,
                               inputNumber = i,
@@ -742,16 +741,16 @@ class NodeShaderNodeGroup(NodeCommon):
         # GroupOutputs
         for outputInJson in nodeInJson['GroupOutput']:
             gioClass = GIOCommon
-            if hasattr(sys.modules[modulesNames['NodeManager']], 'GIO' + outputInJson['bl_type']):
-                gioClass = getattr(sys.modules[modulesNames['NodeManager']], 'GIO' + outputInJson['bl_type'])
+            if hasattr(sys.modules[__name__], 'GIO' + outputInJson['bl_type']):
+                gioClass = getattr(sys.modules[__name__], 'GIO' + outputInJson['bl_type'])
             gioClass.jsonToGo(nodeTree = currentNode.node_tree,
                               outputInJson = outputInJson)
         # Nodes
         for currentNodeInJson in nodeInJson['nodes']:
             cNode = None
             nodeClass = NodeCommon
-            if hasattr(sys.modules[modulesNames['NodeManager']], 'Node' + currentNodeInJson['bl_type']):
-                nodeClass = getattr(sys.modules[modulesNames['NodeManager']], 'Node' + currentNodeInJson['bl_type'])
+            if hasattr(sys.modules[__name__], 'Node' + currentNodeInJson['bl_type']):
+                nodeClass = getattr(sys.modules[__name__], 'Node' + currentNodeInJson['bl_type'])
             cNode = nodeClass.jsonToNode(nodeTree = currentNode.node_tree,
                                                nodeInJson = currentNodeInJson)
             if cNode:
@@ -761,8 +760,8 @@ class NodeShaderNodeGroup(NodeCommon):
                     if len(cNode.inputs) > inputNumber:
                         if nodeInputInJson:
                             ioClass = IOCommon
-                            if hasattr(sys.modules[modulesNames['NodeManager']], 'IO' + nodeInputInJson['bl_type']):
-                                ioClass = getattr(sys.modules[modulesNames['NodeManager']], 'IO' + nodeInputInJson['bl_type'])
+                            if hasattr(sys.modules[__name__], 'IO' + nodeInputInJson['bl_type']):
+                                ioClass = getattr(sys.modules[__name__], 'IO' + nodeInputInJson['bl_type'])
                             if __class__.ioTypesCompatibility(cNode.inputs[inputNumber].bl_idname, nodeInputInJson['bl_type']):
                                 ioClass.jsonToI(node = cNode,
                                                 inputNumber = inputNumber,
@@ -774,8 +773,8 @@ class NodeShaderNodeGroup(NodeCommon):
                     if len(cNode.outputs) > outputNumber:
                         if nodeOutputInJson:
                             ioClass = IOCommon
-                            if hasattr(sys.modules[modulesNames['NodeManager']], 'IO' + nodeOutputInJson['bl_type']):
-                                ioClass = getattr(sys.modules[modulesNames['NodeManager']], 'IO' + nodeOutputInJson['bl_type'])
+                            if hasattr(sys.modules[__name__], 'IO' + nodeOutputInJson['bl_type']):
+                                ioClass = getattr(sys.modules[__name__], 'IO' + nodeOutputInJson['bl_type'])
                             if __class__.ioTypesCompatibility(cNode.outputs[outputNumber].bl_idname, nodeOutputInJson['bl_type']):
                                 ioClass.jsonToO(node = cNode,
                                                 outputNumber = outputNumber,
@@ -801,7 +800,7 @@ class NodeShaderNodeGroup(NodeCommon):
 class TMCommon():
     @staticmethod
     def tmToJson(tm):
-        jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
+        jsonEx = JsonEx.JsonEx
         return {
             'vector_type': tm.vector_type,
             'translation': jsonEx.vector3ToJson(tm.translation),
@@ -818,7 +817,7 @@ class TMCommon():
         }
     @staticmethod
     def jsonToTm(node, tmInJson):
-        jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
+        jsonEx = JsonEx.JsonEx
         node.texture_mapping.vector_type = tmInJson['vector_type']
         jsonEx.vector3LoadFromJson(node.texture_mapping.translation, tmInJson['translation'])
         jsonEx.vector3LoadFromJson(node.texture_mapping.rotation, tmInJson['rotation'])
@@ -861,7 +860,7 @@ class IUCommon():
 class CMCommon():
     @staticmethod
     def cmToJson(cm):
-        jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
+        jsonEx = JsonEx.JsonEx
         return {
             'use_color_ramp': cm.use_color_ramp,
             'brightness': cm.brightness,
@@ -874,7 +873,7 @@ class CMCommon():
         }
     @staticmethod
     def jsonToCm(node, cmInJson):
-        jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
+        jsonEx = JsonEx.JsonEx
         node.color_mapping.use_color_ramp = cmInJson['use_color_ramp']
         node.color_mapping.brightness = cmInJson['brightness']
         node.color_mapping.contrast = cmInJson['contrast']
@@ -895,7 +894,7 @@ class NodeColorRamp():
             'color_mode': cr.color_mode,
             'elements': []
         }
-        jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
+        jsonEx = JsonEx.JsonEx
         for element in cr.elements:
             rez['elements'].append({
                 'color': jsonEx.propArrayToJson(element.color),
@@ -908,7 +907,7 @@ class NodeColorRamp():
         colorRamp.interpolation = crInJson['interpolation']
         colorRamp.hue_interpolation = crInJson['hue_interpolation']
         colorRamp.color_mode = crInJson['color_mode']
-        jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
+        jsonEx = JsonEx.JsonEx
         for i, element in enumerate(crInJson['elements']):
             if len(colorRamp.elements) <= i:
                 colorRamp.elements.new(element['position'])
@@ -921,7 +920,7 @@ class NodeColorRamp():
 class CurveMapping():
     @staticmethod
     def cumToJson(cum):
-        jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
+        jsonEx = JsonEx.JsonEx
         rez = {
             'use_clip': cum.use_clip,
             'clip_min_x': cum.clip_min_x,
@@ -937,7 +936,7 @@ class CurveMapping():
         return rez
     @staticmethod
     def jsonToCum(cum, cumInJson):
-        jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
+        jsonEx = JsonEx.JsonEx
         cum.use_clip = cumInJson['use_clip']
         cum.clip_min_x = cumInJson['clip_min_x']
         cum.clip_min_y = cumInJson['clip_min_y']
@@ -974,7 +973,7 @@ class CurveMap():
 class CurveMapPoint():
     @staticmethod
     def cmpToJson(cmp):
-        jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
+        jsonEx = JsonEx.JsonEx
         return {
             'location': jsonEx.vector2ToJson(cmp.location),
             'handle_type': cmp.handle_type,
@@ -982,7 +981,7 @@ class CurveMapPoint():
         }
     @staticmethod
     def jsonToCmp(cmp, cmpInJson):
-        jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
+        jsonEx = JsonEx.JsonEx
         jsonEx.vector2LoadFromJson(cmp.location, cmpInJson['location'])
         cmp.handle_type = cmpInJson['handle_type']
         cmp.select = cmpInJson['select']
@@ -1014,18 +1013,18 @@ class IONodeSocketColor(IOCommon):
     @staticmethod
     def ioToJson(io):
         ioJson = super(__class__, __class__).ioToJson(io)
-        jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
+        jsonEx = JsonEx.JsonEx
         ioJson['default_value'] = jsonEx.propArrayToJson(io.default_value)
         return ioJson
     @staticmethod
     def jsonToI(node, inputNumber, inputInJson):
         super(__class__, __class__).jsonToI(node, inputNumber, inputInJson)
-        jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
+        jsonEx = JsonEx.JsonEx
         jsonEx.propArrayLoadFromJson(node.inputs[inputNumber].default_value, inputInJson['default_value'])
     @staticmethod
     def jsonToO(node, outputNumber, outputInJson):
         super(__class__, __class__).jsonToO(node, outputNumber, outputInJson)
-        jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
+        jsonEx = JsonEx.JsonEx
         jsonEx.propArrayLoadFromJson(node.outputs[outputNumber].default_value, outputInJson['default_value'])
 
 
@@ -1113,7 +1112,7 @@ class GIONodeSocketColor(GIOCommon):
     @staticmethod
     def gioToJson(io, gio = None):
         gioJson = super(__class__, __class__).gioToJson(io, gio)
-        jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
+        jsonEx = JsonEx.JsonEx
         gioJson['default_value'] = jsonEx.propArrayToJson(io.default_value)
         if gio:
             gioJson['value'] = jsonEx.propArrayToJson(gio.default_value)
@@ -1121,7 +1120,7 @@ class GIONodeSocketColor(GIOCommon):
     @staticmethod
     def jsonToGi(nodeTree, groupNode, inputNumber, inputInJson):
         currentInput = super(__class__, __class__).jsonToGi(nodeTree, groupNode, inputNumber, inputInJson)
-        jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
+        jsonEx = JsonEx.JsonEx
         jsonEx.propArrayLoadFromJson(currentInput.default_value, inputInJson['default_value'])
         if inputInJson['value']:
             jsonEx.propArrayLoadFromJson(groupNode.inputs[inputNumber].default_value, inputInJson['value'])
@@ -1129,7 +1128,7 @@ class GIONodeSocketColor(GIOCommon):
     @staticmethod
     def jsonToGo(nodeTree, outputInJson):
         currentOutput = super(__class__, __class__).jsonToGo(nodeTree, outputInJson)
-        jsonEx = sys.modules[modulesNames['JsonEx']].JsonEx
+        jsonEx = JsonEx.JsonEx
         jsonEx.propArrayLoadFromJson(currentOutput.default_value, outputInJson['default_value'])
         return currentOutput
 

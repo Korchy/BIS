@@ -5,6 +5,7 @@ import json
 import bpy
 import base64
 import sys
+from . import WebRequests
 
 
 class TextManager():
@@ -35,7 +36,7 @@ class TextManager():
     def toBis(text, tags = ''):
         if text.as_string():
             textJson = __class__.textToJson(text)
-            request = sys.modules[modulesNames['WebRequests']].WebRequest.sendRequest({
+            request = WebRequests.WebRequest.sendRequest({
                 'for': 'set_text',
                 'text': json.dumps(textJson),
                 'text_name': textJson['name'],
@@ -52,7 +53,7 @@ class TextManager():
     def fromBis(id):
         rez = {"stat": "ERR", "data": {"text": "No Id", "content": None}}
         if(id):
-            request = sys.modules[modulesNames['WebRequests']].WebRequest.sendRequest({
+            request = WebRequests.WebRequest.sendRequest({
                 'for': 'get_text',
                 'id': id
             })

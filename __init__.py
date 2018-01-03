@@ -5,7 +5,7 @@ bl_info = {
     'name': 'BIS',
     'category': 'Material',
     'author': 'Nikita Akimov',
-    'version': (1, 0, 0),
+    'version': (1, 0, 1),
     'blender': (2, 79, 0),
     'location': 'T-Panel > BIS',
     'wiki_url': 'https://b3d.interplanety.org/en/bis-online-blender-material-storage/',
@@ -13,40 +13,44 @@ bl_info = {
     'description': 'BIS - Blender Interplanety Storage'
 }
 
-import sys
-import importlib
-
-modulesNames = ['BIS_addNodeToStorage', 'BIS_getNodeFromStorage', 'BIS_getNodesFromStorage', 'BIS_nodesPanel', 'NodeManager',
-                'BIS_addTextToStorage', 'BIS_getTextFromStorage', 'BIS_getTextsFromStorage', 'BIS_textsPanel', 'TextManager',
-                'WebRequests', 'MessageBox', 'JsonEx', 'BIS_Items']
-
-modulesFullNames = {}
-for currentModuleName in modulesNames:
-    if 'DEBUG_MODE' in sys.argv:
-        modulesFullNames[currentModuleName] = ('{}'.format(currentModuleName))
-    else:
-        modulesFullNames[currentModuleName] = ('{}.{}'.format(__name__, currentModuleName))
-
-for currentModuleFullName in modulesFullNames.values():
-    if currentModuleFullName in sys.modules:
-        importlib.reload(sys.modules[currentModuleFullName])
-    else:
-        globals()[currentModuleFullName] = importlib.import_module(currentModuleFullName)
-        setattr(globals()[currentModuleFullName], 'modulesNames', modulesFullNames)
+from . import BIS_addNodeToStorage
+from . import BIS_getNodeFromStorage
+from . import BIS_getNodesFromStorage
+from . import BIS_nodesPanel
+from . import BIS_addTextToStorage
+from . import BIS_getTextFromStorage
+from . import BIS_getTextsFromStorage
+from . import BIS_textsPanel
+from . import WebRequests
+from . import MessageBox
+from . import BIS_Items
 
 
 def register():
-    for currentModuleName in modulesFullNames.values():
-        if currentModuleName in sys.modules:
-            if hasattr(sys.modules[currentModuleName], 'register'):
-                sys.modules[currentModuleName].register()
-
+    BIS_addNodeToStorage.register()
+    BIS_getNodeFromStorage.register()
+    BIS_getNodesFromStorage.register()
+    BIS_nodesPanel.register()
+    BIS_addTextToStorage.register()
+    BIS_getTextFromStorage.register()
+    BIS_getTextsFromStorage.register()
+    BIS_textsPanel.register()
+    WebRequests.register()
+    MessageBox.register()
+    BIS_Items.register()
 
 def unregister():
-    for currentModuleName in modulesFullNames.values():
-        if currentModuleName in sys.modules:
-            if hasattr(sys.modules[currentModuleName], 'unregister'):
-                sys.modules[currentModuleName].unregister()
+    BIS_Items.unregister()
+    MessageBox.unregister()
+    WebRequests.unregister()
+    BIS_textsPanel.unregister()
+    BIS_getTextsFromStorage.unregister()
+    BIS_getTextFromStorage.unregister()
+    BIS_addTextToStorage.unregister()
+    BIS_nodesPanel.unregister()
+    BIS_getNodesFromStorage.unregister()
+    BIS_getNodeFromStorage.unregister()
+    BIS_addNodeToStorage.unregister()
 
 
 if __name__ == "__main__":

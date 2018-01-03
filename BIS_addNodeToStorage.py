@@ -2,8 +2,9 @@
 # interplanety@interplanety.org
 
 import bpy
-import sys
 import json
+from . import NodeManager
+from . import WebRequests
 
 
 class BIS_addNodeToStorage(bpy.types.Operator):
@@ -21,17 +22,23 @@ class BIS_addNodeToStorage(bpy.types.Operator):
             activeNode = bpy.context.active_node
             nodeGroupTags = ''
             if bpy.context.area.spaces.active.tree_type == 'ShaderNodeTree':
-                activeNode = bpy.context.active_object.active_material.node_tree.nodes.active
-                nodeGroupTags = 'shader'
+                if bpy.context.space_data.shader_type == 'WORLD':
+                    activeNode = bpy.context.scene.world.node_tree.nodes.active
+                    nodeGroupTags = 'world'
+                elif bpy.context.space_data.shader_type == 'OBJECT':
+                    activeNode = bpy.context.active_object.active_material.node_tree.nodes.active
+                    nodeGroupTags = 'shader'
             elif bpy.context.area.spaces.active.tree_type == 'CompositorNodeTree':
                 nodeGroupTags = 'compositing'
-            nodeGroupJson = sys.modules[modulesNames['NodeManager']].NodeManager.nodeGroupToJson(activeNode)
+            nodeGroupJson = NodeManager.NodeManager.nodeGroupToJson(activeNode)
             if nodeGroupJson:
                 if bpy.context.scene.bis_add_nodegroup_to_storage_vars.tags != '':
                     nodeGroupTags += (';' if nodeGroupTags else '') + bpy.context.scene.bis_add_nodegroup_to_storage_vars.tags
-                request = sys.modules[modulesNames['WebRequests']].WebRequest.sendRequest({
+                request = WebRequests.WebRequest.sendRequest({
                     'for': 'set_node_group',
                     'node_group': json.dumps(nodeGroupJson),
+                    'node_group_subtype': nodeGroupJson['bl_type'],
+                    'node_group_subtype2': bpy.context.space_data.shader_type,
                     'node_group_name': nodeGroupJson['name'],
                     'node_group_tags': (nodeGroupTags).strip()
                 })

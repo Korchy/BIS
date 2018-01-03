@@ -2,7 +2,7 @@
 # interplanety@interplanety.org
 
 import bpy
-import sys
+from . import TextManager
 
 
 class BIS_getTextFromStorage(bpy.types.Operator):
@@ -12,18 +12,18 @@ class BIS_getTextFromStorage(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     textId = bpy.props.IntProperty(
-        name = 'TextId',
-        default = 0
+        name='TextId',
+        default=0
     )
     showMessage = bpy.props.BoolProperty(
-        default = False
+        default=False
     )
 
     def execute(self, context):
-        rez = sys.modules[modulesNames['TextManager']].TextManager.fromBis(self.textId)
+        rez = TextManager.TextManager.fromBis(self.textId)
         if rez['stat'] == 'OK':
             if self.showMessage:
-                bpy.ops.message.messagebox('INVOKE_DEFAULT', message = rez['data']['text'])
+                bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['data']['text'])
         return {'FINISHED'}
 
 
