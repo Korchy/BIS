@@ -31,15 +31,8 @@ Installation and usage:
 
 Version history:
 ---
-0.0.1
-- Early access
-
-0.0.2
-- Supports all cyceles nodes from groups (Shift + a): Input, Output, Shader, Texture, Color
-
-0.0.3
-- Supports all cyceles nodes
-- Supports saving texts from Text editor
+1.0.1
+- Internal code updates
 
 1.0.0
 - Release!
@@ -48,3 +41,13 @@ Version history:
 - Fixed and corrected some add-on code.
 - Updated the BIS description page.
 - Fixed a number of minor bugs and errors.
+
+0.0.3
+- Supports all cyceles nodes
+- Supports saving texts from Text editor
+
+0.0.2
+- Supports all cyceles nodes from groups (Shift + a): Input, Output, Shader, Texture, Color
+
+0.0.1
+- Early access
