@@ -203,7 +203,7 @@ class NodeShaderNodeTexEnvironment(NodeCommon):
         nodeJson['image'] = ''
         nodeJson['image_source'] = ''
         if node.image:
-            nodeJson['image'] = node.image.filepath
+            nodeJson['image'] = os.path.abspath(node.image.filepath)
             nodeJson['image_source'] = node.image.source
         nodeJson['color_space'] = node.color_space
         nodeJson['projection'] = node.projection
