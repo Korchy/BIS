@@ -5,7 +5,7 @@ bl_info = {
     'name': 'BIS',
     'category': 'Material',
     'author': 'Nikita Akimov',
-    'version': (1, 0, 1),
+    'version': (1, 1, 0),
     'blender': (2, 79, 0),
     'location': 'T-Panel > BIS',
     'wiki_url': 'https://b3d.interplanety.org/en/bis-online-blender-material-storage/',

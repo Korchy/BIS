@@ -31,6 +31,9 @@ Installation and usage:
 
 Version history:
 ---
+1.1.0
+- Preview automatically generation for procedural node groups added
+
 1.0.1
 - Internal code updates
 

@@ -727,7 +727,7 @@ class NodeShaderNodeGroup(NodeCommon):
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
-        tree_type = nodeInJson['tree_type'] if 'tree_type' in nodeInJson else bpy.context.area.spaces.active.tree_type
+        tree_type = nodeInJson['tree_type'] if 'tree_type' in nodeInJson else 'ShaderNodeTree'
         currentNode.node_tree = bpy.data.node_groups.new(type=tree_type, name=nodeInJson['name'])
         nodeGroupTreeNodesIndexed = []
         # GroupInputs
@@ -752,8 +752,7 @@ class NodeShaderNodeGroup(NodeCommon):
             nodeClass = NodeCommon
             if hasattr(sys.modules[__name__], 'Node' + currentNodeInJson['bl_type']):
                 nodeClass = getattr(sys.modules[__name__], 'Node' + currentNodeInJson['bl_type'])
-            cNode = nodeClass.jsonToNode(nodeTree = currentNode.node_tree,
-                                               nodeInJson = currentNodeInJson)
+            cNode = nodeClass.jsonToNode(nodeTree=currentNode.node_tree, nodeInJson=currentNodeInJson)
             if cNode:
                 # Node Inputs
                 currentInputs = []

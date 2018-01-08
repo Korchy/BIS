@@ -135,7 +135,7 @@ class WebAuth(bpy.types.Operator):
             configFile.close()
 
 
-class WebRequestsVars():
+class WebRequestsVars:
     session = None
 
     @staticmethod
@@ -151,15 +151,15 @@ class WebRequestsVars():
             WebRequestsVars.session = None
 
 
-class WebRequest():
+class WebRequest:
     @staticmethod
-    def sendRequest(data = {}, hostTarget = 'blender_request'):
+    def sendRequest(data={}, files={}, hostTarget='blender_request'):
         session = WebRequestsVars.getSession()
         requestData = {'requestbase': WebAuthVars.requestBase, 'token': WebAuthVars.token}
         requestData.update(data)
         request = None
         try:
-            request = session.post(WebAuthVars.host + '/' + hostTarget, data = requestData)
+            request = session.post(WebAuthVars.host + '/' + hostTarget, data=requestData, files=files)
         except requests.exceptions.RequestException as error:
             print('ERR: No internet connection to BIS')
         if request:
@@ -167,8 +167,8 @@ class WebRequest():
             try:
                 requestRez = json.loads(request.text)
             except ValueError as error:
-                request = None
                 print(request.text)
+                request = None
             if requestRez:
                 if requestRez['stat'] != 'OK':
                     print(requestRez['stat'] + ': ' + (requestRez['data']['text'] if 'data' in requestRez else ''))
