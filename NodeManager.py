@@ -8,18 +8,22 @@ from . import JsonEx
 from . import TextManager
 
 
-class NodeManager():
+class NodeManager:
 
     @staticmethod
-    def nodeGroupToJson(nodeGroup):
+    def nodeGroupToJson(nodegroup):
         groupInJson = None
-        if nodeGroup.type == 'GROUP':
-            groupInJson = NodeShaderNodeGroup.nodeToJson(nodeGroup)
+        if nodegroup.type == 'GROUP':
+            groupInJson = NodeShaderNodeGroup.nodeToJson(nodegroup)
+
+
             # Write to file
-            # import os
-            # import json
-            # with open(os.path.dirname(bpy.data.filepath) + os.sep + 'GroupNode.json', 'w') as currentFile:
-            #     json.dump(groupInJson, currentFile, indent = 4)
+            import os
+            import json
+            with open(os.path.dirname(bpy.data.filepath) + os.sep + 'GroupNode.json', 'w') as currentFile:
+                json.dump(groupInJson, currentFile, indent = 4)
+
+
         return groupInJson
 
     @staticmethod
@@ -35,7 +39,7 @@ class NodeManager():
 
 
 # Node
-class NodeCommon():
+class NodeCommon:
     @staticmethod
     def nodeToJson(node):
         jsonEx = JsonEx.JsonEx
@@ -50,9 +54,11 @@ class NodeCommon():
             'height': node.height,
             'use_custom_color': node.use_custom_color,
             'color': jsonEx.colorToJson(node.color),
+            'parent': node.parent.name if node.parent else '',
             'inputs': [],
             'outputs': []
         }
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         jsonEx = JsonEx.JsonEx
@@ -65,6 +71,7 @@ class NodeCommon():
         currentNode.height = nodeInJson['height']
         currentNode.use_custom_color = nodeInJson['use_custom_color']
         jsonEx.colorLoadFromJson(currentNode.color, nodeInJson['color'])
+        currentNode['parent_str'] = nodeInJson['parent']
         return currentNode
 
 
@@ -74,6 +81,7 @@ class NodeShaderNodeBsdfGlossy(NodeCommon):
         nodeJson = super(__class__, __class__).nodeToJson(node)
         nodeJson['distribution'] = node.distribution
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -724,6 +732,7 @@ class NodeShaderNodeGroup(NodeCommon):
                 nodeIndex += 1
             nodeJson['links'].append([fromNodeIndex, fromNodeOutputIndex, toNodeIndex, toNodeInputIndex])
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -787,7 +796,15 @@ class NodeShaderNodeGroup(NodeCommon):
                 fromOutput = nodeGroupTreeNodesIndexed[linkInJson[0]][1][linkInJson[1]]
                 toInput = nodeGroupTreeNodesIndexed[linkInJson[2]][0][linkInJson[3]]
                 currentNode.node_tree.links.new(fromOutput, toInput)
+        #Frames
+        for node in currentNode.node_tree.nodes:
+
+            print(node['parent_str'])
+            if node['parent_str']:
+                node.parent = currentNode.node_tree.nodes[node['parent_str']]
+
         return currentNode
+
     @staticmethod
     def ioTypesCompatibility(ioType1, ioType2):
         # for older compatibilty SocketFloatFactor = SocketFloat (ex: MixRGB)
