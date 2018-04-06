@@ -16,13 +16,10 @@ class NodeManager:
         if nodegroup.type == 'GROUP':
             groupInJson = NodeShaderNodeGroup.nodeToJson(nodegroup)
 
-
             # Write to file
-            import os
-            import json
-            with open(os.path.dirname(bpy.data.filepath) + os.sep + 'GroupNode.json', 'w') as currentFile:
-                json.dump(groupInJson, currentFile, indent = 4)
-
+            # import json
+            # with open(os.path.dirname(bpy.data.filepath) + os.sep + 'GroupNode.json', 'w') as currentFile:
+            #     json.dump(groupInJson, currentFile, indent = 4)
 
         return groupInJson
 
