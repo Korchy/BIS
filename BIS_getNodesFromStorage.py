@@ -16,8 +16,8 @@ class BIS_getNodesInfoFromStorage(bpy.types.Operator):
     def execute(self, context):
         request = WebRequests.WebRequest.sendRequest({
             'for': 'search_nodes',
-            'search_filter': bpy.context.window_manager.bis_get_nodes_info_from_storage_vars.searchFilter,
-            'update_preview': bpy.context.window_manager.bis_get_nodes_info_from_storage_vars.updatePreviews
+            'search_filter': context.window_manager.bis_get_nodes_info_from_storage_vars.searchFilter,
+            'update_preview': context.window_manager.bis_get_nodes_info_from_storage_vars.updatePreviews
         })
         if request:
             searchRez = json.loads(request.text)
