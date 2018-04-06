@@ -71,7 +71,8 @@ class NodeCommon:
         currentNode.height = nodeInJson['height']
         currentNode.use_custom_color = nodeInJson['use_custom_color']
         jsonEx.colorLoadFromJson(currentNode.color, nodeInJson['color'])
-        currentNode['parent_str'] = nodeInJson['parent']
+        if 'parent' in nodeInJson:
+            currentNode['parent_str'] = nodeInJson['parent']
         return currentNode
 
 
@@ -798,11 +799,8 @@ class NodeShaderNodeGroup(NodeCommon):
                 currentNode.node_tree.links.new(fromOutput, toInput)
         #Frames
         for node in currentNode.node_tree.nodes:
-
-            print(node['parent_str'])
             if node['parent_str']:
                 node.parent = currentNode.node_tree.nodes[node['parent_str']]
-
         return currentNode
 
     @staticmethod
