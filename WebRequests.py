@@ -29,18 +29,18 @@ class WebAuthVars(bpy.types.PropertyGroup):
 
 
 class WebAuth(bpy.types.Operator):
-    bl_idname = "dialog.web_auth"
-    bl_label = "Authorization"
+    bl_idname = 'dialog.web_auth'
+    bl_label = 'Authorization'
 
     userLogin = bpy.props.StringProperty(
-        name = "Login",
-        description = "User Login",
+        name = 'Login',
+        description = 'User Login',
         default = ''
     )
     userPassword = bpy.props.StringProperty(
         subtype = 'PASSWORD',
-        name = "Password",
-        description = "User Password",
+        name = 'Password',
+        description = 'User Password',
         default = ''
     )
     userStayLogged = bpy.props.BoolProperty(
@@ -93,7 +93,7 @@ class WebAuth(bpy.types.Operator):
             else:
                 __class__.logOff()
         else:
-            request = WebRequest.sendRequest(data = {'userlogin': self.userLogin, 'userpassword': self.userPassword}, hostTarget = 'blender_auth')
+            request = WebRequest.sendRequest(data={'userlogin': self.userLogin, 'userpassword': self.userPassword}, hostTarget='blender_auth')
             self.userPassword = ''
             if request:
                 requestRez = json.loads(request.text)
@@ -101,10 +101,10 @@ class WebAuth(bpy.types.Operator):
                     WebAuthVars.logged = True
                     WebAuthVars.token = requestRez['data']['token']
                     WebAuthVars.userLogin = self.userLogin
-                    __class__.saveConfig(userLogin = WebAuthVars.userLogin,
-                                         token = WebAuthVars.token if self.userStayLogged else '')
+                    __class__.saveConfig(userLogin=WebAuthVars.userLogin,
+                                         token=WebAuthVars.token if self.userStayLogged else '')
                 else:
-                    bpy.ops.message.messagebox('INVOKE_DEFAULT', message = requestRez['data']['txt'])
+                    bpy.ops.message.messagebox('INVOKE_DEFAULT', message=requestRez['data']['txt'])
                     __class__.logOff()
 
     @staticmethod
@@ -187,5 +187,5 @@ def unregister():
     WebRequestsVars.closeSession()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     register()
