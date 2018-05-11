@@ -18,13 +18,19 @@ class NodeManager:
 
             # Write to file
             # import json
-            # with open(os.path.dirname(bpy.data.filepath) + os.sep + 'GroupNode.json', 'w') as currentFile:
-            #     json.dump(groupInJson, currentFile, indent = 4)
+            # with open(os.path.join(os.path.dirname(bpy.data.filepath), 'send_to_server.json'), 'w') as currentFile:
+            #     json.dump(groupInJson, currentFile, indent=4)
 
         return groupInJson
 
     @staticmethod
     def jsonToNodeGroup(destNodeTree, nodeInJson):
+
+        # Write to file
+        # import json
+        # with open(os.path.join(os.path.dirname(bpy.data.filepath), 'received_from_server.json'), 'w') as currentFile:
+        #     json.dump(nodeInJson, currentFile, indent=4)
+
         currentNode = None
         if destNodeTree:
             nodeClass = NodeCommon
@@ -59,7 +65,7 @@ class NodeCommon:
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         jsonEx = JsonEx.JsonEx
-        currentNode = nodeTree.nodes.new(type = nodeInJson['bl_type'])
+        currentNode = nodeTree.nodes.new(type=nodeInJson['bl_type'])
         currentNode.name = nodeInJson['name']
         currentNode.hide = nodeInJson['hide']
         currentNode.label = nodeInJson['label']
@@ -68,8 +74,7 @@ class NodeCommon:
         currentNode.height = nodeInJson['height']
         currentNode.use_custom_color = nodeInJson['use_custom_color']
         jsonEx.colorLoadFromJson(currentNode.color, nodeInJson['color'])
-        if 'parent' in nodeInJson:
-            currentNode['parent_str'] = nodeInJson['parent']
+        currentNode['parent_str'] = nodeInJson['parent'] if 'parent' in nodeInJson else ''
         return currentNode
 
 
@@ -105,6 +110,7 @@ class NodeShaderNodeAttribute(NodeCommon):
         nodeJson = super(__class__, __class__).nodeToJson(node)
         nodeJson['attribute_name'] = node.attribute_name
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -120,6 +126,7 @@ class NodeShaderNodeTangent(NodeCommon):
         nodeJson['axis'] = node.axis
         nodeJson['uv_map'] = node.uv_map
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -136,6 +143,7 @@ class NodeShaderNodeUVMap(NodeCommon):
         nodeJson['from_dupli'] = node.from_dupli
         nodeJson['uv_map'] = node.uv_map
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -153,6 +161,7 @@ class NodeShaderNodeTexCoord(NodeCommon):
             nodeJson['object'] = node.object.name
         nodeJson['from_dupli'] = node.from_dupli
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -182,6 +191,7 @@ class NodeShaderNodeTexPointDensity(NodeCommon):
         nodeJson['vertex_color_source'] = node.vertex_color_source
         nodeJson['vertex_attribute_name'] = node.vertex_attribute_name
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -218,6 +228,7 @@ class NodeShaderNodeTexEnvironment(NodeCommon):
         nodeJson['image_user'] = IUCommon.iuToJson(node.image_user)
         nodeJson['color_mapping'] = CMCommon.cmToJson(node.color_mapping)
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -246,6 +257,7 @@ class NodeShaderNodeTexImage(NodeShaderNodeTexEnvironment):
         nodeJson['projection_blend'] = node.projection_blend
         nodeJson['extension'] = node.extension
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -261,6 +273,7 @@ class NodeShaderNodeTexChecker(NodeCommon):
         nodeJson['texture_mapping'] = TMCommon.tmToJson(node.texture_mapping)
         nodeJson['color_mapping'] = CMCommon.cmToJson(node.color_mapping)
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -278,6 +291,7 @@ class NodeShaderNodeTexBrick(NodeShaderNodeTexChecker):
         nodeJson['offset'] = node.offset
         nodeJson['squash'] = node.squash
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -294,6 +308,7 @@ class NodeShaderNodeTexGradient(NodeShaderNodeTexChecker):
         nodeJson = super(__class__, __class__).nodeToJson(node)
         nodeJson['gradient_type'] = node.gradient_type
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -307,6 +322,7 @@ class NodeShaderNodeTexMagic(NodeShaderNodeTexChecker):
         nodeJson = super(__class__, __class__).nodeToJson(node)
         nodeJson['turbulence_depth'] = node.turbulence_depth
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -320,6 +336,7 @@ class NodeShaderNodeTexMusgrave(NodeShaderNodeTexChecker):
         nodeJson = super(__class__, __class__).nodeToJson(node)
         nodeJson['musgrave_type'] = node.musgrave_type
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -333,6 +350,7 @@ class NodeShaderNodeTexVoronoi(NodeShaderNodeTexChecker):
         nodeJson = super(__class__, __class__).nodeToJson(node)
         nodeJson['coloring'] = node.coloring
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -347,6 +365,7 @@ class NodeShaderNodeTexWave(NodeShaderNodeTexChecker):
         nodeJson['wave_type'] = node.wave_type
         nodeJson['wave_profile'] = node.wave_profile
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -365,6 +384,7 @@ class NodeShaderNodeTexSky(NodeShaderNodeTexChecker):
         nodeJson['turbidity'] = node.turbidity
         nodeJson['ground_albedo'] = node.ground_albedo
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -386,6 +406,7 @@ class NodeShaderNodeWireframe(NodeCommon):
         nodeJson = super(__class__, __class__).nodeToJson(node)
         nodeJson['use_pixel_size'] = node.use_pixel_size
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -399,6 +420,7 @@ class NodeShaderNodeBsdfHair(NodeCommon):
         nodeJson = super(__class__, __class__).nodeToJson(node)
         nodeJson['component'] = node.component
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -416,6 +438,7 @@ class NodeShaderNodeSubsurfaceScattering(NodeCommon):
         nodeJson = super(__class__, __class__).nodeToJson(node)
         nodeJson['falloff'] = node.falloff
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -431,6 +454,7 @@ class NodeShaderNodeMixRGB(NodeCommon):
         nodeJson['use_alpha'] = node.use_alpha
         nodeJson['use_clamp'] = node.use_clamp
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -502,6 +526,7 @@ class NodeShaderNodeRGBCurve(NodeCommon):
         nodeJson = super(__class__, __class__).nodeToJson(node)
         nodeJson['mapping'] = CurveMapping.cumToJson(node.mapping)
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -519,6 +544,7 @@ class NodeShaderNodeBump(NodeCommon):
         nodeJson = super(__class__, __class__).nodeToJson(node)
         nodeJson['invert'] = node.invert
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -534,6 +560,7 @@ class NodeShaderNodeVectorTransform(NodeCommon):
         nodeJson['convert_from'] = node.convert_from
         nodeJson['convert_to'] = node.convert_to
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -549,6 +576,7 @@ class NodeShaderNodeValToRGB(NodeCommon):
         nodeJson = super(__class__, __class__).nodeToJson(node)
         nodeJson['color_ramp'] = NodeColorRamp.crToJson(node.color_ramp)
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -637,6 +665,7 @@ class NodeShaderNodeScript(NodeCommon):
         nodeJson['mode'] = node.mode
         nodeJson['use_auto_update'] = node.use_auto_update
         return nodeJson
+
     @staticmethod
     def jsonToNode(nodeTree, nodeInJson):
         currentNode = super(__class__, __class__).jsonToNode(nodeTree, nodeInJson)
@@ -762,7 +791,6 @@ class NodeShaderNodeGroup(NodeCommon):
             cNode = nodeClass.jsonToNode(nodeTree=currentNode.node_tree, nodeInJson=currentNodeInJson)
             if cNode:
                 # Node Inputs
-                currentInputs = []
                 for inputNumber, nodeInputInJson in enumerate(currentNodeInJson['inputs']):
                     if len(cNode.inputs) > inputNumber:
                         if nodeInputInJson:
@@ -770,12 +798,10 @@ class NodeShaderNodeGroup(NodeCommon):
                             if hasattr(sys.modules[__name__], 'IO' + nodeInputInJson['bl_type']):
                                 ioClass = getattr(sys.modules[__name__], 'IO' + nodeInputInJson['bl_type'])
                             if __class__.ioTypesCompatibility(cNode.inputs[inputNumber].bl_idname, nodeInputInJson['bl_type']):
-                                ioClass.jsonToI(node = cNode,
-                                                inputNumber = inputNumber,
-                                                inputInJson = nodeInputInJson)
-                        currentInputs.append(cNode.inputs[inputNumber])
+                                ioClass.jsonToI(node=cNode,
+                                                inputNumber=inputNumber,
+                                                inputInJson=nodeInputInJson)
                 # Node Outputs
-                currentOutputs = []
                 for outputNumber, nodeOutputInJson in enumerate(currentNodeInJson['outputs']):
                     if len(cNode.outputs) > outputNumber:
                         if nodeOutputInJson:
@@ -783,21 +809,22 @@ class NodeShaderNodeGroup(NodeCommon):
                             if hasattr(sys.modules[__name__], 'IO' + nodeOutputInJson['bl_type']):
                                 ioClass = getattr(sys.modules[__name__], 'IO' + nodeOutputInJson['bl_type'])
                             if __class__.ioTypesCompatibility(cNode.outputs[outputNumber].bl_idname, nodeOutputInJson['bl_type']):
-                                ioClass.jsonToO(node = cNode,
-                                                outputNumber = outputNumber,
-                                                outputInJson = nodeOutputInJson)
-                        currentOutputs.append(cNode.outputs[outputNumber])
-                nodeGroupTreeNodesIndexed.append([currentInputs, currentOutputs])
+                                ioClass.jsonToO(node=cNode,
+                                                outputNumber=outputNumber,
+                                                outputInJson=nodeOutputInJson)
+                nodeGroupTreeNodesIndexed.append(cNode)
         # Links
         for linkInJson in nodeInJson['links']:
-            if linkInJson[1] in range(len(nodeGroupTreeNodesIndexed[linkInJson[0]][1])) and linkInJson[3] in range(len(nodeGroupTreeNodesIndexed[linkInJson[2]][0])):
-                fromOutput = nodeGroupTreeNodesIndexed[linkInJson[0]][1][linkInJson[1]]
-                toInput = nodeGroupTreeNodesIndexed[linkInJson[2]][0][linkInJson[3]]
+            if linkInJson[1] <= len(nodeGroupTreeNodesIndexed[linkInJson[0]].outputs) and linkInJson[3] <= len(nodeGroupTreeNodesIndexed[linkInJson[2]].inputs):
+                fromOutput = nodeGroupTreeNodesIndexed[linkInJson[0]].outputs[linkInJson[1]]
+                toInput = nodeGroupTreeNodesIndexed[linkInJson[2]].inputs[linkInJson[3]]
                 currentNode.node_tree.links.new(fromOutput, toInput)
         #Frames
         for node in currentNode.node_tree.nodes:
             if node['parent_str']:
-                node.parent = currentNode.node_tree.nodes[node['parent_str']]
+                parent_node = currentNode.node_tree.nodes[node['parent_str']]
+                node.parent = parent_node
+                node.location += parent_node.location
         return currentNode
 
     @staticmethod
@@ -809,7 +836,7 @@ class NodeShaderNodeGroup(NodeCommon):
 
 
 # Node TextureMapping
-class TMCommon():
+class TMCommon:
     @staticmethod
     def tmToJson(tm):
         jsonEx = JsonEx.JsonEx
@@ -827,6 +854,7 @@ class TMCommon():
             'mapping_z': tm.mapping_z,
             'mapping': tm.mapping
         }
+
     @staticmethod
     def jsonToTm(node, tmInJson):
         jsonEx = JsonEx.JsonEx
@@ -845,7 +873,7 @@ class TMCommon():
 
 
 # Node ImageUser
-class IUCommon():
+class IUCommon:
     @staticmethod
     def iuToJson(iu):
         return {
@@ -857,6 +885,7 @@ class IUCommon():
             'frame_start': iu.frame_start,
             'fields_per_frame': iu.fields_per_frame
         }
+
     @staticmethod
     def jsonToIu(node, iuInJson):
         node.image_user.use_auto_refresh = iuInJson['use_auto_refresh']
@@ -869,7 +898,7 @@ class IUCommon():
 
 
 # Node ColorMapping
-class CMCommon():
+class CMCommon:
     @staticmethod
     def cmToJson(cm):
         jsonEx = JsonEx.JsonEx
@@ -883,6 +912,7 @@ class CMCommon():
             'blend_factor': cm.blend_factor,
             'color_ramp': NodeColorRamp.crToJson(cm.color_ramp)
         }
+
     @staticmethod
     def jsonToCm(node, cmInJson):
         jsonEx = JsonEx.JsonEx
@@ -897,7 +927,7 @@ class CMCommon():
 
 
 # Node ColorRamp
-class NodeColorRamp():
+class NodeColorRamp:
     @staticmethod
     def crToJson(cr):
         rez = {
@@ -914,6 +944,7 @@ class NodeColorRamp():
                 'position': element.position
             })
         return rez
+
     @staticmethod
     def jsonToCr(colorRamp, crInJson):
         colorRamp.interpolation = crInJson['interpolation']
@@ -929,7 +960,7 @@ class NodeColorRamp():
 
 
 # Node Curve Mapping (mapping)
-class CurveMapping():
+class CurveMapping:
     @staticmethod
     def cumToJson(cum):
         jsonEx = JsonEx.JsonEx
@@ -946,6 +977,7 @@ class CurveMapping():
         for curveMap in cum.curves:
             rez['curves'].append(CurveMap.cmToJson(curveMap))
         return rez
+
     @staticmethod
     def jsonToCum(cum, cumInJson):
         jsonEx = JsonEx.JsonEx
@@ -962,7 +994,7 @@ class CurveMapping():
 
 
 # CurveMap (curve)
-class CurveMap():
+class CurveMap:
     @staticmethod
     def cmToJson(cm):
         rez = {
@@ -972,6 +1004,7 @@ class CurveMap():
         for point in cm.points:
             rez['points'].append(CurveMapPoint.cmpToJson(point))
         return rez
+
     @staticmethod
     def jsonToCm(cm, cmInJson):
         cm.extend = cmInJson['extend']
@@ -982,7 +1015,7 @@ class CurveMap():
 
 
 # CurveMapPoint
-class CurveMapPoint():
+class CurveMapPoint:
     @staticmethod
     def cmpToJson(cmp):
         jsonEx = JsonEx.JsonEx
@@ -991,6 +1024,7 @@ class CurveMapPoint():
             'handle_type': cmp.handle_type,
             'select': cmp.select
         }
+
     @staticmethod
     def jsonToCmp(cmp, cmpInJson):
         jsonEx = JsonEx.JsonEx
@@ -1005,7 +1039,7 @@ class NodeCompositorNodeGroup(NodeShaderNodeGroup):
 
 
 # Node IO
-class IOCommon():
+class IOCommon:
     @staticmethod
     def ioToJson(io):
         return {
@@ -1013,9 +1047,11 @@ class IOCommon():
             'bl_type': io.bl_idname,
             'name': io.name
         }
+
     @staticmethod
     def jsonToI(node, inputNumber, inputInJson):
         node.inputs[inputNumber].name = inputInJson['name']
+
     @staticmethod
     def jsonToO(node, outputNumber, outputInJson):
         node.outputs[outputNumber].name = outputInJson['name']
@@ -1028,11 +1064,13 @@ class IONodeSocketColor(IOCommon):
         jsonEx = JsonEx.JsonEx
         ioJson['default_value'] = jsonEx.propArrayToJson(io.default_value)
         return ioJson
+
     @staticmethod
     def jsonToI(node, inputNumber, inputInJson):
         super(__class__, __class__).jsonToI(node, inputNumber, inputInJson)
         jsonEx = JsonEx.JsonEx
         jsonEx.propArrayLoadFromJson(node.inputs[inputNumber].default_value, inputInJson['default_value'])
+
     @staticmethod
     def jsonToO(node, outputNumber, outputInJson):
         super(__class__, __class__).jsonToO(node, outputNumber, outputInJson)
@@ -1062,10 +1100,12 @@ class IONodeSocketFloat(IOCommon):
         ioJson = super(__class__, __class__).ioToJson(io)
         ioJson['default_value'] = io.default_value
         return ioJson
+
     @staticmethod
     def jsonToI(node, inputNumber, inputInJson):
         super(__class__, __class__).jsonToI(node, inputNumber, inputInJson)
         node.inputs[inputNumber].default_value = inputInJson['default_value']
+
     @staticmethod
     def jsonToO(node, outputNumber, outputInJson):
         super(__class__, __class__).jsonToO(node, outputNumber, outputInJson)
@@ -1088,13 +1128,15 @@ class IONodeSocketInt(IONodeSocketFloat):
     pass
 
 
-class IONodeGroupInput():
+class IONodeGroupInput:
     @staticmethod
     def ioToJson(io):
         return {}
+
     @staticmethod
     def jsonToI(node, inputNumber, inputInJson):
         pass
+
     def jsonToO(node, outputNumber, outputInJson):
         pass
 

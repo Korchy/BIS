@@ -9,22 +9,22 @@ import requests
 
 class WebAuthVars(bpy.types.PropertyGroup):
     logged = bpy.props.BoolProperty(
-        default = False
+        default=False
     )
     host = bpy.props.StringProperty(
-        default = ''
+        default=''
     )
     userLogin = bpy.props.StringProperty(
-        default = ''
+        default=''
     )
     userStayLogged = bpy.props.BoolProperty(
-        default = False
+        default=False
     )
     token = bpy.props.StringProperty(
-        default = ''
+        default=''
     )
     requestBase = bpy.props.StringProperty(
-        default = ''
+        default=''
     )
 
 
@@ -33,20 +33,20 @@ class WebAuth(bpy.types.Operator):
     bl_label = 'Authorization'
 
     userLogin = bpy.props.StringProperty(
-        name = 'Login',
-        description = 'User Login',
-        default = ''
+        name='Login',
+        description='User Login',
+        default=''
     )
     userPassword = bpy.props.StringProperty(
-        subtype = 'PASSWORD',
-        name = 'Password',
-        description = 'User Password',
-        default = ''
+        subtype='PASSWORD',
+        name='Password',
+        description='User Password',
+        default=''
     )
     userStayLogged = bpy.props.BoolProperty(
-        name = 'Stay logged (insecure)',
-        description = 'Stay logged',
-        default = False
+        name='Stay logged (insecure)',
+        description='Stay logged',
+        default=False
     )
 
     def execute(self, context):
@@ -54,7 +54,7 @@ class WebAuth(bpy.types.Operator):
             __class__.logOff()
         else:
             self.logIn()
-        for area in bpy.context.screen.areas:
+        for area in context.screen.areas:
             area.tag_redraw()
         return {'FINISHED'}
 
@@ -70,7 +70,7 @@ class WebAuth(bpy.types.Operator):
     def getInitData(cls):
         WebAuthVars.logged = False
         WebAuthVars.userStayLogged = False
-        with open(os.path.dirname(os.path.abspath(__file__)) + os.sep + 'config.json') as currentFile:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json')) as currentFile:
             jsonData = json.load(currentFile)
             WebAuthVars.host = jsonData['host']
             WebAuthVars.requestBase = jsonData['requestbase']
@@ -101,10 +101,10 @@ class WebAuth(bpy.types.Operator):
                     WebAuthVars.logged = True
                     WebAuthVars.token = requestRez['data']['token']
                     WebAuthVars.userLogin = self.userLogin
-                    __class__.saveConfig(userLogin=WebAuthVars.userLogin,
+                    __class__.saveConfig(user_login=WebAuthVars.userLogin,
                                          token=WebAuthVars.token if self.userStayLogged else '')
                 else:
-                    bpy.ops.message.messagebox('INVOKE_DEFAULT', message=requestRez['data']['txt'])
+                    bpy.ops.message.messagebox('INVOKE_DEFAULT', message=requestRez['data']['text'])
                     __class__.logOff()
 
     @staticmethod
@@ -112,11 +112,11 @@ class WebAuth(bpy.types.Operator):
         WebAuthVars.token = ''
         WebAuthVars.logged = False
         WebRequestsVars.closeSession()
-        __class__.saveConfig(userLogin = WebAuthVars.userLogin)
+        __class__.saveConfig(user_login = WebAuthVars.userLogin)
 
     @staticmethod
-    def checkTokenValid(userLogin = '', token = ''):
-        request = WebRequest.sendRequest(data = {'userlogin': userLogin, 'token': token}, hostTarget = 'blender_auth')
+    def checkTokenValid(user_login='', token=''):
+        request = WebRequest.sendRequest(data={'userlogin': user_login, 'token': token}, hostTarget='blender_auth')
         if request:
             requestRez = json.loads(request.text)
             if requestRez['stat'] == 'OK':
@@ -124,14 +124,14 @@ class WebAuth(bpy.types.Operator):
         return False
 
     @staticmethod
-    def saveConfig(userLogin = '', token = ''):
-        with open(os.path.dirname(os.path.abspath(__file__)) + os.sep + 'config.json', 'r+') as configFile:
+    def saveConfig(user_login='', token=''):
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json'), 'r+') as configFile:
             jsonData = json.load(configFile)
             jsonData['token'] = token
-            jsonData['userLogin'] = userLogin
+            jsonData['userLogin'] = user_login
             configFile.seek(0)
             configFile.truncate()
-            json.dump(jsonData, configFile, indent = 4)
+            json.dump(jsonData, configFile, indent=4)
             configFile.close()
 
 
