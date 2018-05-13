@@ -3,8 +3,8 @@
 
 import bpy
 import json
-from . import WebRequests
-from . import NodeManager
+from .WebRequests import WebRequest
+from .NodeManager import NodeManager
 
 
 class BIS_getNodeFromStorage(bpy.types.Operator):
@@ -20,8 +20,12 @@ class BIS_getNodeFromStorage(bpy.types.Operator):
 
     def execute(self, context):
         if self.nodeGroupId:
-            request = WebRequests.WebRequest.sendRequest({
+            subtype = NodeManager.get_subtype(context)
+            subtype2 = NodeManager.get_subtype2(context)
+            request = WebRequest.sendRequest({
                 'for': 'get_node_group',
+                'subtype': subtype,
+                'subtype2': subtype2,
                 'id': self.nodeGroupId
             })
             if request:
@@ -30,13 +34,12 @@ class BIS_getNodeFromStorage(bpy.types.Operator):
                     bpy.ops.message.messagebox('INVOKE_DEFAULT', message=requestRez['data']['text'])
                 else:
                     nodeInJson = json.loads(requestRez['data']['item'])
-                    destNodeTree = None
-                    if nodeInJson['bl_type'] == 'CompositorNodeGroup':
-                        if context.area.spaces.active.node_tree.bl_idname == 'CompositorNodeTree':
-                            destNodeTree = context.area.spaces.active.node_tree
-                            if not context.screen.scene.use_nodes:
-                                context.screen.scene.use_nodes = True
-                    elif nodeInJson['bl_type'] == 'ShaderNodeGroup':
+                    dest_node_tree = None
+                    if subtype == 'CompositorNodeTree':
+                        dest_node_tree = context.area.spaces.active.node_tree
+                        if not context.screen.scene.use_nodes:
+                            context.screen.scene.use_nodes = True
+                    elif subtype == 'ShaderNodeTree':
                         if context.active_object:
                             if not context.active_object.active_material:
                                 context.active_object.active_material = bpy.data.materials.new(name='Material')
@@ -44,10 +47,12 @@ class BIS_getNodeFromStorage(bpy.types.Operator):
                                 for currentNode in context.active_object.active_material.node_tree.nodes:
                                     if currentNode.bl_idname != 'ShaderNodeOutputMaterial':
                                         context.active_object.active_material.node_tree.nodes.remove(currentNode)
-                            if context.area.spaces.active.tree_type == 'ShaderNodeTree':
-                                destNodeTree = context.active_object.active_material.node_tree
-                    if nodeInJson and destNodeTree:
-                        NodeManager.NodeManager.jsonToNodeGroup(destNodeTree, nodeInJson)
+                            if subtype2 == 'OBJECT':
+                                dest_node_tree = context.active_object.active_material.node_tree
+                            elif subtype2 == 'WORLD':
+                                dest_node_tree = context.scene.world.node_tree
+                    if nodeInJson and dest_node_tree:
+                        NodeManager.jsonToNodeGroup(dest_node_tree, nodeInJson)
         else:
             bpy.ops.message.messagebox('INVOKE_DEFAULT', message='No NodeGroup To Get')
         return {'FINISHED'}

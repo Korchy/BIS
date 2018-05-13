@@ -16,12 +16,12 @@ class BIS_getTextsInfoFromStorage(bpy.types.Operator):
     def execute(self, context):
         request = WebRequests.WebRequest.sendRequest({
             'for': 'search_texts',
-            'search_filter': bpy.context.window_manager.bis_get_texts_info_from_storage_vars.searchFilter
+            'search_filter': context.window_manager.bis_get_texts_info_from_storage_vars.searchFilter
         })
         if request:
             searchRez = json.loads(request.text)
             if searchRez['stat'] == 'OK':
-                BIS_Items.BIS_Items.createItemsList(searchRez['data']['items'], context.area.spaces.active.type, previews = False)
+                BIS_Items.BIS_Items.createItemsList(searchRez['data']['items'], context.area.spaces.active.type, previews=False)
         return {'FINISHED'}
 
 
@@ -40,7 +40,7 @@ class BIS_getTextsInfoFromStorageVars(bpy.types.PropertyGroup):
 def register():
     bpy.utils.register_class(BIS_getTextsInfoFromStorage)
     bpy.utils.register_class(BIS_getTextsInfoFromStorageVars)
-    bpy.types.WindowManager.bis_get_texts_info_from_storage_vars = bpy.props.PointerProperty(type = BIS_getTextsInfoFromStorageVars)
+    bpy.types.WindowManager.bis_get_texts_info_from_storage_vars = bpy.props.PointerProperty(type=BIS_getTextsInfoFromStorageVars)
 
 
 def unregister():

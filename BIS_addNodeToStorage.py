@@ -3,8 +3,8 @@
 
 import bpy
 import json
-from . import NodeManager
-from . import WebRequests
+from .NodeManager import NodeManager
+from .WebRequests import WebRequest
 
 
 class BIS_addNodeToStorage(bpy.types.Operator):
@@ -14,49 +14,49 @@ class BIS_addNodeToStorage(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     showMessage = bpy.props.BoolProperty(
-        default = False
+        default=False
     )
 
     def execute(self, context):
-        if(bpy.context.active_node and bpy.context.active_node.type == 'GROUP'):
-            activeNode = bpy.context.active_node
+        if context.active_node and context.active_node.type == 'GROUP':
+            activeNode = context.active_node
             nodeGroupTags = ''
-            if bpy.context.area.spaces.active.tree_type == 'ShaderNodeTree':
-                if bpy.context.space_data.shader_type == 'WORLD':
-                    activeNode = bpy.context.scene.world.node_tree.nodes.active
+            if context.area.spaces.active.tree_type == 'ShaderNodeTree':
+                if context.space_data.shader_type == 'WORLD':
+                    activeNode = context.scene.world.node_tree.nodes.active
                     nodeGroupTags = 'world'
-                elif bpy.context.space_data.shader_type == 'OBJECT':
-                    activeNode = bpy.context.active_object.active_material.node_tree.nodes.active
+                elif context.space_data.shader_type == 'OBJECT':
+                    activeNode = context.active_object.active_material.node_tree.nodes.active
                     nodeGroupTags = 'shader'
-            elif bpy.context.area.spaces.active.tree_type == 'CompositorNodeTree':
+            elif context.area.spaces.active.tree_type == 'CompositorNodeTree':
                 nodeGroupTags = 'compositing'
-            nodeGroupJson = NodeManager.NodeManager.nodeGroupToJson(activeNode)
+            nodeGroupJson = NodeManager.nodeGroupToJson(activeNode)
             if nodeGroupJson:
-                if bpy.context.scene.bis_add_nodegroup_to_storage_vars.tags != '':
-                    nodeGroupTags += (';' if nodeGroupTags else '') + bpy.context.scene.bis_add_nodegroup_to_storage_vars.tags
-                request = WebRequests.WebRequest.sendRequest({
+                if context.scene.bis_add_nodegroup_to_storage_vars.tags != '':
+                    nodeGroupTags += (';' if nodeGroupTags else '') + context.scene.bis_add_nodegroup_to_storage_vars.tags
+                request = WebRequest.sendRequest({
                     'for': 'set_node_group',
                     'node_group': json.dumps(nodeGroupJson),
-                    'node_group_subtype': nodeGroupJson['bl_type'],
-                    'node_group_subtype2': bpy.context.space_data.shader_type,
+                    'node_group_subtype': NodeManager.get_subtype(context),
+                    'node_group_subtype2': NodeManager.get_subtype2(context),
                     'node_group_name': nodeGroupJson['name'],
-                    'node_group_tags': (nodeGroupTags).strip()
+                    'node_group_tags': nodeGroupTags.strip()
                 })
                 if request:
-                    bpy.context.scene.bis_add_nodegroup_to_storage_vars.tags = ''
+                    context.scene.bis_add_nodegroup_to_storage_vars.tags = ''
                     requestRez = json.loads(request.text)
                     if self.showMessage:
-                        bpy.ops.message.messagebox('INVOKE_DEFAULT', message = requestRez['stat'])
+                        bpy.ops.message.messagebox('INVOKE_DEFAULT', message=requestRez['stat'])
         else:
-            bpy.ops.message.messagebox('INVOKE_DEFAULT', message = 'No NodeGroup selected')
+            bpy.ops.message.messagebox('INVOKE_DEFAULT', message='No NodeGroup selected')
         return {'FINISHED'}
 
 
 class BIS_addNodeGroupToStorageVars(bpy.types.PropertyGroup):
     tags = bpy.props.StringProperty(
-        name = 'Tags',
-        description = 'Tags',
-        default = ''
+        name='Tags',
+        description='Tags',
+        default=''
     )
 
 

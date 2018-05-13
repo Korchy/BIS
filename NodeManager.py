@@ -40,6 +40,14 @@ class NodeManager:
             currentNode.location = (0, 0)
         return currentNode
 
+    @staticmethod
+    def get_subtype(context):
+        return context.area.spaces.active.tree_type
+
+    @staticmethod
+    def get_subtype2(context):
+        return context.area.spaces.active.shader_type
+
 
 # Node
 class NodeCommon:
