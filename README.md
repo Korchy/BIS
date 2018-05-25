@@ -7,11 +7,11 @@ BIS webpage: https://b3d.interplanety.org/en/bis-online-blender-material-storage
 
 BIS website: https://bis.interplanety.org/en
 
-<img src = "https://b3d.interplanety.org/wp-content/upload_content/2017/07/00-400x301.jpg">
+<img src = "https://b3d.interplanety.org/wp-content/upload_content/2018/05/01_670x335.jpg">
 
 Current version:
 -
-1.1.1
+1.2.0
 
 Supported Blender versions:
 -
@@ -34,6 +34,9 @@ Installation and usage:
 
 Version history:
 -
+1.2.0
+- Node group storage divided to separate types: Shader, Compositing, World
+
 1.1.1
 - Added labels to preview images
 - Fixed some bugs with "Frame" and "Reroute" nodes

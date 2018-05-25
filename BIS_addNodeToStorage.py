@@ -35,12 +35,13 @@ class BIS_addNodeToStorage(bpy.types.Operator):
                 if context.scene.bis_add_nodegroup_to_storage_vars.tags != '':
                     nodeGroupTags += (';' if nodeGroupTags else '') + context.scene.bis_add_nodegroup_to_storage_vars.tags
                 request = WebRequest.sendRequest({
-                    'for': 'set_node_group',
-                    'node_group': json.dumps(nodeGroupJson),
-                    'node_group_subtype': NodeManager.get_subtype(context),
-                    'node_group_subtype2': NodeManager.get_subtype2(context),
-                    'node_group_name': nodeGroupJson['name'],
-                    'node_group_tags': nodeGroupTags.strip()
+                    'for': 'add_item',
+                    'item_body': json.dumps(nodeGroupJson),
+                    'storage': context.area.spaces.active.type,
+                    'storage_subtype': NodeManager.get_subtype(context),
+                    'storage_subtype2': NodeManager.get_subtype2(context),
+                    'item_name': nodeGroupJson['name'],
+                    'item_tags': nodeGroupTags.strip()
                 })
                 if request:
                     context.scene.bis_add_nodegroup_to_storage_vars.tags = ''

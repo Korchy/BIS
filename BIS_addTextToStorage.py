@@ -25,7 +25,7 @@ class BIS_addTextToStorage(bpy.types.Operator):
             currentText = bpy.data.texts[self.textName]
         else:
             currentText = bpy.context.area.spaces.active.text
-        rez = TextManager.TextManager.toBis(currentText, bpy.context.scene.bis_add_text_to_storage_vars.tags)
+        rez = TextManager.TextManager.toBis(context, currentText, bpy.context.scene.bis_add_text_to_storage_vars.tags)
         if rez['stat'] == 'OK':
             bpy.context.scene.bis_add_text_to_storage_vars.tags = ''
             if self.showMessage:

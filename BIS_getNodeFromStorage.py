@@ -23,9 +23,10 @@ class BIS_getNodeFromStorage(bpy.types.Operator):
             subtype = NodeManager.get_subtype(context)
             subtype2 = NodeManager.get_subtype2(context)
             request = WebRequest.sendRequest({
-                'for': 'get_node_group',
-                'subtype': subtype,
-                'subtype2': subtype2,
+                'for': 'get_item',
+                'storage': context.area.spaces.active.type,
+                'storage_subtype': subtype,
+                'storage_subtype2': subtype2,
                 'id': self.nodeGroupId
             })
             if request:

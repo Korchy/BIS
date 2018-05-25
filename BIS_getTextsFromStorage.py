@@ -15,7 +15,8 @@ class BIS_getTextsInfoFromStorage(bpy.types.Operator):
 
     def execute(self, context):
         request = WebRequests.WebRequest.sendRequest({
-            'for': 'search_texts',
+            'for': 'get_items',
+            'storage': context.area.spaces.active.type,
             'search_filter': context.window_manager.bis_get_texts_info_from_storage_vars.searchFilter
         })
         if request:

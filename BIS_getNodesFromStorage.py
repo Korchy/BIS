@@ -16,10 +16,11 @@ class BIS_getNodesInfoFromStorage(bpy.types.Operator):
 
     def execute(self, context):
         request = WebRequest.sendRequest({
-            'for': 'search_nodes',
+            'for': 'get_items',
             'search_filter': context.window_manager.bis_get_nodes_info_from_storage_vars.searchFilter,
-            'subtype': NodeManager.get_subtype(context),
-            'subtype2': NodeManager.get_subtype2(context),
+            'storage': context.area.spaces.active.type,
+            'storage_subtype': NodeManager.get_subtype(context),
+            'storage_subtype2': NodeManager.get_subtype2(context),
             'update_preview': context.window_manager.bis_get_nodes_info_from_storage_vars.updatePreviews
         })
         if request:
@@ -30,7 +31,9 @@ class BIS_getNodesInfoFromStorage(bpy.types.Operator):
                     request = WebRequest.sendRequest({
                         'for': 'update_previews',
                         'preview_list': previewToUpdate,
-                        'storage_type': context.area.spaces.active.type
+                        'storage': context.area.spaces.active.type,
+                        'storage_subtype': NodeManager.get_subtype(context),
+                        'storage_subtype2': NodeManager.get_subtype2(context)
                     })
                     if request:
                         previewsUpdateRez = json.loads(request.text)

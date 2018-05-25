@@ -33,14 +33,15 @@ class TextManager():
         return textObj
 
     @staticmethod
-    def toBis(text, tags = ''):
+    def toBis(context, text, tags = ''):
         if text.as_string():
             textJson = __class__.textToJson(text)
             request = WebRequests.WebRequest.sendRequest({
-                'for': 'set_text',
-                'text': json.dumps(textJson),
-                'text_name': textJson['name'],
-                'text_tags': tags
+                'for': 'add_item',
+                'storage': context.area.spaces.active.type,
+                'item_body': json.dumps(textJson),
+                'item_name': textJson['name'],
+                'item_tags': tags
             })
             rez = {"stat": "ERR", "data": {"text": "Error to save"}}
             if request:
@@ -50,11 +51,12 @@ class TextManager():
             return rez
 
     @staticmethod
-    def fromBis(id):
+    def fromBis(context, id):
         rez = {"stat": "ERR", "data": {"text": "No Id", "content": None}}
         if(id):
             request = WebRequests.WebRequest.sendRequest({
-                'for': 'get_text',
+                'for': 'get_item',
+                'storage': context.area.spaces.active.type,
                 'id': id
             })
             if request:
@@ -62,5 +64,5 @@ class TextManager():
         if rez['stat'] != 'OK':
             bpy.ops.message.messagebox('INVOKE_DEFAULT', message = rez['data']['text'])
         else:
-            __class__.jsonToText(rez['data']['content'])
+            __class__.jsonToText(rez['data']['item'])
         return rez
