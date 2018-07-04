@@ -11,7 +11,7 @@ BIS website: https://bis.interplanety.org/en
 
 Current version:
 -
-1.2.0
+1.3.0
 
 Supported Blender versions:
 -
@@ -34,6 +34,9 @@ Installation and usage:
 
 Version history:
 -
+1.3.0
+- Added the Open storage
+
 1.2.0
 - Node group storage divided to separate types: Shader, Compositing, World
 
