@@ -34,6 +34,9 @@ Installation and usage:
 
 Version history:
 -
+1.3.1
+- Some bugs fixed
+
 1.3.0
 - Added the Open storage
 
