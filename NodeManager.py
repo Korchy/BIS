@@ -823,7 +823,7 @@ class NodeShaderNodeGroup(NodeCommon):
                 nodeGroupTreeNodesIndexed.append(cNode)
         # Links
         for linkInJson in nodeInJson['links']:
-            if linkInJson[1] <= len(nodeGroupTreeNodesIndexed[linkInJson[0]].outputs) and linkInJson[3] <= len(nodeGroupTreeNodesIndexed[linkInJson[2]].inputs):
+            if linkInJson[1] <= len(nodeGroupTreeNodesIndexed[linkInJson[0]].outputs) - 1 and linkInJson[3] <= len(nodeGroupTreeNodesIndexed[linkInJson[2]].inputs) - 1:
                 fromOutput = nodeGroupTreeNodesIndexed[linkInJson[0]].outputs[linkInJson[1]]
                 toInput = nodeGroupTreeNodesIndexed[linkInJson[2]].inputs[linkInJson[3]]
                 currentNode.node_tree.links.new(fromOutput, toInput)
