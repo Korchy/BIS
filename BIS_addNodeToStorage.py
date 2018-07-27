@@ -30,6 +30,9 @@ class BIS_addNodeToStorage(bpy.types.Operator):
                     nodeGroupTags = 'shader'
             elif context.area.spaces.active.tree_type == 'CompositorNodeTree':
                 nodeGroupTags = 'compositing'
+            if NodeManager.is_procedural(activeNode):
+                nodeGroupTags += (';' if nodeGroupTags else '') + 'procedural'
+            nodeGroupTags += (';' if nodeGroupTags else '') + context.screen.scene.render.engine
             nodeGroupJson = NodeManager.nodeGroupToJson(activeNode)
             if nodeGroupJson:
                 if context.scene.bis_add_nodegroup_to_storage_vars.tags != '':

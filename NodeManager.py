@@ -48,6 +48,19 @@ class NodeManager:
     def get_subtype2(context):
         return context.area.spaces.active.shader_type
 
+    @staticmethod
+    def is_procedural(material):
+        rez = True
+        for node in material.node_tree.nodes:
+            if node.type == 'GROUP':
+                rez = __class__.is_procedural(node)
+                if not rez:
+                    break
+            elif node.type == 'TEX_IMAGE':
+                rez = False
+                break
+        return rez
+
 
 # Node
 class NodeCommon:

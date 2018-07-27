@@ -11,7 +11,7 @@ BIS website: https://bis.interplanety.org/en
 
 Current version:
 -
-1.3.1
+1.3.2
 
 Supported Blender versions:
 -
@@ -34,6 +34,9 @@ Installation and usage:
 
 Version history:
 -
+1.3.2
+- Automatically add render engine name and "procedural" (if node group is procedural) to tags while storing material to BIS
+
 1.3.1
 - Some bugs fixed
 
