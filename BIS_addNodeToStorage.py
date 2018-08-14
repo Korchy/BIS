@@ -33,6 +33,7 @@ class BIS_addNodeToStorage(bpy.types.Operator):
             if NodeManager.is_procedural(activeNode):
                 nodeGroupTags += (';' if nodeGroupTags else '') + 'procedural'
             nodeGroupTags += (';' if nodeGroupTags else '') + context.screen.scene.render.engine
+            nodeGroupTags += (';' if nodeGroupTags else '') + '{0[0]}.{0[1]}'.format(bpy.app.version)
             nodeGroupJson = NodeManager.nodeGroupToJson(activeNode)
             if nodeGroupJson:
                 if context.scene.bis_add_nodegroup_to_storage_vars.tags != '':
