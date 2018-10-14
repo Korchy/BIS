@@ -35,7 +35,7 @@ Installation and usage:
 Version history:
 -
 1.3.4
-- Checked all compositing nodes, provided proper work with compositing nodes
+- Checked all compositing nodes, provided proper work with compositing node trees
 
 1.3.3
 - Automatically add Blender version to tags while storing material to BIS
