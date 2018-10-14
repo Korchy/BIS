@@ -12,12 +12,12 @@ class BIS_addTextToStorage(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     textName = bpy.props.StringProperty(
-        name = "textName",
-        description = "Add text with current name",
-        default = ''
+        name='textName',
+        description='Add text with current name',
+        default=''
     )
     showMessage = bpy.props.BoolProperty(
-        default = False
+        default=False
     )
 
     def execute(self, context):
@@ -29,15 +29,15 @@ class BIS_addTextToStorage(bpy.types.Operator):
         if rez['stat'] == 'OK':
             bpy.context.scene.bis_add_text_to_storage_vars.tags = ''
             if self.showMessage:
-                bpy.ops.message.messagebox('INVOKE_DEFAULT', message = rez['data']['text'])
+                bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['data']['text'])
         return {'FINISHED'}
 
 
 class BIS_addTextToStorageVars(bpy.types.PropertyGroup):
     tags = bpy.props.StringProperty(
-        name = 'Tags',
-        description = 'Tags',
-        default = ''
+        name='Tags',
+        description='Tags',
+        default=''
     )
 
 

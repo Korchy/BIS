@@ -11,7 +11,7 @@ BIS website: https://bis.interplanety.org/en
 
 Current version:
 -
-1.3.3
+1.3.4
 
 Supported Blender versions:
 -
@@ -34,6 +34,9 @@ Installation and usage:
 
 Version history:
 -
+1.3.4
+- Checked all compositing nodes, provided proper work with compositing nodes
+
 1.3.3
 - Automatically add Blender version to tags while storing material to BIS
 

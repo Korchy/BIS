@@ -14,7 +14,7 @@ class BIS_getTextsInfoFromStorage(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        request = WebRequests.WebRequest.sendRequest({
+        request = WebRequests.WebRequest.send_request({
             'for': 'get_items',
             'storage': context.area.spaces.active.type,
             'search_filter': context.window_manager.bis_get_texts_info_from_storage_vars.searchFilter

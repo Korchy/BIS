@@ -15,7 +15,7 @@ class BIS_getNodesInfoFromStorage(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        request = WebRequest.sendRequest({
+        request = WebRequest.send_request({
             'for': 'get_items',
             'search_filter': context.window_manager.bis_get_nodes_info_from_storage_vars.searchFilter,
             'storage': context.area.spaces.active.type,
@@ -28,7 +28,7 @@ class BIS_getNodesInfoFromStorage(bpy.types.Operator):
             if searchRez['stat'] == 'OK':
                 previewToUpdate = BIS_Items.updatePreviewsFromData(searchRez['data']['items'], context.area.spaces.active.type)
                 if previewToUpdate:
-                    request = WebRequest.sendRequest({
+                    request = WebRequest.send_request({
                         'for': 'update_previews',
                         'preview_list': previewToUpdate,
                         'storage': context.area.spaces.active.type,

@@ -5,13 +5,13 @@ import bpy
 
 
 class MessageBox(bpy.types.Operator):
-    bl_idname = "message.messagebox"
-    bl_label = ""
+    bl_idname = 'message.messagebox'
+    bl_label = ''
 
     message = bpy.props.StringProperty(
-        name = "message",
-        description = "message",
-        default = ''
+        name='message',
+        description='message',
+        default=''
     )
 
     def execute(self, context):
@@ -20,11 +20,11 @@ class MessageBox(bpy.types.Operator):
         return {'FINISHED'}
 
     def invoke(self, context, event):
-        return context.window_manager.invoke_props_dialog(self, width = 400)
+        return context.window_manager.invoke_props_dialog(self, width=400)
 
     def draw(self, context):
         self.layout.label(self.message)
-        self.layout.label("")
+        self.layout.label('')
 
 
 def register():
@@ -35,5 +35,5 @@ def unregister():
     bpy.utils.unregister_class(MessageBox)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     register()

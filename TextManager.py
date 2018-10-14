@@ -33,10 +33,10 @@ class TextManager():
         return textObj
 
     @staticmethod
-    def toBis(context, text, tags = ''):
+    def toBis(context, text, tags=''):
         if text.as_string():
             textJson = __class__.textToJson(text)
-            request = WebRequests.WebRequest.sendRequest({
+            request = WebRequests.WebRequest.send_request({
                 'for': 'add_item',
                 'storage': context.area.spaces.active.type,
                 'item_body': json.dumps(textJson),
@@ -54,7 +54,7 @@ class TextManager():
     def fromBis(context, id):
         rez = {"stat": "ERR", "data": {"text": "No Id", "content": None}}
         if(id):
-            request = WebRequests.WebRequest.sendRequest({
+            request = WebRequests.WebRequest.send_request({
                 'for': 'get_item',
                 'storage': context.area.spaces.active.type,
                 'id': id

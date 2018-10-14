@@ -22,7 +22,7 @@ class BIS_getNodeFromStorage(bpy.types.Operator):
         if self.nodeGroupId:
             subtype = NodeManager.get_subtype(context)
             subtype2 = NodeManager.get_subtype2(context)
-            request = WebRequest.sendRequest({
+            request = WebRequest.send_request({
                 'for': 'get_item',
                 'storage': context.area.spaces.active.type,
                 'storage_subtype': subtype,
@@ -30,11 +30,11 @@ class BIS_getNodeFromStorage(bpy.types.Operator):
                 'id': self.nodeGroupId
             })
             if request:
-                requestRez = json.loads(request.text)
-                if requestRez['stat'] != 'OK':
-                    bpy.ops.message.messagebox('INVOKE_DEFAULT', message=requestRez['data']['text'])
+                request_rez = json.loads(request.text)
+                if request_rez['stat'] != 'OK':
+                    bpy.ops.message.messagebox('INVOKE_DEFAULT', message=request_rez['data']['text'])
                 else:
-                    nodeInJson = json.loads(requestRez['data']['item'])
+                    node_in_json = json.loads(request_rez['data']['item'])
                     dest_node_tree = None
                     if subtype == 'CompositorNodeTree':
                         dest_node_tree = context.area.spaces.active.node_tree
@@ -52,8 +52,8 @@ class BIS_getNodeFromStorage(bpy.types.Operator):
                                 dest_node_tree = context.active_object.active_material.node_tree
                             elif subtype2 == 'WORLD':
                                 dest_node_tree = context.scene.world.node_tree
-                    if nodeInJson and dest_node_tree:
-                        NodeManager.jsonToNodeGroup(dest_node_tree, nodeInJson)
+                    if node_in_json and dest_node_tree:
+                        NodeManager.json_to_node_group(dest_node_tree, node_in_json)
         else:
             bpy.ops.message.messagebox('INVOKE_DEFAULT', message='No NodeGroup To Get')
         return {'FINISHED'}
