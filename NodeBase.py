@@ -3,6 +3,7 @@
 
 # Base Node classes
 
+from . import cfg
 from .JsonEx import JsonEx
 
 
@@ -29,7 +30,13 @@ class NodeCommon:
 
     @staticmethod
     def json_to_node(node_tree, node_in_json):
-        current_node = node_tree.nodes.new(type=node_in_json['bl_type'])
+        try:
+            # current node type may not exists - if node saved from future version of Blender
+            current_node = node_tree.nodes.new(type=node_in_json['bl_type'])
+        except RuntimeError as exception:
+            if cfg.show_debug_err:
+                print(repr(exception))
+            return None
         current_node.name = node_in_json['name']
         current_node.hide = node_in_json['hide']
         current_node.label = node_in_json['label']
@@ -66,13 +73,6 @@ class IOCommon:
 class GIOCommon:
     @staticmethod
     def gio_to_json(io, gio=None):
-        # if hasattr(io, 'is_active_output'):
-        #     return {
-        #         'type': io.type,
-        #         'bl_type': io.bl_socket_idname,
-        #         'name': io.name,
-        #         'is_active_output': io.is_active_output
-        #     }
         return {
             'type': io.type,
             'bl_type': io.bl_socket_idname,

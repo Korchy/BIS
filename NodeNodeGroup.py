@@ -138,13 +138,15 @@ class NodeShaderNodeGroup(NodeCommon):
                                 io_class.json_to_o(node=c_node,
                                                    output_number=output_number,
                                                    output_in_json=nodeOutputInJson)
-                node_group_tree_node_indexed.append(c_node)
+            node_group_tree_node_indexed.append(c_node)
         # Links
         for linkInJson in node_in_json['links']:
-            if linkInJson[1] <= len(node_group_tree_node_indexed[linkInJson[0]].outputs) - 1 and linkInJson[3] <= len(node_group_tree_node_indexed[linkInJson[2]].inputs) - 1:
-                from_output = node_group_tree_node_indexed[linkInJson[0]].outputs[linkInJson[1]]
-                to_input = node_group_tree_node_indexed[linkInJson[2]].inputs[linkInJson[3]]
-                current_node.node_tree.links.new(from_output, to_input)
+            # if nodes not None (may be None if node type is not exists - saved from future version of Blender
+            if node_group_tree_node_indexed[linkInJson[0]] and node_group_tree_node_indexed[linkInJson[2]]:
+                if linkInJson[1] <= len(node_group_tree_node_indexed[linkInJson[0]].outputs) - 1 and linkInJson[3] <= len(node_group_tree_node_indexed[linkInJson[2]].inputs) - 1:
+                    from_output = node_group_tree_node_indexed[linkInJson[0]].outputs[linkInJson[1]]
+                    to_input = node_group_tree_node_indexed[linkInJson[2]].inputs[linkInJson[3]]
+                    current_node.node_tree.links.new(from_output, to_input)
         # Frames
         for node in current_node.node_tree.nodes:
             if node['parent_str']:

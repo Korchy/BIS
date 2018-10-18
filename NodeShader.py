@@ -623,5 +623,6 @@ class NodeNodeGroupOutput(NodeCommon):
     @staticmethod
     def json_to_node(node_tree, node_in_json):
         current_node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
-        current_node.is_active_output = node_in_json['is_active_output']
+        if 'is_active_output' in node_in_json:
+            current_node.is_active_output = node_in_json['is_active_output']
         return current_node
