@@ -28,7 +28,7 @@ Installation and usage:
 - To save the group of nodes into the BIS storage, select the desired node group and click “Add nodegroup to BIS”. Specify description tags in the "Tag" field before saving.
 - To restore nodegroup from the BIS storage – specify the name/tag in the “Search” field and click “Search in BIS”. Click on the preview window and select the necessary material from the drop-down list.
 ---
-- 15 active cells are available. More materials stores to reserve pool. Send materials to reserve and restored currently needed to fit within available cells count.
+- 10 active cells are available. More materials stores to reserve pool. Send materials to reserve and restored currently needed to fit within available cells count.
 - If the stored to BIS nodegroup uses textures, only the relative paths to textures are saved in BIS. Uploading such material from the BIS, the add-on searches for the used textures along the saved paths on the user’s local computer.
 - Update materials previews images through the BIS website.
 
