@@ -9,9 +9,10 @@ from .JsonEx import JsonEx
 
 # Node
 class NodeCommon:
-    @staticmethod
-    def node_to_json(node):
-        return {
+    @classmethod
+    def node_to_json(cls, node):
+        # base node specification
+        node_json = {
             'type': node.type,
             'bl_type': node.bl_idname,
             'name': node.name,
@@ -27,71 +28,134 @@ class NodeCommon:
             'outputs': [],
             'BIS_node_id': node['BIS_node_id'] if 'BIS_node_id' in node else 0
         }
+        # for current node specification
+        cls._node_to_json_spec(node_json, node)
+        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
+        # extend to current node data
+        pass
+
+    @classmethod
+    def json_to_node(cls, node_tree, node_in_json):
+        current_node = None
         try:
             # current node type may not exists - if node saved from future version of Blender
             current_node = node_tree.nodes.new(type=node_in_json['bl_type'])
-        except RuntimeError as exception:
+        except Exception as exception:
             if cfg.show_debug_err:
                 print(repr(exception))
-            return None
-        current_node.name = node_in_json['name']
-        current_node.hide = node_in_json['hide']
-        current_node.label = node_in_json['label']
-        JsonEx.vector2_from_json(current_node.location, node_in_json['location'])
-        current_node.width = node_in_json['width']
-        current_node.height = node_in_json['height']
-        current_node.use_custom_color = node_in_json['use_custom_color']
-        JsonEx.color_from_json(current_node.color, node_in_json['color'])
-        current_node['parent_str'] = node_in_json['parent'] if 'parent' in node_in_json else ''
-        current_node['BIS_node_id'] = node_in_json['BIS_node_id'] if 'BIS_node_id' in node_in_json else 0
+        if current_node:
+            # base node specification
+            current_node.name = node_in_json['name']
+            current_node.label = node_in_json['label']
+            current_node.hide = node_in_json['hide']
+            JsonEx.vector2_from_json(current_node.location, node_in_json['location'])
+            current_node.width = node_in_json['width']
+            current_node.height = node_in_json['height']
+            current_node.use_custom_color = node_in_json['use_custom_color']
+            JsonEx.color_from_json(current_node.color, node_in_json['color'])
+            current_node['parent_str'] = node_in_json['parent'] if 'parent' in node_in_json else ''
+            current_node['BIS_node_id'] = node_in_json['BIS_node_id'] if 'BIS_node_id' in node_in_json else 0
+            # for current node specification
+            cls._json_to_node_spec(current_node, node_in_json)
         return current_node
+
+    @classmethod
+    def _json_to_node_spec(cls, node, node_json):
+        # extend to current node data
+        pass
 
 
 # Node IO
 class IOCommon:
-    @staticmethod
-    def io_to_json(io):
-        return {
+    @classmethod
+    def io_to_json(cls, io):
+        io_json = {
             'type': io.type,
             'bl_type': io.bl_idname,
             'name': io.name
         }
+        # for current io specification
+        cls._io_to_json_spec(io_json, io)
+        return io_json
 
-    @staticmethod
-    def json_to_i(node, input_number, input_in_json):
+    @classmethod
+    def _io_to_json_spec(cls, io_json, io):
+        # extend to current io data
+        pass
+
+    @classmethod
+    def json_to_i(cls, node, input_number, input_in_json):
         node.inputs[input_number].name = input_in_json['name']
+        # for current input specification
+        cls._json_to_i_spec(node, input_number, input_in_json)
 
-    @staticmethod
-    def json_to_o(node, output_number, output_in_json):
+    @classmethod
+    def _json_to_i_spec(cls, node, input_number, input_in_json):
+        # extend to current input data
+        pass
+
+    @classmethod
+    def json_to_o(cls, node, output_number, output_in_json):
         node.outputs[output_number].name = output_in_json['name']
+        # for current output specification
+        cls._json_to_o_spec(node, output_number, output_in_json)
+
+    @classmethod
+    def _json_to_o_spec(cls, node, output_number, output_in_json):
+        # extend to current output data
+        pass
 
 
 # Group IO
 class GIOCommon:
-    @staticmethod
-    def gio_to_json(io, gio=None):
-        return {
+    @classmethod
+    def gio_to_json(cls, io, gio=None):
+        gio_json = {
             'type': io.type,
             'bl_type': io.bl_socket_idname,
             'name': io.name
         }
+        # for current gio specification
+        cls._gio_to_json_spec(gio_json, io, gio)
+        return gio_json
 
-    @staticmethod
-    def json_to_gi(node_tree, group_node, input_number, input_in_json):
-        return node_tree.inputs.new(type=input_in_json['bl_type'], name=input_in_json['name'])
-    
-    @staticmethod
-    def json_to_go(node_tree, output_in_json):
-        return node_tree.outputs.new(type=output_in_json['bl_type'], name=output_in_json['name'])
+    @classmethod
+    def _gio_to_json_spec(cls, gio_json, io, gio=None):
+        # extend to current gio data
+        pass
+
+    @classmethod
+    def json_to_gi(cls, node_tree, group_node, input_number, input_in_json):
+        group_input = node_tree.inputs.new(type=input_in_json['bl_type'], name=input_in_json['name'])
+        # for current specification
+        cls._json_to_gi_spec(group_input, node_tree, group_node, input_number, input_in_json)
+        return group_input
+
+    @classmethod
+    def _json_to_gi_spec(cls, group_input, node_tree, group_node, input_number, input_in_json):
+        # extend to current data
+        pass
+
+    @classmethod
+    def json_to_go(cls, node_tree, output_in_json):
+        group_output = node_tree.outputs.new(type=output_in_json['bl_type'], name=output_in_json['name'])
+        # for current specification
+        cls._json_to_go_spec(group_output, node_tree, output_in_json)
+        return group_output
+
+    @classmethod
+    def _json_to_go_spec(cls, group_output, node_tree, output_in_json):
+        # extend to current data
+        pass
 
 
 # Node TextureMapping
 class TMCommon:
-    @staticmethod
-    def tm_to_json(tm):
+    @classmethod
+    def tm_to_json(cls, tm):
         return {
             'vector_type': tm.vector_type,
             'translation': JsonEx.vector3_to_json(tm.translation),
@@ -107,8 +171,8 @@ class TMCommon:
             'mapping': tm.mapping
         }
 
-    @staticmethod
-    def json_to_tm(node, tm_in_json):
+    @classmethod
+    def json_to_tm(cls, node, tm_in_json):
         node.texture_mapping.vector_type = tm_in_json['vector_type']
         JsonEx.vector3_from_json(node.texture_mapping.translation, tm_in_json['translation'])
         JsonEx.vector3_from_json(node.texture_mapping.rotation, tm_in_json['rotation'])
@@ -125,8 +189,8 @@ class TMCommon:
 
 # Node ImageUser
 class IUCommon:
-    @staticmethod
-    def iu_to_json(iu):
+    @classmethod
+    def iu_to_json(cls, iu):
         return {
             'use_auto_refresh': iu.use_auto_refresh,
             'frame_current': iu.frame_current,
@@ -137,8 +201,8 @@ class IUCommon:
             'fields_per_frame': iu.fields_per_frame
         }
 
-    @staticmethod
-    def json_to_iu(node, iu_in_json):
+    @classmethod
+    def json_to_iu(cls, node, iu_in_json):
         node.image_user.use_auto_refresh = iu_in_json['use_auto_refresh']
         node.image_user.frame_current = iu_in_json['frame_current']
         node.image_user.use_cyclic = iu_in_json['use_cyclic']
@@ -150,8 +214,8 @@ class IUCommon:
 
 # Node ColorMapping
 class CMCommon:
-    @staticmethod
-    def cm_to_json(cm):
+    @classmethod
+    def cm_to_json(cls, cm):
         return {
             'use_color_ramp': cm.use_color_ramp,
             'brightness': cm.brightness,
@@ -163,8 +227,8 @@ class CMCommon:
             'color_ramp': NodeColorRamp.cr_to_json(cm.color_ramp)
         }
 
-    @staticmethod
-    def json_to_cm(node, cm_in_json):
+    @classmethod
+    def json_to_cm(cls, node, cm_in_json):
         node.color_mapping.use_color_ramp = cm_in_json['use_color_ramp']
         node.color_mapping.brightness = cm_in_json['brightness']
         node.color_mapping.contrast = cm_in_json['contrast']
@@ -177,8 +241,8 @@ class CMCommon:
 
 # Node ColorRamp
 class NodeColorRamp:
-    @staticmethod
-    def cr_to_json(cr):
+    @classmethod
+    def cr_to_json(cls, cr):
         rez = {
             'interpolation': cr.interpolation,
             'hue_interpolation': cr.hue_interpolation,
@@ -193,8 +257,8 @@ class NodeColorRamp:
             })
         return rez
 
-    @staticmethod
-    def json_to_cr(color_ramp, cr_in_json):
+    @classmethod
+    def json_to_cr(cls, color_ramp, cr_in_json):
         color_ramp.interpolation = cr_in_json['interpolation']
         color_ramp.hue_interpolation = cr_in_json['hue_interpolation']
         color_ramp.color_mode = cr_in_json['color_mode']
@@ -208,8 +272,8 @@ class NodeColorRamp:
 
 # Node Curve Mapping (mapping)
 class CurveMapping:
-    @staticmethod
-    def cum_to_json(cum):
+    @classmethod
+    def cum_to_json(cls, cum):
         rez = {
             'use_clip': cum.use_clip,
             'clip_min_x': cum.clip_min_x,
@@ -224,8 +288,8 @@ class CurveMapping:
             rez['curves'].append(CurveMap.cm_to_json(curveMap))
         return rez
 
-    @staticmethod
-    def json_to_cum(cum, cum_in_json):
+    @classmethod
+    def json_to_cum(cls, cum, cum_in_json):
         cum.use_clip = cum_in_json['use_clip']
         cum.clip_min_x = cum_in_json['clip_min_x']
         cum.clip_min_y = cum_in_json['clip_min_y']
@@ -240,8 +304,8 @@ class CurveMapping:
 
 # CurveMap (curve)
 class CurveMap:
-    @staticmethod
-    def cm_to_json(cm):
+    @classmethod
+    def cm_to_json(cls, cm):
         rez = {
             'extend': cm.extend,
             'points': []
@@ -250,8 +314,8 @@ class CurveMap:
             rez['points'].append(CurveMapPoint.cmp_to_json(point))
         return rez
 
-    @staticmethod
-    def json_to_cm(cm, cm_in_json):
+    @classmethod
+    def json_to_cm(cls, cm, cm_in_json):
         cm.extend = cm_in_json['extend']
         for i, point in enumerate(cm_in_json['points']):
             if len(cm.points) <= i:
@@ -261,16 +325,16 @@ class CurveMap:
 
 # CurveMapPoint
 class CurveMapPoint:
-    @staticmethod
-    def cmp_to_json(cmp):
+    @classmethod
+    def cmp_to_json(cls, cmp):
         return {
             'location': JsonEx.vector2_to_json(cmp.location),
             'handle_type': cmp.handle_type,
             'select': cmp.select
         }
 
-    @staticmethod
-    def json_to_cmp(cmp, cmp_in_json):
+    @classmethod
+    def json_to_cmp(cls, cmp, cmp_in_json):
         JsonEx.vector2_from_json(cmp.location, cmp_in_json['location'])
         cmp.handle_type = cmp_in_json['handle_type']
         cmp.select = cmp_in_json['select']

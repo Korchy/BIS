@@ -11,8 +11,8 @@ from .NodeCompositor import *
 
 
 class NodeShaderNodeGroup(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
+    @classmethod
+    def node_to_json(cls, node):
         node_json = super(__class__, __class__).node_to_json(node)
         node_json['tree_type'] = bpy.context.area.spaces.active.tree_type
         node_json['nodes'] = []
@@ -87,8 +87,8 @@ class NodeShaderNodeGroup(NodeCommon):
             node_json['links'].append([from_node_index, from_node_output_index, to_node_index, to_node_input_index])
         return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
+    @classmethod
+    def json_to_node(cls, node_tree, node_in_json):
         current_node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
         tree_type = node_in_json['tree_type'] if 'tree_type' in node_in_json else 'ShaderNodeTree'
         current_node.node_tree = bpy.data.node_groups.new(type=tree_type, name=node_in_json['name'])

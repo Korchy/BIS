@@ -6,20 +6,16 @@ from .NodeBase import IOCommon
 
 
 class IONodeSocketColor(IOCommon):
-    @staticmethod
-    def io_to_json(io):
-        io_json = super(__class__, __class__).io_to_json(io)
+    @classmethod
+    def _io_to_json_spec(cls, io_json, io):
         io_json['default_value'] = JsonEx.prop_array_to_json(io.default_value)
-        return io_json
 
-    @staticmethod
-    def json_to_i(node, input_number, input_in_json):
-        super(__class__, __class__).json_to_i(node, input_number, input_in_json)
+    @classmethod
+    def _json_to_i_spec(cls, node, input_number, input_in_json):
         JsonEx.prop_array_from_json(node.inputs[input_number].default_value, input_in_json['default_value'])
 
-    @staticmethod
-    def json_to_o(node, output_number, output_in_json):
-        super(__class__, __class__).json_to_o(node, output_number, output_in_json)
+    @classmethod
+    def _json_to_o_spec(cls, node, output_number, output_in_json):
         JsonEx.prop_array_from_json(node.outputs[output_number].default_value, output_in_json['default_value'])
 
 
@@ -52,20 +48,16 @@ class IONodeSocketVirtual(IOCommon):
 
 
 class IONodeSocketFloat(IOCommon):
-    @staticmethod
-    def io_to_json(io):
-        io_json = super(__class__, __class__).io_to_json(io)
+    @classmethod
+    def _io_to_json_spec(cls, io_json, io):
         io_json['default_value'] = io.default_value
-        return io_json
 
-    @staticmethod
-    def json_to_i(node, input_number, input_in_json):
-        super(__class__, __class__).json_to_i(node, input_number, input_in_json)
+    @classmethod
+    def _json_to_i_spec(cls, node, input_number, input_in_json):
         node.inputs[input_number].default_value = input_in_json['default_value']
 
-    @staticmethod
-    def json_to_o(node, output_number, output_in_json):
-        super(__class__, __class__).json_to_o(node, output_number, output_in_json)
+    @classmethod
+    def _json_to_o_spec(cls, node, output_number, output_in_json):
         node.outputs[output_number].default_value = output_in_json['default_value']
 
 
@@ -86,16 +78,16 @@ class IONodeSocketInt(IONodeSocketFloat):
 
 
 class IONodeGroupInput:
-    @staticmethod
-    def io_to_json(io):
+    @classmethod
+    def io_to_json(cls, io):
         return {}
 
-    @staticmethod
-    def json_to_i(node, input_number, input_in_json):
+    @classmethod
+    def json_to_i(cls, node, input_number, input_in_json):
         pass
 
-    @staticmethod
-    def json_to_o(node, output_number, output_in_json):
+    @classmethod
+    def json_to_o(cls, node, output_number, output_in_json):
         pass
 
 

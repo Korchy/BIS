@@ -10,9 +10,8 @@ from .BLTypesConversion import BLbpy_prop_collection, BLbpy_prop_array, BLColor
 
 
 class NodeCompositorNodeBlur(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['aspect_correction'] = node.aspect_correction
         node_json['factor'] = node.factor
         node_json['factor_x'] = node.factor_x
@@ -26,11 +25,9 @@ class NodeCompositorNodeBlur(NodeCommon):
         node_json['use_gamma_correction'] = node.use_gamma_correction
         node_json['use_relative'] = node.use_relative
         node_json['use_variable_size'] = node.use_variable_size
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.aspect_correction = node_in_json['aspect_correction']
         node.factor = node_in_json['factor']
         node.factor_x = node_in_json['factor_x']
@@ -44,13 +41,11 @@ class NodeCompositorNodeBlur(NodeCommon):
         node.use_gamma_correction = node_in_json['use_gamma_correction']
         node.use_relative = node_in_json['use_relative']
         node.use_variable_size = node_in_json['use_variable_size']
-        return node
 
 
 class NodeCompositorNodeImage(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['frame_duration'] = node.frame_duration
         node_json['frame_offset'] = node.frame_offset
         node_json['frame_start'] = node.frame_start
@@ -61,11 +56,9 @@ class NodeCompositorNodeImage(NodeCommon):
             node_json['image_source'] = node.image.source
         node_json['use_auto_refresh'] = node.use_auto_refresh
         node_json['use_cyclic'] = node.use_cyclic
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.frame_duration = node_in_json['frame_duration']
         node.frame_offset = node_in_json['frame_offset']
         node.frame_start = node_in_json['frame_start']
@@ -80,35 +73,29 @@ class NodeCompositorNodeImage(NodeCommon):
                 node.image.source = node_in_json['image_source']
         node.use_auto_refresh = node_in_json['use_auto_refresh']
         node.use_cyclic = node_in_json['use_cyclic']
-        return node
 
 
 class NodeCompositorNodeBokehImage(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['angle'] = node.angle
         node_json['catadioptric'] = node.catadioptric
         node_json['flaps'] = node.flaps
         node_json['rounding'] = node.rounding
         node_json['shift'] = node.shift
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.angle = node_in_json['angle']
         node.catadioptric = node_in_json['catadioptric']
         node.flaps = node_in_json['flaps']
         node.rounding = node_in_json['rounding']
         node.shift = node_in_json['shift']
-        return node
 
 
 class NodeCompositorNodeMask(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['mask'] = ''
         if node.mask:
             node_json['mask'] = node.mask.name
@@ -120,11 +107,9 @@ class NodeCompositorNodeMask(NodeCommon):
         node_json['use_antialiasing'] = node.use_antialiasing
         node_json['use_feather'] = node.use_feather
         node_json['use_motion_blur'] = node.use_motion_blur
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         if node_in_json['mask']:
             if node_in_json['mask'] in bpy.data.masks:
                 node.mask = bpy.data.masks[node_in_json['mask']]
@@ -135,25 +120,20 @@ class NodeCompositorNodeMask(NodeCommon):
         node.size_y = node_in_json['size_y']
         node.use_feather = node_in_json['use_feather']
         node.use_motion_blur = node_in_json['use_motion_blur']
-        return node
 
 
 class NodeCompositorNodeMovieClip(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['clip'] = ''
         if node.clip:
             node_json['clip'] = node.clip.name
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         if node_in_json['clip']:
             if node_in_json['clip'] in bpy.data.movieclips:
                 node.clip = bpy.data.movieclips[node_in_json['clip']]
-        return node
 
 
 class NodeCompositorNodeColor(NodeCommon):
@@ -161,45 +141,36 @@ class NodeCompositorNodeColor(NodeCommon):
 
 
 class NodeCompositorNodeTexture(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['texture'] = ''
         if node.texture:
             node_json['texture'] = node.texture.name
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         if node_in_json['texture']:
             if node_in_json['texture'] in bpy.data.textures:
                 node.texture = bpy.data.textures[node_in_json['texture']]
-        return node
 
 
 class NodeCompositorNodeTime(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['curve'] = CurveMapping.cum_to_json(node.curve)
         node_json['frame_end'] = node.frame_end
         node_json['frame_start'] = node.frame_start
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         CurveMapping.json_to_cum(node.curve, node_in_json['curve'])
         node.frame_end = node_in_json['frame_end']
         node.frame_start = node_in_json['frame_start']
-        return node
 
 
 class NodeCompositorNodeTrackPos(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['clip'] = ''
         if node.clip:
             node_json['clip'] = node.clip.name
@@ -207,11 +178,9 @@ class NodeCompositorNodeTrackPos(NodeCommon):
         node_json['position'] = node.position
         node_json['track_name'] = node.track_name
         node_json['tracking_object'] = node.tracking_object
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         if node_in_json['clip']:
             if node_in_json['clip'] in bpy.data.movieclips:
                 node.clip = bpy.data.movieclips[node_in_json['clip']]
@@ -219,125 +188,95 @@ class NodeCompositorNodeTrackPos(NodeCommon):
         node.position = node_in_json['position']
         node.track_name = node_in_json['track_name']
         node.tracking_object = node_in_json['tracking_object']
-        return node
 
 
 class NodeCompositorNodeComposite(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['use_alpha'] = node.use_alpha
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.use_alpha = node_in_json['use_alpha']
-        return node
 
 
 class NodeCompositorNodeOutputFile(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['active_input_index'] = node.active_input_index
         node_json['base_path'] = node.base_path
         node_json['file_slots'] = BLbpy_prop_collection.to_json(node.file_slots)
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.active_input_index = node_in_json['active_input_index']
         node.base_path = node_in_json['base_path']
         BLbpy_prop_collection.from_json(node, node.file_slots, node_in_json['file_slots'])
-        return node
 
 
 class NodeCompositorNodeLevels(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['channel'] = node.channel
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.channel = node_in_json['channel']
-        return node
 
 
 class NodeCompositorNodeSplitViewer(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['axis'] = node.axis
         node_json['factor'] = node.factor
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.axis = node_in_json['axis']
         node.factor = node_in_json['factor']
-        return node
 
 
 class NodeCompositorNodeViewer(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['center_x'] = node.center_x
         node_json['center_y'] = node.center_y
         node_json['tile_order'] = node.tile_order
         node_json['use_alpha'] = node.use_alpha
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.center_x = node_in_json['center_x']
         node.center_y = node_in_json['center_y']
         node.tile_order = node_in_json['tile_order']
         node.use_alpha = node_in_json['use_alpha']
-        return node
 
 
 class NodeCompositorNodeAlphaOver(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['premul'] = node.premul
         node_json['use_premultiply'] = node.use_premultiply
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.premul = node_in_json['premul']
         node.use_premultiply = node_in_json['use_premultiply']
-        return node
 
 
 class NodeCompositorNodeBrightContrast(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['use_premultiply'] = node.use_premultiply
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.use_premultiply = node_in_json['use_premultiply']
-        return node
 
 
 class NodeCompositorNodeColorBalance(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['correction_method'] = node.correction_method
         node_json['gain'] = BLColor.to_json(node.gain)
         node_json['gamma'] = BLColor.to_json(node.gamma)
@@ -346,11 +285,9 @@ class NodeCompositorNodeColorBalance(NodeCommon):
         node_json['offset_basis'] = node.offset_basis
         node_json['power'] = BLColor.to_json(node.power)
         node_json['slope'] = BLColor.to_json(node.slope)
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.correction_method = node_in_json['correction_method']
         BLColor.from_json(node.gain, node_in_json['gain'])
         BLColor.from_json(node.gamma, node_in_json['gamma'])
@@ -359,13 +296,11 @@ class NodeCompositorNodeColorBalance(NodeCommon):
         node.offset_basis = node_in_json['offset_basis']
         BLColor.from_json(node.power, node_in_json['power'])
         BLColor.from_json(node.slope, node_in_json['slope'])
-        return node
 
 
 class NodeCompositorNodeColorCorrection(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['red'] = node.red
         node_json['green'] = node.green
         node_json['blue'] = node.blue
@@ -391,11 +326,9 @@ class NodeCompositorNodeColorCorrection(NodeCommon):
         node_json['shadows_gamma'] = node.shadows_gamma
         node_json['shadows_lift'] = node.shadows_lift
         node_json['shadows_saturation'] = node.shadows_saturation
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.red = node_in_json['red']
         node.green = node_in_json['green']
         node.blue = node_in_json['blue']
@@ -421,7 +354,6 @@ class NodeCompositorNodeColorCorrection(NodeCommon):
         node.shadows_gamma = node_in_json['shadows_gamma']
         node.shadows_lift = node_in_json['shadows_lift']
         node.shadows_saturation = node_in_json['shadows_saturation']
-        return node
 
 
 class NodeCompositorNodeGamma(NodeCommon):
@@ -429,17 +361,13 @@ class NodeCompositorNodeGamma(NodeCommon):
 
 
 class NodeCompositorNodeHueCorrect(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['mapping'] = CurveMapping.cum_to_json(node.mapping)
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         CurveMapping.json_to_cum(node.mapping, node_in_json['mapping'])
-        return node
 
 
 class NodeCompositorNodeHueSat(NodeCommon):
@@ -447,57 +375,44 @@ class NodeCompositorNodeHueSat(NodeCommon):
 
 
 class NodeCompositorNodeInvert(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['invert_alpha'] = node.invert_alpha
         node_json['invert_rgb'] = node.invert_rgb
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.invert_alpha = node_in_json['invert_alpha']
         node.invert_rgb = node_in_json['invert_rgb']
-        return node
 
 
 class NodeCompositorNodeMixRGB(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['blend_type'] = node.blend_type
         node_json['use_alpha'] = node.use_alpha
         node_json['use_clamp'] = node.use_clamp
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.blend_type = node_in_json['blend_type']
         node.use_alpha = node_in_json['use_alpha']
         node.use_clamp = node_in_json['use_clamp']
-        return node
 
 
 class NodeCompositorNodeCurveRGB(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['mapping'] = CurveMapping.cum_to_json(node.mapping)
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         CurveMapping.json_to_cum(node.mapping, node_in_json['mapping'])
-        return node
 
 
 class NodeCompositorNodeTonemap(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['adaptation'] = node.adaptation
         node_json['contrast'] = node.contrast
         node_json['correction'] = node.correction
@@ -506,11 +421,9 @@ class NodeCompositorNodeTonemap(NodeCommon):
         node_json['key'] = node.key
         node_json['offset'] = node.offset
         node_json['tonemap_type'] = node.tonemap_type
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.adaptation = node_in_json['adaptation']
         node.contrast = node_in_json['contrast']
         node.correction = node_in_json['correction']
@@ -519,51 +432,38 @@ class NodeCompositorNodeTonemap(NodeCommon):
         node.key = node_in_json['key']
         node.offset = node_in_json['offset']
         node.tonemap_type = node_in_json['tonemap_type']
-        return node
 
 
 class NodeCompositorNodeZcombine(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['use_alpha'] = node.use_alpha
         node_json['use_antialias_z'] = node.use_antialias_z
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.use_alpha = node_in_json['use_alpha']
         node.use_antialias_z = node_in_json['use_antialias_z']
-        return node
 
 
 class NodeCompositorNodePremulKey(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['mapping'] = node.mapping
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.mapping = node_in_json['mapping']
-        return node
 
 
 class NodeCompositorNodeValToRGB(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['color_ramp'] = NodeColorRamp.cr_to_json(node.color_ramp)
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         NodeColorRamp.json_to_cr(node.color_ramp, node_in_json['color_ramp'])
-        return node
 
 
 class NodeCompositorNodeCombHSVA(NodeCommon):
@@ -575,17 +475,13 @@ class NodeCompositorNodeCombRGBA(NodeCommon):
 
 
 class NodeCompositorNodeCombYCCA(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['mode'] = node.mode
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.mode = node_in_json['mode']
-        return node
 
 
 class NodeCompositorNodeCombYUVA(NodeCommon):
@@ -593,35 +489,27 @@ class NodeCompositorNodeCombYUVA(NodeCommon):
 
 
 class NodeCompositorNodeIDMask(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['index'] = node.index
         node_json['use_antialiasing'] = node.use_antialiasing
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.index = node_in_json['index']
         node.use_antialiasing = node_in_json['use_antialiasing']
-        return node
 
 
 class NodeCompositorNodeMath(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['operation'] = node.operation
         node_json['use_clamp'] = node.use_clamp
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.operation = node_in_json['operation']
         node.use_clamp = node_in_json['use_clamp']
-        return node
 
 
 class NodeCompositorNodeRGBToBW(NodeCommon):
@@ -637,17 +525,13 @@ class NodeCompositorNodeSepRGBA(NodeCommon):
 
 
 class NodeCompositorNodeSepYCCA(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['mode'] = node.mode
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.mode = node_in_json['mode']
-        return node
 
 
 class NodeCompositorNodeSepYUVA(NodeCommon):
@@ -663,45 +547,36 @@ class NodeCompositorNodeSwitchView(NodeCommon):
 
 
 class NodeCompositorNodeBilateralblur(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['iterations'] = node.iterations
         node_json['sigma_color'] = node.sigma_color
         node_json['sigma_space'] = node.sigma_space
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.iterations = node_in_json['iterations']
         node.sigma_color = node_in_json['sigma_color']
         node.sigma_space = node_in_json['sigma_space']
-        return node
 
 
 class NodeCompositorNodeBokehBlur(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['blur_max'] = node.blur_max
         node_json['use_extended_bounds'] = node.use_extended_bounds
         node_json['use_variable_size'] = node.use_variable_size
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.blur_max = node_in_json['blur_max']
         node.use_extended_bounds = node_in_json['use_extended_bounds']
         node.use_variable_size = node_in_json['use_variable_size']
-        return node
 
 
 class NodeCompositorNodeDefocus(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['angle'] = node.angle
         node_json['blur_max'] = node.blur_max
         node_json['bokeh'] = node.bokeh
@@ -714,11 +589,9 @@ class NodeCompositorNodeDefocus(NodeCommon):
         node_json['use_preview'] = node.use_preview
         node_json['use_zbuffer'] = node.use_zbuffer
         node_json['z_scale'] = node.z_scale
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.angle = node_in_json['angle']
         node.blur_max = node_in_json['blur_max']
         node.bokeh = node_in_json['bokeh']
@@ -731,49 +604,39 @@ class NodeCompositorNodeDefocus(NodeCommon):
         node.use_preview = node_in_json['use_preview']
         node.use_zbuffer = node_in_json['use_zbuffer']
         node.z_scale = node_in_json['z_scale']
-        return node
 
 
 class NodeCompositorNodeDespeckle(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['threshold'] = node.threshold
         node_json['threshold_neighbor'] = node.threshold_neighbor
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.threshold = node_in_json['threshold']
         node.threshold_neighbor = node_in_json['threshold_neighbor']
-        return node
 
 
 class NodeCompositorNodeDilateErode(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['distance'] = node.distance
         node_json['edge'] = node.edge
         node_json['falloff'] = node.falloff
         node_json['mode'] = node.mode
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.distance = node_in_json['distance']
         node.edge = node_in_json['edge']
         node.falloff = node_in_json['falloff']
         node.mode = node_in_json['mode']
-        return node
 
 
 class NodeCompositorNodeDBlur(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['angle'] = node.angle
         node_json['center_x'] = node.center_x
         node_json['center_y'] = node.center_y
@@ -782,11 +645,9 @@ class NodeCompositorNodeDBlur(NodeCommon):
         node_json['spin'] = node.spin
         node_json['use_wrap'] = node.use_wrap
         node_json['zoom'] = node.zoom
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.angle = node_in_json['angle']
         node.center_x = node_in_json['center_x']
         node.center_y = node_in_json['center_y']
@@ -795,27 +656,21 @@ class NodeCompositorNodeDBlur(NodeCommon):
         node.spin = node_in_json['spin']
         node.use_wrap = node_in_json['use_wrap']
         node.zoom = node_in_json['zoom']
-        return node
 
 
 class NodeCompositorNodeFilter(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['filter_type'] = node.filter_type
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.filter_type = node_in_json['filter_type']
-        return node
 
 
 class NodeCompositorNodeGlare(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['angle_offset'] = node.angle_offset
         node_json['color_modulation'] = node.color_modulation
         node_json['fade'] = node.fade
@@ -827,11 +682,9 @@ class NodeCompositorNodeGlare(NodeCommon):
         node_json['streaks'] = node.streaks
         node_json['threshold'] = node.threshold
         node_json['use_rotate_45'] = node.use_rotate_45
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.angle_offset = node_in_json['angle_offset']
         node.color_modulation = node_in_json['color_modulation']
         node.fade = node_in_json['fade']
@@ -843,21 +696,16 @@ class NodeCompositorNodeGlare(NodeCommon):
         node.streaks = node_in_json['streaks']
         node.threshold = node_in_json['threshold']
         node.use_rotate_45 = node_in_json['use_rotate_45']
-        return node
 
 
 class NodeCompositorNodeInpaint(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['distance'] = node.distance
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.distance = node_in_json['distance']
-        return node
 
 
 class NodeCompositorNodePixelate(NodeCommon):
@@ -865,79 +713,63 @@ class NodeCompositorNodePixelate(NodeCommon):
 
 
 class NodeCompositorNodeSunBeams(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['ray_length'] = node.ray_length
         node_json['source'] = BLbpy_prop_array.to_json(node.source)
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.ray_length = node_in_json['ray_length']
         BLbpy_prop_array.from_json(node.source, node_in_json['source'])
-        return node
 
 
 class NodeCompositorNodeVecBlur(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['factor'] = node.factor
         node_json['samples'] = node.samples
         node_json['speed_max'] = node.speed_max
         node_json['speed_min'] = node.speed_min
         node_json['use_curved'] = node.use_curved
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.factor = node_in_json['factor']
         node.samples = node_in_json['samples']
         node.speed_max = node_in_json['speed_max']
         node.speed_min = node_in_json['speed_min']
         node.use_curved = node_in_json['use_curved']
-        return node
 
 
 class NodeCompositorNodeMapRange(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['use_clamp'] = node.use_clamp
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.use_clamp = node_in_json['use_clamp']
-        return node
 
 
 class NodeCompositorNodeMapValue(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['max'] = BLbpy_prop_array.to_json(node.max)
         node_json['min'] = BLbpy_prop_array.to_json(node.min)
         node_json['offset'] = BLbpy_prop_array.to_json(node.offset)
         node_json['size'] = BLbpy_prop_array.to_json(node.size)
         node_json['use_max'] = node.use_max
         node_json['use_min'] = node.use_min
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         BLbpy_prop_array.from_json(node.max, node_in_json['max'])
         BLbpy_prop_array.from_json(node.min, node_in_json['min'])
         BLbpy_prop_array.from_json(node.offset, node_in_json['offset'])
         BLbpy_prop_array.from_json(node.size, node_in_json['size'])
         node.use_max = node_in_json['use_max']
         node.use_min = node_in_json['use_min']
-        return node
 
 
 class NodeCompositorNodeNormal(NodeCommon):
@@ -949,41 +781,33 @@ class NodeCompositorNodeNormalize(NodeCommon):
 
 
 class NodeCompositorNodeCurveVec(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['mapping'] = CurveMapping.cum_to_json(node.mapping)
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         CurveMapping.json_to_cum(node.mapping, node_in_json['mapping'])
-        return node
 
 
 class NodeCompositorNodeEllipseMask(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['mask_type'] = node.mask_type
         node_json['width'] = node.width
         node_json['height'] = node.height
         node_json['x'] = node.x
         node_json['y'] = node.y
         node_json['rotation'] = node.rotation
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.mask_type = node_in_json['mask_type']
         node.width = node_in_json['width']
         node.height = node_in_json['height']
         node.x = node_in_json['x']
         node.y = node_in_json['y']
         node.rotation = node_in_json['rotation']
-        return node
 
 
 class NodeCompositorNodeBoxMask(NodeCompositorNodeEllipseMask):
@@ -991,73 +815,60 @@ class NodeCompositorNodeBoxMask(NodeCompositorNodeEllipseMask):
 
 
 class NodeCompositorNodeChannelMatte(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['color_space'] = node.color_space
         node_json['limit_channel'] = node.limit_channel
         node_json['limit_max'] = node.limit_max
         node_json['limit_min'] = node.limit_min
         node_json['limit_method'] = node.limit_method
         node_json['matte_channel'] = node.matte_channel
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.color_space = node_in_json['color_space']
         node.limit_channel = node_in_json['limit_channel']
         node.limit_max = node_in_json['limit_max']
         node.limit_min = node_in_json['limit_min']
         node.limit_method = node_in_json['limit_method']
         node.matte_channel = node_in_json['matte_channel']
-        return node
 
 
 class NodeCompositorNodeChromaMatte(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['gain'] = node.gain
         node_json['lift'] = node.lift
         node_json['shadow_adjust'] = node.shadow_adjust
         node_json['threshold'] = node.threshold
         node_json['tolerance'] = node.tolerance
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.gain = node_in_json['gain']
         node.lift = node_in_json['lift']
         node.shadow_adjust = node_in_json['shadow_adjust']
         node.threshold = node_in_json['threshold']
         node.tolerance = node_in_json['tolerance']
-        return node
 
 
 class NodeCompositorNodeColorMatte(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['color_hue'] = node.color_hue
         node_json['color_saturation'] = node.color_saturation
         node_json['color_value'] = node.color_value
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.color_hue = node_in_json['color_hue']
         node.color_saturation = node_in_json['color_saturation']
         node.color_value = node_in_json['color_value']
-        return node
 
 
 class NodeCompositorNodeColorSpill(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['channel'] = node.channel
         node_json['limit_channel'] = node.limit_channel
         node_json['limit_method'] = node.limit_method
@@ -1066,11 +877,9 @@ class NodeCompositorNodeColorSpill(NodeCommon):
         node_json['unspill_green'] = node.unspill_green
         node_json['unspill_red'] = node.unspill_red
         node_json['use_unspill'] = node.use_unspill
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.channel = node_in_json['channel']
         node.limit_channel = node_in_json['limit_channel']
         node.limit_method = node_in_json['limit_method']
@@ -1079,63 +888,49 @@ class NodeCompositorNodeColorSpill(NodeCommon):
         node.unspill_green = node_in_json['unspill_green']
         node.unspill_red = node_in_json['unspill_red']
         node.use_unspill = node_in_json['use_unspill']
-        return node
 
 
 class NodeCompositorNodeDiffMatte(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['falloff'] = node.falloff
         node_json['tolerance'] = node.tolerance
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.falloff = node_in_json['falloff']
         node.tolerance = node_in_json['tolerance']
-        return node
 
 
 class NodeCompositorNodeDistanceMatte(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['channel'] = node.channel
         node_json['falloff'] = node.falloff
         node_json['tolerance'] = node.tolerance
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.channel = node_in_json['channel']
         node.falloff = node_in_json['falloff']
         node.tolerance = node_in_json['tolerance']
-        return node
 
 
 class NodeCompositorNodeDoubleEdgeMask(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['edge_mode'] = node.edge_mode
         node_json['inner_mode'] = node.inner_mode
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.edge_mode = node_in_json['edge_mode']
         node.inner_mode = node_in_json['inner_mode']
-        return node
 
 
 class NodeCompositorNodeKeying(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['blur_post'] = node.blur_post
         node_json['blur_pre'] = node.blur_pre
         node_json['clip_black'] = node.clip_black
@@ -1148,11 +943,9 @@ class NodeCompositorNodeKeying(NodeCommon):
         node_json['feather_distance'] = node.feather_distance
         node_json['feather_falloff'] = node.feather_falloff
         node_json['screen_balance'] = node.screen_balance
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.blur_post = node_in_json['blur_post']
         node.blur_pre = node_in_json['blur_pre']
         node.clip_black = node_in_json['clip_black']
@@ -1165,43 +958,34 @@ class NodeCompositorNodeKeying(NodeCommon):
         node.feather_distance = node_in_json['feather_distance']
         node.feather_falloff = node_in_json['feather_falloff']
         node.screen_balance = node_in_json['screen_balance']
-        return node
 
 
 class NodeCompositorNodeKeyingScreen(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['clip'] = ''
         if node.clip:
             node_json['clip'] = node.clip.name
         node_json['tracking_object'] = node.tracking_object
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         if node_in_json['clip']:
             if node_in_json['clip'] in bpy.data.movieclips:
                 node.clip = bpy.data.movieclips[node_in_json['clip']]
         node.tracking_object = node_in_json['tracking_object']
-        return node
 
 
 class NodeCompositorNodeLumaMatte(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['limit_max'] = node.limit_max
         node_json['limit_min'] = node.limit_min
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.limit_max = node_in_json['limit_max']
         node.limit_min = node_in_json['limit_min']
-        return node
 
 
 class NodeCompositorNodeCornerPin(NodeCommon):
@@ -1209,9 +993,8 @@ class NodeCompositorNodeCornerPin(NodeCommon):
 
 
 class NodeCompositorNodeCrop(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['max_x'] = node.max_x
         node_json['max_y'] = node.max_y
         node_json['min_x'] = node.min_x
@@ -1222,11 +1005,9 @@ class NodeCompositorNodeCrop(NodeCommon):
         node_json['rel_min_y'] = node.rel_min_y
         node_json['relative'] = node.relative
         node_json['use_crop_size'] = node.use_crop_size
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.max_x = node_in_json['max_x']
         node.max_y = node_in_json['max_y']
         node.min_x = node_in_json['min_x']
@@ -1237,7 +1018,6 @@ class NodeCompositorNodeCrop(NodeCommon):
         node.rel_min_y = node_in_json['rel_min_y']
         node.relative = node_in_json['relative']
         node.use_crop_size = node_in_json['use_crop_size']
-        return node
 
 
 class NodeCompositorNodeDisplace(NodeCommon):
@@ -1245,75 +1025,58 @@ class NodeCompositorNodeDisplace(NodeCommon):
 
 
 class NodeCompositorNodeFlip(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['axis'] = node.axis
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.axis = node_in_json['axis']
-        return node
 
 
 class NodeCompositorNodeLensdist(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['use_fit'] = node.use_fit
         node_json['use_jitter'] = node.use_jitter
         node_json['use_projector'] = node.use_projector
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.use_fit = node_in_json['use_fit']
         node.use_jitter = node_in_json['use_jitter']
         node.use_projector = node_in_json['use_projector']
-        return node
 
 
 class NodeCompositorNodeMapUV(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['alpha'] = node.alpha
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.alpha = node_in_json['alpha']
-        return node
 
 
 class NodeCompositorNodeMovieDistortion(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['clip'] = ''
         if node.clip:
             node_json['clip'] = node.clip.name
         node_json['distortion_type'] = node.distortion_type
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         if node_in_json['clip']:
             if node_in_json['clip'] in bpy.data.movieclips:
                 node.clip = bpy.data.movieclips[node_in_json['clip']]
         node.distortion_type = node_in_json['distortion_type']
-        return node
 
 
 class NodeCompositorNodePlaneTrackDeform(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['clip'] = ''
         if node.clip:
             node_json['clip'] = node.clip.name
@@ -1322,11 +1085,9 @@ class NodeCompositorNodePlaneTrackDeform(NodeCommon):
         node_json['motion_blur_shutter'] = node.motion_blur_shutter
         node_json['plane_track_name'] = node.plane_track_name
         node_json['use_motion_blur'] = node.use_motion_blur
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         if node_in_json['clip']:
             if node_in_json['clip'] in bpy.data.movieclips:
                 node.clip = bpy.data.movieclips[node_in_json['clip']]
@@ -1335,104 +1096,79 @@ class NodeCompositorNodePlaneTrackDeform(NodeCommon):
         node.motion_blur_shutter = node_in_json['motion_blur_shutter']
         node.plane_track_name = node_in_json['plane_track_name']
         node.use_motion_blur = node_in_json['use_motion_blur']
-        return node
 
 
 class NodeCompositorNodeRotate(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['filter_type'] = node.filter_type
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.filter_type = node_in_json['filter_type']
-        return node
 
 
 class NodeCompositorNodeScale(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['frame_method'] = node.frame_method
         node_json['offset_x'] = node.offset_x
         node_json['offset_y'] = node.offset_y
         node_json['space'] = node.space
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.frame_method = node_in_json['frame_method']
         node.offset_x = node_in_json['offset_x']
         node.offset_y = node_in_json['offset_y']
         node.space = node_in_json['space']
-        return node
 
 
 class NodeCompositorNodeStabilize(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['clip'] = ''
         if node.clip:
             node_json['clip'] = node.clip.name
         node_json['filter_type'] = node.filter_type
         node_json['invert'] = node.invert
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         if node_in_json['clip']:
             if node_in_json['clip'] in bpy.data.movieclips:
                 node.clip = bpy.data.movieclips[node_in_json['clip']]
         node.filter_type = node_in_json['filter_type']
         node.invert = node_in_json['invert']
-        return node
 
 
 class NodeCompositorNodeTransform(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['filter_type'] = node.filter_type
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.filter_type = node_in_json['filter_type']
-        return node
 
 
 class NodeCompositorNodeTranslate(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['use_relative'] = node.use_relative
         node_json['wrap_axis'] = node.wrap_axis
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.use_relative = node_in_json['use_relative']
         node.wrap_axis = node_in_json['wrap_axis']
-        return node
 
 
 class NodeCompositorNodeSwitch(NodeCommon):
-    @staticmethod
-    def node_to_json(node):
-        node_json = super(__class__, __class__).node_to_json(node)
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
         node_json['check'] = node.check
-        return node_json
 
-    @staticmethod
-    def json_to_node(node_tree, node_in_json):
-        node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
         node.check = node_in_json['check']
-        return node
