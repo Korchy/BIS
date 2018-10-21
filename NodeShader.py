@@ -487,14 +487,16 @@ class NodeShaderNodeScript(NodeCommon):
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json):
         node.mode = node_in_json['mode']
-        if node_in_json['script_bis_id']:
-            TextManager.from_bis(node_in_json['script_bis_id'])
-        if node_in_json['script']:
-            if node_in_json['script'] in bpy.data.texts:
-                node.script = bpy.data.texts[node_in_json['script']]
-        if node_in_json['filepath']:
-            if os.path.exists(node_in_json['filepath']) and os.path.isfile(node_in_json['filepath']):
-                node.filepath = node_in_json['filepath']
+        if node.mode == 'INTERNAL':
+            if node_in_json['script_bis_id']:
+                TextManager.from_bis(node_in_json['script_bis_id'])
+            if node_in_json['script']:
+                if node_in_json['script'] in bpy.data.texts:
+                    node.script = bpy.data.texts[node_in_json['script']]
+        else:
+            if node_in_json['filepath']:
+                if os.path.exists(node_in_json['filepath']) and os.path.isfile(node_in_json['filepath']):
+                    node.filepath = node_in_json['filepath']
         node.use_auto_update = node_in_json['use_auto_update']
         node.update()
 
