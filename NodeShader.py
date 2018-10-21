@@ -469,8 +469,9 @@ class NodeShaderNodeScript(NodeCommon):
         node_json['script_bis_id'] = None
         if node.script:
             node_json['script'] = node.script.name
-            rez = TextManager.toBis(bpy.context, bpy.data.texts[node.script.name])
+            rez = TextManager.to_bis(bpy.data.texts[node.script.name])
             node_json['script_bis_id'] = ''
+            # print(rez)
             if rez['stat'] == 'OK':
                 node_json['script_bis_id'] = rez['data']['id']
         node_json['filepath'] = ''
@@ -486,7 +487,7 @@ class NodeShaderNodeScript(NodeCommon):
     def _json_to_node_spec(cls, node, node_in_json):
         node.mode = node_in_json['mode']
         if node_in_json['script_bis_id']:
-            TextManager.fromBis(bpy.context, node_in_json['script_bis_id'])
+            TextManager.from_bis(node_in_json['script_bis_id'])
         if node_in_json['script']:
             if node_in_json['script'] in bpy.data.texts:
                 node.script = bpy.data.texts[node_in_json['script']]

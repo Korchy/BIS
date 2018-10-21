@@ -112,7 +112,7 @@ class WebAuth(bpy.types.Operator):
         WebAuthVars.token = ''
         WebAuthVars.logged = False
         WebRequestsVars.close_session()
-        __class__.save_config(user_login = WebAuthVars.userLogin)
+        __class__.save_config(user_login=WebAuthVars.userLogin)
 
     @staticmethod
     def check_token_valid(user_login='', token=''):
@@ -155,11 +155,11 @@ class WebRequest:
     @staticmethod
     def send_request(data={}, files={}, host_target='blender_request'):
         session = WebRequestsVars.get_session()
-        requestData = {'requestbase': WebAuthVars.requestBase, 'token': WebAuthVars.token}
-        requestData.update(data)
+        request_data = {'requestbase': WebAuthVars.requestBase, 'token': WebAuthVars.token}
+        request_data.update(data)
         request = None
         try:
-            request = session.post(WebAuthVars.host + '/' + host_target, data=requestData, files=files)
+            request = session.post(WebAuthVars.host + '/' + host_target, data=request_data, files=files)
         except requests.exceptions.RequestException as error:
             print('ERR: No internet connection to BIS')
         if request:

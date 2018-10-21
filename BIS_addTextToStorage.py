@@ -22,10 +22,10 @@ class BIS_addTextToStorage(bpy.types.Operator):
 
     def execute(self, context):
         if self.textName:
-            currentText = bpy.data.texts[self.textName]
+            current_text = bpy.data.texts[self.textName]
         else:
-            currentText = bpy.context.area.spaces.active.text
-        rez = TextManager.TextManager.toBis(context, currentText, bpy.context.scene.bis_add_text_to_storage_vars.tags)
+            current_text = bpy.context.area.spaces.active.text
+        rez = TextManager.TextManager.to_bis(current_text, context.scene.bis_add_text_to_storage_vars.tags)
         if rez['stat'] == 'OK':
             bpy.context.scene.bis_add_text_to_storage_vars.tags = ''
             if self.showMessage:
@@ -44,7 +44,7 @@ class BIS_addTextToStorageVars(bpy.types.PropertyGroup):
 def register():
     bpy.utils.register_class(BIS_addTextToStorage)
     bpy.utils.register_class(BIS_addTextToStorageVars)
-    bpy.types.Scene.bis_add_text_to_storage_vars = bpy.props.PointerProperty(type = BIS_addTextToStorageVars)
+    bpy.types.Scene.bis_add_text_to_storage_vars = bpy.props.PointerProperty(type=BIS_addTextToStorageVars)
 
 
 def unregister():
