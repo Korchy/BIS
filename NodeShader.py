@@ -467,20 +467,21 @@ class NodeShaderNodeScript(NodeCommon):
     def _node_to_json_spec(cls, node_json, node):
         node_json['script'] = ''
         node_json['script_bis_id'] = None
-        if node.script:
-            node_json['script'] = node.script.name
-            rez = TextManager.to_bis(bpy.data.texts[node.script.name])
-            node_json['script_bis_id'] = ''
-            # print(rez)
-            if rez['stat'] == 'OK':
-                node_json['script_bis_id'] = rez['data']['id']
-        node_json['filepath'] = ''
-        if node.filepath:
-            if node.filepath[:2] == '//':
-                node_json['filepath'] = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(bpy.data.filepath)), node.filepath[2:]))
-            else:
-                node_json['filepath'] = os.path.abspath(node.filepath)
         node_json['mode'] = node.mode
+        if node.mode == 'INTERNAL':
+            if node.script:
+                node_json['script'] = node.script.name
+                rez = TextManager.to_bis(bpy.data.texts[node.script.name])
+                node_json['script_bis_id'] = ''
+                if rez['stat'] == 'OK':
+                    node_json['script_bis_id'] = rez['data']['id']
+        else:
+            node_json['filepath'] = ''
+            if node.filepath:
+                if node.filepath[:2] == '//':
+                    node_json['filepath'] = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(bpy.data.filepath)), node.filepath[2:]))
+                else:
+                    node_json['filepath'] = os.path.abspath(node.filepath)
         node_json['use_auto_update'] = node.use_auto_update
 
     @classmethod
