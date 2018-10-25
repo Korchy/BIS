@@ -30,11 +30,14 @@ class BIS_addNodeToStorage(bpy.types.Operator):
                     node_group_tags = 'shader'
             elif context.area.spaces.active.tree_type == 'CompositorNodeTree':
                 node_group_tags = 'compositing'
+            procedural = 0
             if NodeManager.is_procedural(active_node):
+                procedural = 1
                 node_group_tags += (';' if node_group_tags else '') + 'procedural'
             node_group_tags += (';' if node_group_tags else '') + context.screen.scene.render.engine
             node_group_tags += (';' if node_group_tags else '') + '{0[0]}.{0[1]}'.format(bpy.app.version)
             node_group_in_json = NodeManager.node_group_to_json(active_node)
+            bis_links = list(NodeManager.get_bis_linked_items('bis_linked_item', node_group_in_json))
             if node_group_in_json:
                 if context.scene.bis_add_nodegroup_to_storage_vars.tags != '':
                     node_group_tags += (';' if node_group_tags else '') + context.scene.bis_add_nodegroup_to_storage_vars.tags
@@ -44,6 +47,8 @@ class BIS_addNodeToStorage(bpy.types.Operator):
                     'storage': context.area.spaces.active.type,
                     'storage_subtype': NodeManager.get_subtype(context),
                     'storage_subtype2': NodeManager.get_subtype2(context),
+                    'procedural': procedural,
+                    'bis_links': json.dumps(bis_links),
                     'item_name': node_group_in_json['name'],
                     'item_tags': node_group_tags.strip()
                 })
@@ -68,7 +73,7 @@ class BIS_addNodeGroupToStorageVars(bpy.types.PropertyGroup):
 def register():
     bpy.utils.register_class(BIS_addNodeToStorage)
     bpy.utils.register_class(BIS_addNodeGroupToStorageVars)
-    bpy.types.Scene.bis_add_nodegroup_to_storage_vars = bpy.props.PointerProperty(type = BIS_addNodeGroupToStorageVars)
+    bpy.types.Scene.bis_add_nodegroup_to_storage_vars = bpy.props.PointerProperty(type=BIS_addNodeGroupToStorageVars)
 
 
 def unregister():

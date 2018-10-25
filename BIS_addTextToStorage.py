@@ -24,10 +24,10 @@ class BIS_addTextToStorage(bpy.types.Operator):
         if self.textName:
             current_text = bpy.data.texts[self.textName]
         else:
-            current_text = bpy.context.area.spaces.active.text
+            current_text = context.area.spaces.active.text
         rez = TextManager.TextManager.to_bis(current_text, context.scene.bis_add_text_to_storage_vars.tags)
         if rez['stat'] == 'OK':
-            bpy.context.scene.bis_add_text_to_storage_vars.tags = ''
+            context.scene.bis_add_text_to_storage_vars.tags = ''
             if self.showMessage:
                 bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['data']['text'])
         return {'FINISHED'}

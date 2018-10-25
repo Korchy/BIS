@@ -466,15 +466,17 @@ class NodeShaderNodeScript(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['script'] = ''
-        node_json['script_bis_id'] = None
         node_json['mode'] = node.mode
         if node.mode == 'INTERNAL':
             if node.script:
                 node_json['script'] = node.script.name
                 rez = TextManager.to_bis(bpy.data.texts[node.script.name])
-                node_json['script_bis_id'] = ''
                 if rez['stat'] == 'OK':
-                    node_json['script_bis_id'] = rez['data']['id']
+                    bis_linked_item = {
+                        'storage': TextManager.storage_type(),
+                        'id': rez['data']['id']
+                    }
+                    node_json['bis_linked_item'] = bis_linked_item
         else:
             node_json['filepath'] = ''
             if node.filepath:
@@ -488,8 +490,8 @@ class NodeShaderNodeScript(NodeCommon):
     def _json_to_node_spec(cls, node, node_in_json):
         node.mode = node_in_json['mode']
         if node.mode == 'INTERNAL':
-            if node_in_json['script_bis_id']:
-                TextManager.from_bis(node_in_json['script_bis_id'])
+            if node_in_json['bis_linked_item']:
+                TextManager.from_bis(node_in_json['bis_linked_item']['id'])
             if node_in_json['script']:
                 if node_in_json['script'] in bpy.data.texts:
                     node.script = bpy.data.texts[node_in_json['script']]

@@ -52,7 +52,7 @@ class NodeManager:
 
     @staticmethod
     def is_procedural(material):
-        # check if material (nodegroup) is fully procedural - has no one texture nodes
+        # check if material (nodegroup) is fully procedural
         rez = True
         for node in material.node_tree.nodes:
             if node.type == 'GROUP':
@@ -61,6 +61,23 @@ class NodeManager:
                     break
             elif node.type == 'TEX_IMAGE':
                 rez = False
+                break
+            elif node.type == 'SCRIPT' and node.mode == 'EXTERNAL':
+                rez = False
+                break
+        return rez
+
+    @staticmethod
+    def cpu_render_required(material):
+        # check if material (nodegroup) required only CPU render
+        rez = False
+        for node in material.node_tree.nodes:
+            if node.type == 'GROUP':
+                rez = __class__.cpu_render_required(node)
+                if rez:
+                    break
+            elif node.type == 'SCRIPT':
+                rez = True
                 break
         return rez
 
@@ -75,3 +92,17 @@ class NodeManager:
             if node.type == 'GROUP':
                 node_id = __class__.enumerate_nodes(node, node_id)
         return node_id
+
+    @staticmethod
+    def get_bis_linked_items(key, nodegroup_in_json):
+        for k, v in nodegroup_in_json.items():
+            if k == key:
+                yield v
+            elif isinstance(v, dict):
+                for result in __class__.get_bis_linked_items(key, v):
+                    yield result
+            elif isinstance(v, list):
+                for d in v:
+                    if isinstance(d, dict):
+                        for result in __class__.get_bis_linked_items(key, d):
+                            yield result

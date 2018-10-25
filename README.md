@@ -11,7 +11,7 @@ BIS website: https://bis.interplanety.org/en
 
 Current version:
 -
-1.3.5
+1.3.6
 
 Supported Blender versions:
 -
@@ -34,6 +34,9 @@ Installation and usage:
 
 Version history:
 -
+1.3.6
+- Fixed some issues with saving script nodes
+
 1.3.5
 - Fixed some issues with nodes from future Blender versions
 
