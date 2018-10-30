@@ -18,12 +18,15 @@ class BIS_nodesPanel(bpy.types.Panel):
             self.layout.separator()
             self.layout.separator()
             self.layout.prop(context.scene.bis_add_nodegroup_to_storage_vars, 'tags')
-            button = self.layout.operator('bis.add_nodegroup_to_storage', icon='SCRIPTWIN', text='Add nodegroup to BIS')
+            button = self.layout.operator('bis.add_nodegroup_to_storage', icon='SCRIPTWIN', text=' ADD nodegroup to the BIS')
+            button.showMessage = True
+            self.layout.separator()
+            button = self.layout.operator('bis.update_nodegroup_in_storage', icon='SCRIPTWIN', text=' UPDATE nodegroup in the BIS')
             button.showMessage = True
             self.layout.separator()
             self.layout.separator()
             self.layout.prop(context.window_manager.bis_get_nodes_info_from_storage_vars, 'searchFilter')
-            self.layout.operator('bis.get_nodes_info_from_storage', icon='SCRIPTWIN', text='Search in BIS')
+            self.layout.operator('bis.get_nodes_info_from_storage', icon='SCRIPTWIN', text='Search in the BIS')
             self.layout.prop(context.window_manager.bis_get_nodes_info_from_storage_vars, 'updatePreviews')
             self.layout.separator()
             self.layout.separator()

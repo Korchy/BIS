@@ -5,7 +5,7 @@ import json
 import bpy
 import base64
 import sys
-from . import WebRequests
+from .WebRequests import WebRequest
 
 
 class TextManager:
@@ -34,38 +34,64 @@ class TextManager:
 
     @staticmethod
     def to_bis(text, tags=''):
+        rez = {"stat": "ERR", "data": {"text": "Error to save"}}
         if text.as_string():
             text_in_json = __class__.text_to_json(text)
             tags += (';' if tags else '') + '{0[0]}.{0[1]}'.format(bpy.app.version)
-            request = WebRequests.WebRequest.send_request({
+            request = WebRequest.send_request({
                 'for': 'add_item',
                 'storage': __class__.storage_type(),
                 'item_body': json.dumps(text_in_json),
                 'item_name': text_in_json['name'],
                 'item_tags': tags
             })
-            rez = {"stat": "ERR", "data": {"text": "Error to save"}}
             if request:
                 rez = json.loads(request.text)
-                if rez['stat'] != 'OK':
+                if rez['stat'] == 'OK':
+                    text['bis_uid'] = rez['data']['id']
+                else:
                     bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['data']['text'])
-            return rez
+        else:
+            rez['data']['text'] = 'Empty Text'
+        return rez
 
     @staticmethod
     def from_bis(bis_text_id):
         rez = {"stat": "ERR", "data": {"text": "No Id", "content": None}}
         if bis_text_id:
-            request = WebRequests.WebRequest.send_request({
+            request = WebRequest.send_request({
                 'for': 'get_item',
                 'storage': __class__.storage_type(),
                 'id': bis_text_id
             })
             if request:
                 rez = json.loads(request.text)
-        if rez['stat'] != 'OK':
-            bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['data']['text'])
+        if rez['stat'] == 'OK':
+            text = __class__.json_to_text(rez['data']['item'])
+            if text:
+                text['bis_uid'] = bis_text_id
         else:
-            __class__.json_to_text(rez['data']['item'])
+            bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['data']['text'])
+        return rez
+
+    @staticmethod
+    def update_in_bis(bis_uid, text):
+        rez = {"stat": "ERR", "data": {"text": "Error to update"}}
+        if text.as_string():
+            text_in_json = __class__.text_to_json(text)
+            request = WebRequest.send_request({
+                'for': 'update_item',
+                'storage': __class__.storage_type(),
+                'item_body': json.dumps(text_in_json),
+                'item_name': text_in_json['name'],
+                'item_id': bis_uid
+            })
+            if request:
+                rez = json.loads(request.text)
+                if rez['stat'] != 'OK':
+                    bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['data']['text'])
+        else:
+            rez['data']['text'] = 'Empty Text'
         return rez
 
     @staticmethod

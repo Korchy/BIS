@@ -53,7 +53,9 @@ class BIS_getNodeFromStorage(bpy.types.Operator):
                             elif subtype2 == 'WORLD':
                                 dest_node_tree = context.scene.world.node_tree
                     if node_in_json and dest_node_tree:
-                        NodeManager.json_to_node_group(dest_node_tree, node_in_json)
+                        nodegroup = NodeManager.json_to_node_group(dest_node_tree, node_in_json)
+                        if nodegroup:
+                            nodegroup['bis_uid'] = self.nodeGroupId
         else:
             bpy.ops.message.messagebox('INVOKE_DEFAULT', message='No NodeGroup To Get')
         return {'FINISHED'}

@@ -37,8 +37,8 @@ class BIS_addNodeToStorage(bpy.types.Operator):
             node_group_tags += (';' if node_group_tags else '') + context.screen.scene.render.engine
             node_group_tags += (';' if node_group_tags else '') + '{0[0]}.{0[1]}'.format(bpy.app.version)
             node_group_in_json = NodeManager.node_group_to_json(active_node)
-            bis_links = list(NodeManager.get_bis_linked_items('bis_linked_item', node_group_in_json))
             if node_group_in_json:
+                bis_links = list(NodeManager.get_bis_linked_items('bis_linked_item', node_group_in_json))
                 if context.scene.bis_add_nodegroup_to_storage_vars.tags != '':
                     node_group_tags += (';' if node_group_tags else '') + context.scene.bis_add_nodegroup_to_storage_vars.tags
                 request = WebRequest.send_request({
@@ -55,6 +55,8 @@ class BIS_addNodeToStorage(bpy.types.Operator):
                 if request:
                     context.scene.bis_add_nodegroup_to_storage_vars.tags = ''
                     request_rez = json.loads(request.text)
+                    if request_rez['stat'] == 'OK':
+                        active_node['bis_uid'] = request_rez['data']['id']
                     if self.showMessage:
                         bpy.ops.message.messagebox('INVOKE_DEFAULT', message=request_rez['stat'])
         else:

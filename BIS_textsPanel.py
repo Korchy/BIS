@@ -13,16 +13,19 @@ class BIS_textsPanel(bpy.types.Panel):
 
     def draw(self, context):
         if WebRequests.WebAuthVars.logged:
-            self.layout.operator('dialog.web_auth', icon = 'FILE_TICK', text = 'Sign out')
+            self.layout.operator('dialog.web_auth', icon='FILE_TICK', text='Sign out')
             self.layout.separator()
             self.layout.separator()
             self.layout.prop(bpy.context.scene.bis_add_text_to_storage_vars, 'tags')
-            addTextButton = self.layout.operator('bis.add_text_to_storage', icon='SCRIPTWIN', text='Add text to BIS')
-            addTextButton.showMessage = True
+            button = self.layout.operator('bis.add_text_to_storage', icon='SCRIPTWIN', text=' ADD text to the BIS')
+            button.showMessage = True
+            self.layout.separator()
+            button = self.layout.operator('bis.update_text_in_storage', icon='SCRIPTWIN', text=' UPDATE text in the BIS')
+            button.showMessage = True
             self.layout.separator()
             self.layout.separator()
             self.layout.prop(bpy.context.window_manager.bis_get_texts_info_from_storage_vars, 'searchFilter')
-            self.layout.operator('bis.get_texts_info_from_storage', icon='SCRIPTWIN', text='Search in BIS')
+            self.layout.operator('bis.get_texts_info_from_storage', icon='SCRIPTWIN', text='Search in the BIS')
             self.layout.separator()
             self.layout.separator()
             self.layout.prop(bpy.context.window_manager.bis_get_texts_info_from_storage_vars, 'items')
