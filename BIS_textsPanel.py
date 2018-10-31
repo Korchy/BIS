@@ -17,15 +17,14 @@ class BIS_textsPanel(bpy.types.Panel):
             self.layout.separator()
             self.layout.separator()
             self.layout.prop(bpy.context.scene.bis_add_text_to_storage_vars, 'tags')
-            button = self.layout.operator('bis.add_text_to_storage', icon='SCRIPTWIN', text=' ADD text to the BIS')
+            button = self.layout.operator('bis.add_text_to_storage', text=' Add')
             button.showMessage = True
-            self.layout.separator()
-            button = self.layout.operator('bis.update_text_in_storage', icon='SCRIPTWIN', text=' UPDATE text in the BIS')
+            button = self.layout.operator('bis.update_text_in_storage', text=' Update')
             button.showMessage = True
             self.layout.separator()
             self.layout.separator()
             self.layout.prop(bpy.context.window_manager.bis_get_texts_info_from_storage_vars, 'searchFilter')
-            self.layout.operator('bis.get_texts_info_from_storage', icon='SCRIPTWIN', text='Search in the BIS')
+            self.layout.operator('bis.get_texts_info_from_storage', icon='VIEWZOOM', text='Search')
             self.layout.separator()
             self.layout.separator()
             self.layout.prop(bpy.context.window_manager.bis_get_texts_info_from_storage_vars, 'items')
