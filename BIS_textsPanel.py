@@ -16,18 +16,18 @@ class BIS_textsPanel(bpy.types.Panel):
             self.layout.operator('dialog.web_auth', icon='FILE_TICK', text='Sign out')
             self.layout.separator()
             self.layout.separator()
-            self.layout.prop(bpy.context.scene.bis_add_text_to_storage_vars, 'tags')
-            button = self.layout.operator('bis.add_text_to_storage', text=' Add')
+            self.layout.prop(context.scene.bis_add_text_to_storage_vars, 'tags')
+            button = self.layout.operator('bis.add_text_to_storage', text='Add')
             button.showMessage = True
-            button = self.layout.operator('bis.update_text_in_storage', text=' Update')
+            button = self.layout.operator('bis.update_text_in_storage', text='Update')
             button.showMessage = True
             self.layout.separator()
             self.layout.separator()
-            self.layout.prop(bpy.context.window_manager.bis_get_texts_info_from_storage_vars, 'searchFilter')
-            self.layout.operator('bis.get_texts_info_from_storage', icon='VIEWZOOM', text='Search')
+            self.layout.prop(context.window_manager.bis_get_texts_info_from_storage_vars, 'searchFilter')
+            self.layout.operator('bis.get_texts_info_from_storage', icon='VIEWZOOM', text=' Search')
             self.layout.separator()
             self.layout.separator()
-            self.layout.prop(bpy.context.window_manager.bis_get_texts_info_from_storage_vars, 'items')
+            self.layout.prop(context.window_manager.bis_get_texts_info_from_storage_vars, 'items')
         else:
             self.layout.operator('dialog.web_auth', icon='WORLD', text='Sign in')
 
