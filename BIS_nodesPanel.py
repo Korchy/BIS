@@ -18,7 +18,7 @@ class BIS_nodesPanel(bpy.types.Panel):
             self.layout.separator()
             self.layout.separator()
             self.layout.prop(context.scene.bis_add_nodegroup_to_storage_vars, 'tags')
-            button = self.layout.operator('bis.add_nodegroup_to_storage', text='Add')
+            button = self.layout.operator('bis.add_nodegroup_to_storage', text='Save')
             button.showMessage = True
             button = self.layout.operator('bis.update_nodegroup_in_storage', text='Update')
             button.showMessage = True
