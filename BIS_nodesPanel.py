@@ -14,7 +14,16 @@ class BIS_nodesPanel(bpy.types.Panel):
 
     def draw(self, context):
         if WebRequests.WebAuthVars.logged:
-            self.layout.operator('dialog.web_auth', icon='FILE_TICK', text='Sign out')
+            # self.layout.separator()
+            self.layout.prop(context.window_manager.bis_get_nodes_info_from_storage_vars, 'searchFilter')
+            if WebRequests.WebAuthVars.userProStatus:
+                self.layout.operator('bis.get_nodes_info_from_storage', icon='VIEWZOOM', text=' Search')
+            else:
+                self.layout.operator('bis.get_nodes_info_from_storage', icon='FILE_REFRESH', text=' Get active palette')
+            self.layout.prop(context.window_manager.bis_get_nodes_info_from_storage_vars, 'updatePreviews')
+            self.layout.separator()
+            self.layout.separator()
+            self.layout.template_icon_view(context.window_manager.bis_get_nodes_info_from_storage_vars, 'items', show_labels=True)
             self.layout.separator()
             self.layout.separator()
             self.layout.prop(context.scene.bis_add_nodegroup_to_storage_vars, 'tags')
@@ -24,12 +33,7 @@ class BIS_nodesPanel(bpy.types.Panel):
             button.showMessage = True
             self.layout.separator()
             self.layout.separator()
-            self.layout.prop(context.window_manager.bis_get_nodes_info_from_storage_vars, 'searchFilter')
-            self.layout.operator('bis.get_nodes_info_from_storage', icon='VIEWZOOM', text=' Search')
-            self.layout.prop(context.window_manager.bis_get_nodes_info_from_storage_vars, 'updatePreviews')
-            self.layout.separator()
-            self.layout.separator()
-            self.layout.template_icon_view(context.window_manager.bis_get_nodes_info_from_storage_vars, 'items', show_labels=True)
+            self.layout.operator('dialog.web_auth', icon='FILE_TICK', text='Sign out')
         else:
             self.layout.operator('dialog.web_auth', icon='WORLD', text='Sign in')
 

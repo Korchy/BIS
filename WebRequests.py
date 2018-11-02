@@ -20,6 +20,9 @@ class WebAuthVars(bpy.types.PropertyGroup):
     userStayLogged = bpy.props.BoolProperty(
         default=False
     )
+    userProStatus = bpy.props.BoolProperty(
+        default=False
+    )
     token = bpy.props.StringProperty(
         default=''
     )
@@ -101,6 +104,7 @@ class WebAuth(bpy.types.Operator):
                     WebAuthVars.logged = True
                     WebAuthVars.token = request_rez['data']['token']
                     WebAuthVars.userLogin = self.userLogin
+                    WebAuthVars.userProStatus = request_rez['data']['prostatus']
                     __class__.save_config(user_login=WebAuthVars.userLogin,
                                           token=WebAuthVars.token if self.userStayLogged else '')
                 else:
@@ -120,6 +124,7 @@ class WebAuth(bpy.types.Operator):
         if request:
             request_rez = json.loads(request.text)
             if request_rez['stat'] == 'OK':
+                WebAuthVars.userProStatus = request_rez['data']['prostatus']
                 return True
         return False
 
