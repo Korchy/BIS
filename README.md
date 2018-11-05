@@ -34,3 +34,4 @@ Installation and usage:
 
 Version history:
 -
+./version_history.md
