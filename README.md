@@ -34,4 +34,4 @@ Installation and usage:
 
 Version history:
 -
-./version_history.md
+[version_history.md](version_history.md)
