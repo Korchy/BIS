@@ -4,11 +4,30 @@
 import json
 import bpy
 import base64
-import sys
 from .WebRequests import WebRequest
+from .BIS_Items import BIS_Items
 
 
 class TextManager:
+
+    @staticmethod
+    def items_from_bis(context, search_filter, page):
+        # get page of items list from BIS
+        rez = None
+        request = WebRequest.send_request({
+            'for': 'get_items',
+            'storage': __class__.storage_type(),
+            'search_filter': search_filter,
+            'page': page,
+        })
+        if request:
+            request_rez = json.loads(request.text)
+            rez = request_rez['stat']
+            if request_rez['stat'] == 'OK':
+                BIS_Items.createItemsList(request_rez['data']['items'], context.area.spaces.active.type, previews=False)
+                context.window_manager.bis_get_texts_info_from_storage_vars.current_page = page
+                context.window_manager.bis_get_texts_info_from_storage_vars.current_page_status = request_rez['data']['status']
+        return rez
 
     @staticmethod
     def text_to_json(text):

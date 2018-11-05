@@ -5,7 +5,7 @@ import bpy
 from . import WebRequests
 
 
-class BIS_textsPanel(bpy.types.Panel):
+class BISTextsPanel(bpy.types.Panel):
     bl_idname = 'bis.texts_panel'
     bl_label = 'BIS'
     bl_space_type = 'TEXT_EDITOR'
@@ -16,6 +16,9 @@ class BIS_textsPanel(bpy.types.Panel):
             self.layout.prop(context.window_manager.bis_get_texts_info_from_storage_vars, 'searchFilter')
             if WebRequests.WebAuthVars.userProStatus:
                 self.layout.operator('bis.get_texts_info_from_storage', icon='VIEWZOOM', text=' Search')
+                row = self.layout.row()
+                row.operator('bis.get_texts_info_from_storage_prev_page', text='Prev')
+                row.operator('bis.get_texts_info_from_storage_next_page', text='Next')
             else:
                 self.layout.operator('bis.get_texts_info_from_storage', icon='FILE_REFRESH', text=' Get active palette')
             self.layout.separator()
@@ -36,8 +39,8 @@ class BIS_textsPanel(bpy.types.Panel):
 
 
 def register():
-    bpy.utils.register_class(BIS_textsPanel)
+    bpy.utils.register_class(BISTextsPanel)
 
 
 def unregister():
-    bpy.utils.unregister_class(BIS_textsPanel)
+    bpy.utils.unregister_class(BISTextsPanel)

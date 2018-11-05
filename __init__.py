@@ -5,7 +5,7 @@ bl_info = {
     'name': 'BIS',
     'category': 'Material',
     'author': 'Nikita Akimov',
-    'version': (1, 4, 0),
+    'version': (1, 4, 1),
     'blender': (2, 79, 0),
     'location': 'T-Panel > BIS',
     'wiki_url': 'https://b3d.interplanety.org/en/bis-online-blender-material-storage/',
@@ -22,7 +22,7 @@ from . import BIS_addTextToStorage
 from . import BISUpdateText
 from . import BIS_getTextFromStorage
 from . import BIS_getTextsFromStorage
-from . import BIS_textsPanel
+from . import texts_panel
 from . import WebRequests
 from . import MessageBox
 from . import BIS_Items
@@ -38,7 +38,7 @@ def register():
     BISUpdateText.register()
     BIS_getTextFromStorage.register()
     BIS_getTextsFromStorage.register()
-    BIS_textsPanel.register()
+    texts_panel.register()
     WebRequests.register()
     MessageBox.register()
     BIS_Items.register()
@@ -48,7 +48,7 @@ def unregister():
     BIS_Items.unregister()
     MessageBox.unregister()
     WebRequests.unregister()
-    BIS_textsPanel.unregister()
+    texts_panel.unregister()
     BIS_getTextsFromStorage.unregister()
     BIS_getTextFromStorage.unregister()
     BISUpdateText.unregister()
