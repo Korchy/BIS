@@ -17,7 +17,7 @@ from . import BIS_addNodeToStorage
 from . import BISUpdateNodegroup
 from . import BIS_getNodeFromStorage
 from . import BIS_getNodesFromStorage
-from . import BIS_nodesPanel
+from . import nodes_panel
 from . import BIS_addTextToStorage
 from . import BISUpdateText
 from . import BIS_getTextFromStorage
@@ -33,7 +33,7 @@ def register():
     BISUpdateNodegroup.register()
     BIS_getNodeFromStorage.register()
     BIS_getNodesFromStorage.register()
-    BIS_nodesPanel.register()
+    nodes_panel.register()
     BIS_addTextToStorage.register()
     BISUpdateText.register()
     BIS_getTextFromStorage.register()
@@ -53,7 +53,7 @@ def unregister():
     BIS_getTextFromStorage.unregister()
     BISUpdateText.unregister()
     BIS_addTextToStorage.unregister()
-    BIS_nodesPanel.unregister()
+    nodes_panel.unregister()
     BIS_getNodesFromStorage.unregister()
     BIS_getNodeFromStorage.unregister()
     BISUpdateNodegroup.unregister()

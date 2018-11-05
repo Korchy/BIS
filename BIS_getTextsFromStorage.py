@@ -7,7 +7,7 @@ from . import WebRequests
 from . import BIS_Items
 
 
-class BIS_getTextsInfoFromStorage(bpy.types.Operator):
+class BISGetTextsInfoFromStorage(bpy.types.Operator):
     bl_idname = 'bis.get_texts_info_from_storage'
     bl_label = 'BIS_GetTextsInfoFromBIS'
     bl_description = 'Search texts in BIS'
@@ -20,13 +20,13 @@ class BIS_getTextsInfoFromStorage(bpy.types.Operator):
             'search_filter': context.window_manager.bis_get_texts_info_from_storage_vars.searchFilter
         })
         if request:
-            searchRez = json.loads(request.text)
-            if searchRez['stat'] == 'OK':
-                BIS_Items.BIS_Items.createItemsList(searchRez['data']['items'], context.area.spaces.active.type, previews=False)
+            rez = json.loads(request.text)
+            if rez['stat'] == 'OK':
+                BIS_Items.BIS_Items.createItemsList(rez['data']['items'], context.area.spaces.active.type, previews=False)
         return {'FINISHED'}
 
 
-class BIS_getTextsInfoFromStorageVars(bpy.types.PropertyGroup):
+class BISGetTextsInfoFromStorageVars(bpy.types.PropertyGroup):
     searchFilter = bpy.props.StringProperty(
         name='Search',
         description='Filter to search',
@@ -39,12 +39,12 @@ class BIS_getTextsInfoFromStorageVars(bpy.types.PropertyGroup):
 
 
 def register():
-    bpy.utils.register_class(BIS_getTextsInfoFromStorage)
-    bpy.utils.register_class(BIS_getTextsInfoFromStorageVars)
-    bpy.types.WindowManager.bis_get_texts_info_from_storage_vars = bpy.props.PointerProperty(type=BIS_getTextsInfoFromStorageVars)
+    bpy.utils.register_class(BISGetTextsInfoFromStorage)
+    bpy.utils.register_class(BISGetTextsInfoFromStorageVars)
+    bpy.types.WindowManager.bis_get_texts_info_from_storage_vars = bpy.props.PointerProperty(type=BISGetTextsInfoFromStorageVars)
 
 
 def unregister():
     del bpy.types.WindowManager.bis_get_texts_info_from_storage_vars
-    bpy.utils.unregister_class(BIS_getTextsInfoFromStorageVars)
-    bpy.utils.unregister_class(BIS_getTextsInfoFromStorage)
+    bpy.utils.unregister_class(BISGetTextsInfoFromStorageVars)
+    bpy.utils.unregister_class(BISGetTextsInfoFromStorage)

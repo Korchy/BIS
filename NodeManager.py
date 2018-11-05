@@ -7,9 +7,47 @@ import os
 import json
 from . import cfg
 from .NodeNodeGroup import *
+from .WebRequests import WebRequest
+from .BIS_Items import BIS_Items
 
 
 class NodeManager:
+
+    @staticmethod
+    def items_from_bis(context, search_filter, page, update_preview):
+        # get page of items list from BIS
+        rez = None
+        request = WebRequest.send_request({
+            'for': 'get_items',
+            'search_filter': search_filter,
+            'page': page,
+            'storage': __class__.storage_type(context),
+            'storage_subtype': __class__.get_subtype(context),
+            'storage_subtype2': __class__.get_subtype2(context),
+            'update_preview': update_preview
+        })
+        if request:
+            request_rez = json.loads(request.text)
+            rez = request_rez['stat']
+            if request_rez['stat'] == 'OK':
+                preview_to_update = BIS_Items.updatePreviewsFromData(request_rez['data']['items'], __class__.storage_type(context))
+                if preview_to_update:
+                    request = WebRequest.send_request({
+                        'for': 'update_previews',
+                        'preview_list': preview_to_update,
+                        'storage': __class__.storage_type(context),
+                        'storage_subtype': __class__.get_subtype(context),
+                        'storage_subtype2': __class__.get_subtype2(context)
+                    })
+                    if request:
+                        previews_update_rez = json.loads(request.text)
+                        if previews_update_rez['stat'] == 'OK':
+                            BIS_Items.updatePreviewsFromData(previews_update_rez['data']['items'], __class__.storage_type(context))
+                BIS_Items.createItemsList(request_rez['data']['items'], __class__.storage_type(context))
+                context.window_manager.bis_get_nodes_info_from_storage_vars.current_page = page
+                context.window_manager.bis_get_nodes_info_from_storage_vars.current_page_status = request_rez['data']['status']
+        return rez
+
     @staticmethod
     def node_group_to_json(nodegroup):
         # convert node group to json
@@ -106,3 +144,8 @@ class NodeManager:
                     if isinstance(d, dict):
                         for result in __class__.get_bis_linked_items(key, d):
                             yield result
+
+    @staticmethod
+    def storage_type(context):
+        # return context.area.spaces.active.type
+        return 'NODE_EDITOR'

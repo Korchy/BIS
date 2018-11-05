@@ -2,48 +2,67 @@
 # interplanety@interplanety.org
 
 import bpy
-import json
-from .WebRequests import WebRequest
 from .BIS_Items import BIS_Items
 from .NodeManager import NodeManager
 
 
-class BIS_getNodesInfoFromStorage(bpy.types.Operator):
+class BISGetNodesInfoFromStorage(bpy.types.Operator):
     bl_idname = 'bis.get_nodes_info_from_storage'
-    bl_label = 'BIS_AddToIStorage'
+    bl_label = 'BIS: get items'
     bl_description = 'Search nodegroups in BIS'
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        request = WebRequest.send_request({
-            'for': 'get_items',
-            'search_filter': context.window_manager.bis_get_nodes_info_from_storage_vars.searchFilter,
-            'storage': context.area.spaces.active.type,
-            'storage_subtype': NodeManager.get_subtype(context),
-            'storage_subtype2': NodeManager.get_subtype2(context),
-            'update_preview': context.window_manager.bis_get_nodes_info_from_storage_vars.updatePreviews
-        })
-        if request:
-            searchRez = json.loads(request.text)
-            if searchRez['stat'] == 'OK':
-                previewToUpdate = BIS_Items.updatePreviewsFromData(searchRez['data']['items'], context.area.spaces.active.type)
-                if previewToUpdate:
-                    request = WebRequest.send_request({
-                        'for': 'update_previews',
-                        'preview_list': previewToUpdate,
-                        'storage': context.area.spaces.active.type,
-                        'storage_subtype': NodeManager.get_subtype(context),
-                        'storage_subtype2': NodeManager.get_subtype2(context)
-                    })
-                    if request:
-                        previewsUpdateRez = json.loads(request.text)
-                        if previewsUpdateRez['stat'] == 'OK':
-                            BIS_Items.updatePreviewsFromData(previewsUpdateRez['data']['items'], context.area.spaces.active.type)
-                BIS_Items.createItemsList(searchRez['data']['items'], context.area.spaces.active.type)
+        NodeManager.items_from_bis(
+            context,
+            search_filter=context.window_manager.bis_get_nodes_info_from_storage_vars.searchFilter,
+            page=0,
+            update_preview=context.window_manager.bis_get_nodes_info_from_storage_vars.updatePreviews
+        )
         return {'FINISHED'}
 
 
-class BIS_getNodesInfoFromStorageVars(bpy.types.PropertyGroup):
+class BISGetNodesInfoFromStoragePrevPage(bpy.types.Operator):
+    bl_idname = 'bis.get_nodes_info_from_storage_prev_page'
+    bl_label = 'BIS: get items (prev page)'
+    bl_description = 'Get prev page'
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        NodeManager.items_from_bis(
+            context,
+            search_filter=context.window_manager.bis_get_nodes_info_from_storage_vars.searchFilter,
+            page=context.window_manager.bis_get_nodes_info_from_storage_vars.current_page - 1,
+            update_preview=context.window_manager.bis_get_nodes_info_from_storage_vars.updatePreviews
+        )
+        return {'FINISHED'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.window_manager.bis_get_nodes_info_from_storage_vars.current_page > 0
+
+
+class BISGetNodesInfoFromStorageNextPage(bpy.types.Operator):
+    bl_idname = 'bis.get_nodes_info_from_storage_next_page'
+    bl_label = 'BIS: get items (next page)'
+    bl_description = 'Get next page'
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        NodeManager.items_from_bis(
+            context,
+            search_filter=context.window_manager.bis_get_nodes_info_from_storage_vars.searchFilter,
+            page=context.window_manager.bis_get_nodes_info_from_storage_vars.current_page + 1,
+            update_preview=context.window_manager.bis_get_nodes_info_from_storage_vars.updatePreviews
+        )
+        return {'FINISHED'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.window_manager.bis_get_nodes_info_from_storage_vars.current_page_status not in ('', 'EOF')
+
+
+class BISGetNodesInfoFromStorageVars(bpy.types.PropertyGroup):
     searchFilter = bpy.props.StringProperty(
         name='Search',
         description='Filter to search',
@@ -58,15 +77,25 @@ class BIS_getNodesInfoFromStorageVars(bpy.types.PropertyGroup):
         items=lambda self, context: BIS_Items.getPreviews(self, context),
         update=lambda self, context: BIS_Items.onPreviewSelect(self, context)
     )
+    current_page = bpy.props.IntProperty(
+        default=0
+    )
+    current_page_status = bpy.props.StringProperty(
+        default=''
+    )
 
 
 def register():
-    bpy.utils.register_class(BIS_getNodesInfoFromStorage)
-    bpy.utils.register_class(BIS_getNodesInfoFromStorageVars)
-    bpy.types.WindowManager.bis_get_nodes_info_from_storage_vars = bpy.props.PointerProperty(type = BIS_getNodesInfoFromStorageVars)
+    bpy.utils.register_class(BISGetNodesInfoFromStorage)
+    bpy.utils.register_class(BISGetNodesInfoFromStoragePrevPage)
+    bpy.utils.register_class(BISGetNodesInfoFromStorageNextPage)
+    bpy.utils.register_class(BISGetNodesInfoFromStorageVars)
+    bpy.types.WindowManager.bis_get_nodes_info_from_storage_vars = bpy.props.PointerProperty(type=BISGetNodesInfoFromStorageVars)
 
 
 def unregister():
     del bpy.types.WindowManager.bis_get_nodes_info_from_storage_vars
-    bpy.utils.unregister_class(BIS_getNodesInfoFromStorageVars)
-    bpy.utils.unregister_class(BIS_getNodesInfoFromStorage)
+    bpy.utils.unregister_class(BISGetNodesInfoFromStorageVars)
+    bpy.utils.unregister_class(BISGetNodesInfoFromStorageNextPage)
+    bpy.utils.unregister_class(BISGetNodesInfoFromStoragePrevPage)
+    bpy.utils.unregister_class(BISGetNodesInfoFromStorage)
