@@ -5,9 +5,14 @@ import bpy
 import json
 from .NodeManager import NodeManager
 from .WebRequests import WebRequest
+from bpy.utils import register_class, unregister_class
+from bpy.props import PointerProperty
+from bpy.types import Operator, PropertyGroup, Scene
+from bpy import app
+import sys
 
 
-class BIS_addNodeToStorage(bpy.types.Operator):
+class BISAddNodeToStorage(Operator):
     bl_idname = 'bis.add_nodegroup_to_storage'
     bl_label = 'BIS_AddToIStorage'
     bl_description = 'Add nodegroup to common part of BIS'
@@ -35,7 +40,7 @@ class BIS_addNodeToStorage(bpy.types.Operator):
                 procedural = 1
                 node_group_tags += (';' if node_group_tags else '') + 'procedural'
             node_group_tags += (';' if node_group_tags else '') + context.screen.scene.render.engine
-            node_group_tags += (';' if node_group_tags else '') + '{0[0]}.{0[1]}'.format(bpy.app.version)
+            node_group_tags += (';' if node_group_tags else '') + '{0[0]}.{0[1]}'.format(app.version)
             node_group_in_json = NodeManager.node_group_to_json(active_node)
             if node_group_in_json:
                 bis_links = list(NodeManager.get_bis_linked_items('bis_linked_item', node_group_in_json))
@@ -50,7 +55,8 @@ class BIS_addNodeToStorage(bpy.types.Operator):
                     'procedural': procedural,
                     'bis_links': json.dumps(bis_links),
                     'item_name': node_group_in_json['name'],
-                    'item_tags': node_group_tags.strip()
+                    'item_tags': node_group_tags.strip(),
+                    'addon_version': '.'.join(str(number) for number in sys.modules['BIS'].bl_info['version'])
                 })
                 if request:
                     context.scene.bis_add_nodegroup_to_storage_vars.tags = ''
@@ -64,7 +70,7 @@ class BIS_addNodeToStorage(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class BIS_addNodeGroupToStorageVars(bpy.types.PropertyGroup):
+class BISAddNodeGroupToStorageVars(PropertyGroup):
     tags = bpy.props.StringProperty(
         name='Tags',
         description='Tags',
@@ -73,12 +79,12 @@ class BIS_addNodeGroupToStorageVars(bpy.types.PropertyGroup):
 
 
 def register():
-    bpy.utils.register_class(BIS_addNodeToStorage)
-    bpy.utils.register_class(BIS_addNodeGroupToStorageVars)
-    bpy.types.Scene.bis_add_nodegroup_to_storage_vars = bpy.props.PointerProperty(type=BIS_addNodeGroupToStorageVars)
+    register_class(BISAddNodeToStorage)
+    register_class(BISAddNodeGroupToStorageVars)
+    Scene.bis_add_nodegroup_to_storage_vars = PointerProperty(type=BISAddNodeGroupToStorageVars)
 
 
 def unregister():
-    del bpy.types.Scene.bis_add_nodegroup_to_storage_vars
-    bpy.utils.unregister_class(BIS_addNodeGroupToStorageVars)
-    bpy.utils.unregister_class(BIS_addNodeToStorage)
+    del Scene.bis_add_nodegroup_to_storage_vars
+    unregister_class(BISAddNodeGroupToStorageVars)
+    unregister_class(BISAddNodeToStorage)

@@ -11,7 +11,7 @@ BIS website: https://bis.interplanety.org/en
 
 Current version:
 -
-1.4.1
+1.4.2
 
 Supported Blender versions:
 -

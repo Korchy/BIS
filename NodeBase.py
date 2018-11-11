@@ -26,7 +26,7 @@ class NodeCommon:
             'parent': node.parent.name if node.parent else '',
             'inputs': [],
             'outputs': [],
-            'BIS_node_id': node['BIS_node_id'] if 'BIS_node_id' in node else 0
+            'BIS_node_id': node['BIS_node_id'] if 'BIS_node_id' in node else None
         }
         # for current node specification
         cls._node_to_json_spec(node_json, node)
@@ -57,7 +57,7 @@ class NodeCommon:
             current_node.use_custom_color = node_in_json['use_custom_color']
             JsonEx.color_from_json(current_node.color, node_in_json['color'])
             current_node['parent_str'] = node_in_json['parent'] if 'parent' in node_in_json else ''
-            current_node['BIS_node_id'] = node_in_json['BIS_node_id'] if 'BIS_node_id' in node_in_json else 0
+            current_node['BIS_node_id'] = node_in_json['BIS_node_id'] if 'BIS_node_id' in node_in_json else None
             # for current node specification
             cls._json_to_node_spec(current_node, node_in_json)
         return current_node

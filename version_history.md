@@ -1,5 +1,8 @@
 Version history:
 -
+1.4.2
+- Some internal technical changes in saving nogdes format (connecting links by inputs/outputs identifier)
+
 1.4.1
 - Added "prev" and "next" page button for "pro" accounts
 - Some changes on the server-side

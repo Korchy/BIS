@@ -1,11 +1,12 @@
 # Nikita Akimov
 # interplanety@interplanety.org
 
-import bpy
 from . import WebRequests
+from bpy.types import Panel
+from bpy.utils import register_class, unregister_class
 
 
-class BISNodesPanel(bpy.types.Panel):
+class BISNodesPanel(Panel):
     bl_idname = 'bis.nodes_panel'
     bl_label = 'BIS'
     bl_space_type = 'NODE_EDITOR'
@@ -14,7 +15,6 @@ class BISNodesPanel(bpy.types.Panel):
 
     def draw(self, context):
         if WebRequests.WebAuthVars.logged:
-            # self.layout.separator()
             self.layout.prop(context.window_manager.bis_get_nodes_info_from_storage_vars, 'searchFilter')
             if WebRequests.WebAuthVars.userProStatus:
                 self.layout.operator('bis.get_nodes_info_from_storage', icon='VIEWZOOM', text=' Search')
@@ -42,8 +42,8 @@ class BISNodesPanel(bpy.types.Panel):
 
 
 def register():
-    bpy.utils.register_class(BISNodesPanel)
+    register_class(BISNodesPanel)
 
 
 def unregister():
-    bpy.utils.unregister_class(BISNodesPanel)
+    unregister_class(BISNodesPanel)

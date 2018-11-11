@@ -1,7 +1,9 @@
 # Nikita Akimov
 # interplanety@interplanety.org
 
+# -------------------------------------------------------------------------------
 # DEBUG variables --- For release all must be = False
+# -------------------------------------------------------------------------------
 
 # show errors
 show_debug_err = False
@@ -14,3 +16,11 @@ to_server_to_file = False
 
 # write loaded from server content to file
 from_server_to_file = False
+
+
+# -------------------------------------------------------------------------------
+# experimental features --- For release all must be = False
+# -------------------------------------------------------------------------------
+
+# use BIS custom nodes
+experimental_enable_bis_custom_nodes = False
