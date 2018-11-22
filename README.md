@@ -5,7 +5,7 @@ Author: Nikita Akimov interplanety@interplanety.org
 
 BIS webpage: https://b3d.interplanety.org/en/bis-online-blender-material-storage/
 
-BIS website: https://bis.interplanety.org/en
+BIS website: https://bis.interplanety.org
 
 <img src = "https://b3d.interplanety.org/wp-content/upload_content/2018/05/01_670x335.jpg">
 

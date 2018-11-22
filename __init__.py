@@ -2,9 +2,9 @@
 # interplanety@interplanety.org
 
 from . import cfg
-from . import BIS_addNodeToStorage
+from . import add_node_group_to_storage
 from . import BISUpdateNodegroup
-from . import BIS_getNodeFromStorage
+from . import get_node_group_from_storage
 from . import BIS_getNodesFromStorage
 from . import nodes_panel
 from . import BIS_addTextToStorage
@@ -33,9 +33,9 @@ bl_info = {
 
 
 def register():
-    BIS_addNodeToStorage.register()
+    add_node_group_to_storage.register()
     BISUpdateNodegroup.register()
-    BIS_getNodeFromStorage.register()
+    get_node_group_from_storage.register()
     BIS_getNodesFromStorage.register()
     nodes_panel.register()
     if cfg.experimental_enable_bis_custom_nodes:
@@ -63,9 +63,9 @@ def unregister():
         nodes_bis_custom.unregister()
     nodes_panel.unregister()
     BIS_getNodesFromStorage.unregister()
-    BIS_getNodeFromStorage.unregister()
+    get_node_group_from_storage.unregister()
     BISUpdateNodegroup.unregister()
-    BIS_addNodeToStorage.unregister()
+    add_node_group_to_storage.unregister()
 
 
 if __name__ == "__main__":

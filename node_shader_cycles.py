@@ -1,21 +1,14 @@
 # Nikita Akimov
 # interplanety@interplanety.org
 
-# --------------------------------------------------------------
-# for older compatibility
-# used for node groups version 1.4.1
-# if there would no 1.4.1 nodegroups - all this file can be removed
-# work in - node_shader_cycles
-# --------------------------------------------------------------
-
 import bpy
 import os
 from .JsonEx import JsonEx
-from .NodeBase import NodeBase, TMCommon, IUCommon, CMCommon, CurveMapping, NodeColorRamp
+from .node_common import NodeCommon, TMCommon, IUCommon, CMCommon, CurveMapping, NodeColorRamp
 from .TextManager import TextManager
 
 
-class NodeBaseShaderNodeBsdfGlossy(NodeBase):
+class NodeShaderNodeBsdfGlossy(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['distribution'] = node.distribution
@@ -25,19 +18,19 @@ class NodeBaseShaderNodeBsdfGlossy(NodeBase):
         node.distribution = node_in_json['distribution']
 
 
-class NodeBaseShaderNodeBsdfAnisotropic(NodeBaseShaderNodeBsdfGlossy):
+class NodeShaderNodeBsdfAnisotropic(NodeShaderNodeBsdfGlossy):
     pass
 
 
-class NodeBaseShaderNodeBsdfGlass(NodeBaseShaderNodeBsdfGlossy):
+class NodeShaderNodeBsdfGlass(NodeShaderNodeBsdfGlossy):
     pass
 
 
-class NodeBaseShaderNodeBsdfRefraction(NodeBaseShaderNodeBsdfGlossy):
+class NodeShaderNodeBsdfRefraction(NodeShaderNodeBsdfGlossy):
     pass
 
 
-class NodeBaseShaderNodeAttribute(NodeBase):
+class NodeShaderNodeAttribute(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['attribute_name'] = node.attribute_name
@@ -47,7 +40,7 @@ class NodeBaseShaderNodeAttribute(NodeBase):
         node.attribute_name = node_in_json['attribute_name']
 
 
-class NodeBaseShaderNodeTangent(NodeBase):
+class NodeShaderNodeTangent(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['direction_type'] = node.direction_type
@@ -61,7 +54,7 @@ class NodeBaseShaderNodeTangent(NodeBase):
         node.uv_map = node_in_json['uv_map']
 
 
-class NodeBaseShaderNodeUVMap(NodeBase):
+class NodeShaderNodeUVMap(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['from_dupli'] = node.from_dupli
@@ -73,7 +66,7 @@ class NodeBaseShaderNodeUVMap(NodeBase):
         node.uv_map = node_in_json['uv_map']
 
 
-class NodeBaseShaderNodeTexCoord(NodeBase):
+class NodeShaderNodeTexCoord(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['object'] = ''
@@ -89,7 +82,7 @@ class NodeBaseShaderNodeTexCoord(NodeBase):
         node.from_dupli = node_in_json['from_dupli']
 
 
-class NodeBaseShaderNodeTexPointDensity(NodeBase):
+class NodeShaderNodeTexPointDensity(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['object'] = ''
@@ -125,7 +118,7 @@ class NodeBaseShaderNodeTexPointDensity(NodeBase):
         node.vertex_attribute_name = node_in_json['vertex_attribute_name']
 
 
-class NodeBaseShaderNodeTexEnvironment(NodeBase):
+class NodeShaderNodeTexEnvironment(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['image'] = ''
@@ -159,7 +152,7 @@ class NodeBaseShaderNodeTexEnvironment(NodeBase):
         CMCommon.json_to_cm(node, node_in_json['color_mapping'])
 
 
-class NodeBaseShaderNodeTexImage(NodeBaseShaderNodeTexEnvironment):
+class NodeShaderNodeTexImage(NodeShaderNodeTexEnvironment):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['projection_blend'] = node.projection_blend
@@ -171,7 +164,7 @@ class NodeBaseShaderNodeTexImage(NodeBaseShaderNodeTexEnvironment):
         node.extension = node_in_json['extension']
 
 
-class NodeBaseShaderNodeTexChecker(NodeBase):
+class NodeShaderNodeTexChecker(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['texture_mapping'] = TMCommon.tm_to_json(node.texture_mapping)
@@ -183,7 +176,7 @@ class NodeBaseShaderNodeTexChecker(NodeBase):
         CMCommon.json_to_cm(node, node_in_json['color_mapping'])
 
 
-class NodeBaseShaderNodeTexBrick(NodeBaseShaderNodeTexChecker):
+class NodeShaderNodeTexBrick(NodeShaderNodeTexChecker):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['offset_frequency'] = node.offset_frequency
@@ -199,7 +192,7 @@ class NodeBaseShaderNodeTexBrick(NodeBaseShaderNodeTexChecker):
         node.squash = node_in_json['squash']
 
 
-class NodeBaseShaderNodeTexGradient(NodeBaseShaderNodeTexChecker):
+class NodeShaderNodeTexGradient(NodeShaderNodeTexChecker):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['gradient_type'] = node.gradient_type
@@ -209,7 +202,7 @@ class NodeBaseShaderNodeTexGradient(NodeBaseShaderNodeTexChecker):
         node.gradient_type = node_in_json['gradient_type']
 
 
-class NodeBaseShaderNodeTexMagic(NodeBaseShaderNodeTexChecker):
+class NodeShaderNodeTexMagic(NodeShaderNodeTexChecker):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['turbulence_depth'] = node.turbulence_depth
@@ -219,7 +212,7 @@ class NodeBaseShaderNodeTexMagic(NodeBaseShaderNodeTexChecker):
         node.turbulence_depth = node_in_json['turbulence_depth']
 
 
-class NodeBaseShaderNodeTexMusgrave(NodeBaseShaderNodeTexChecker):
+class NodeShaderNodeTexMusgrave(NodeShaderNodeTexChecker):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['musgrave_type'] = node.musgrave_type
@@ -229,7 +222,7 @@ class NodeBaseShaderNodeTexMusgrave(NodeBaseShaderNodeTexChecker):
         node.musgrave_type = node_in_json['musgrave_type']
 
 
-class NodeBaseShaderNodeTexVoronoi(NodeBaseShaderNodeTexChecker):
+class NodeShaderNodeTexVoronoi(NodeShaderNodeTexChecker):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['coloring'] = node.coloring
@@ -239,7 +232,7 @@ class NodeBaseShaderNodeTexVoronoi(NodeBaseShaderNodeTexChecker):
         node.coloring = node_in_json['coloring']
 
 
-class NodeBaseShaderNodeTexWave(NodeBaseShaderNodeTexChecker):
+class NodeShaderNodeTexWave(NodeShaderNodeTexChecker):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['wave_type'] = node.wave_type
@@ -251,7 +244,7 @@ class NodeBaseShaderNodeTexWave(NodeBaseShaderNodeTexChecker):
         node.wave_profile = node_in_json['wave_profile']
 
 
-class NodeBaseShaderNodeTexSky(NodeBaseShaderNodeTexChecker):
+class NodeShaderNodeTexSky(NodeShaderNodeTexChecker):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['sky_type'] = node.sky_type
@@ -267,11 +260,11 @@ class NodeBaseShaderNodeTexSky(NodeBaseShaderNodeTexChecker):
         node.ground_albedo = node_in_json['ground_albedo']
 
 
-class NodeBaseShaderNodeTexNoise(NodeBaseShaderNodeTexChecker):
+class NodeShaderNodeTexNoise(NodeShaderNodeTexChecker):
     pass
 
 
-class NodeBaseShaderNodeWireframe(NodeBase):
+class NodeShaderNodeWireframe(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['use_pixel_size'] = node.use_pixel_size
@@ -281,7 +274,7 @@ class NodeBaseShaderNodeWireframe(NodeBase):
         node.use_pixel_size = node_in_json['use_pixel_size']
 
 
-class NodeBaseShaderNodeBsdfHair(NodeBase):
+class NodeShaderNodeBsdfHair(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['component'] = node.component
@@ -291,11 +284,11 @@ class NodeBaseShaderNodeBsdfHair(NodeBase):
         node.component = node_in_json['component']
 
 
-class NodeBaseShaderNodeBsdfToon(NodeBaseShaderNodeBsdfHair):
+class NodeShaderNodeBsdfToon(NodeShaderNodeBsdfHair):
     pass
 
 
-class NodeBaseShaderNodeSubsurfaceScattering(NodeBase):
+class NodeShaderNodeSubsurfaceScattering(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['falloff'] = node.falloff
@@ -305,7 +298,7 @@ class NodeBaseShaderNodeSubsurfaceScattering(NodeBase):
         node.falloff = node_in_json['falloff']
 
 
-class NodeBaseShaderNodeMixRGB(NodeBase):
+class NodeShaderNodeMixRGB(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['blend_type'] = node.blend_type
@@ -319,63 +312,63 @@ class NodeBaseShaderNodeMixRGB(NodeBase):
         node.use_clamp = node_in_json['use_clamp']
 
 
-class NodeBaseShaderNodeBrightContrast(NodeBase):
+class NodeShaderNodeBrightContrast(NodeCommon):
     pass
 
 
-class NodeBaseShaderNodeGamma(NodeBase):
+class NodeShaderNodeGamma(NodeCommon):
     pass
 
 
-class NodeBaseShaderNodeHueSaturation(NodeBase):
+class NodeShaderNodeHueSaturation(NodeCommon):
     pass
 
 
-class NodeBaseShaderNodeInvert(NodeBase):
+class NodeShaderNodeInvert(NodeCommon):
     pass
 
 
-class NodeBaseShaderNodeLightFalloff(NodeBase):
+class NodeShaderNodeLightFalloff(NodeCommon):
     pass
 
 
-class NodeBaseShaderNodeBlackbody(NodeBase):
+class NodeShaderNodeBlackbody(NodeCommon):
     pass
 
 
-class NodeBaseShaderNodeCombineHSV(NodeBase):
+class NodeShaderNodeCombineHSV(NodeCommon):
     pass
 
 
-class NodeBaseShaderNodeSeparateHSV(NodeBase):
+class NodeShaderNodeSeparateHSV(NodeCommon):
     pass
 
 
-class NodeBaseShaderNodeCombineRGB(NodeBase):
+class NodeShaderNodeCombineRGB(NodeCommon):
     pass
 
 
-class NodeBaseShaderNodeSeparateRGB(NodeBase):
+class NodeShaderNodeSeparateRGB(NodeCommon):
     pass
 
 
-class NodeBaseShaderNodeCombineXYZ(NodeBase):
+class NodeShaderNodeCombineXYZ(NodeCommon):
     pass
 
 
-class NodeBaseShaderNodeSeparateXYZ(NodeBase):
+class NodeShaderNodeSeparateXYZ(NodeCommon):
     pass
 
 
-class NodeBaseShaderNodeRGBToBW(NodeBase):
+class NodeShaderNodeRGBToBW(NodeCommon):
     pass
 
 
-class NodeBaseShaderNodeWavelength(NodeBase):
+class NodeShaderNodeWavelength(NodeCommon):
     pass
 
 
-class NodeBaseShaderNodeRGBCurve(NodeBase):
+class NodeShaderNodeRGBCurve(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['mapping'] = CurveMapping.cum_to_json(node.mapping)
@@ -385,11 +378,11 @@ class NodeBaseShaderNodeRGBCurve(NodeBase):
         CurveMapping.json_to_cum(node.mapping, node_in_json['mapping'])
 
 
-class NodeBaseShaderNodeVectorCurve(NodeBaseShaderNodeRGBCurve):
+class NodeShaderNodeVectorCurve(NodeShaderNodeRGBCurve):
     pass
 
 
-class NodeBaseShaderNodeBump(NodeBase):
+class NodeShaderNodeBump(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['invert'] = node.invert
@@ -399,7 +392,7 @@ class NodeBaseShaderNodeBump(NodeBase):
         node.invert = node_in_json['invert']
 
 
-class NodeBaseShaderNodeVectorTransform(NodeBase):
+class NodeShaderNodeVectorTransform(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['vector_type'] = node.vector_type
@@ -413,7 +406,7 @@ class NodeBaseShaderNodeVectorTransform(NodeBase):
         node.convert_to = node_in_json['convert_to']
 
 
-class NodeBaseShaderNodeValToRGB(NodeBase):
+class NodeShaderNodeValToRGB(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['color_ramp'] = NodeColorRamp.cr_to_json(node.color_ramp)
@@ -423,7 +416,7 @@ class NodeBaseShaderNodeValToRGB(NodeBase):
         NodeColorRamp.json_to_cr(node.color_ramp, node_in_json['color_ramp'])
 
 
-class NodeBaseShaderNodeMapping(NodeBase):
+class NodeShaderNodeMapping(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['vector_type'] = node.vector_type
@@ -447,7 +440,7 @@ class NodeBaseShaderNodeMapping(NodeBase):
         node.use_max = node_in_json['use_max']
 
 
-class NodeBaseShaderNodeMath(NodeBase):
+class NodeShaderNodeMath(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['operation'] = node.operation
@@ -459,7 +452,7 @@ class NodeBaseShaderNodeMath(NodeBase):
         node.use_clamp = node_in_json['use_clamp']
 
 
-class NodeBaseShaderNodeVectorMath(NodeBase):
+class NodeShaderNodeVectorMath(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['operation'] = node.operation
@@ -469,7 +462,7 @@ class NodeBaseShaderNodeVectorMath(NodeBase):
         node.operation = node_in_json['operation']
 
 
-class NodeBaseShaderNodeScript(NodeBase):
+class NodeShaderNodeScript(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['script'] = ''
@@ -510,15 +503,15 @@ class NodeBaseShaderNodeScript(NodeBase):
         node.update()
 
 
-class NodeBaseShaderNodeMixShader(NodeBase):
+class NodeShaderNodeMixShader(NodeCommon):
     pass
 
 
-class NodeBaseNodeGroupInput(NodeBase):
+class NodeNodeGroupInput(NodeCommon):
     pass
 
 
-class NodeBaseNodeGroupOutput(NodeBase):
+class NodeNodeGroupOutput(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['is_active_output'] = node.is_active_output

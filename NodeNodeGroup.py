@@ -1,16 +1,24 @@
 # Nikita Akimov
 # interplanety@interplanety.org
 
+# --------------------------------------------------------------
+# for older compatibility
+# used for node groups version 1.4.1
+# if there would no 1.4.1 nodegroups - all this file can be removed
+# work with - node_node_group
+# --------------------------------------------------------------
+
+
 import bpy
 import sys
-from .NodeBase import NodeCommon
+from .NodeBase import NodeBase
 from .NodeIO import *
 from .NodeGIO import *
 from .NodeShader import *
 from .NodeCompositor import *
 
 
-class NodeShaderNodeGroup(NodeCommon):
+class NodeBaseShaderNodeGroup(NodeBase):
     @classmethod
     def node_to_json(cls, node):
         node_json = super(__class__, __class__).node_to_json(node)
@@ -34,9 +42,9 @@ class NodeShaderNodeGroup(NodeCommon):
             node_group_tree_node_indexed.append([current_node, inputs, outputs])
         # Nodes
         for current_node in node_group_tree_node_indexed:
-            node_class = NodeCommon
-            if hasattr(sys.modules[__name__], 'Node' + current_node[0].bl_idname):
-                node_class = getattr(sys.modules[__name__], 'Node' + current_node[0].bl_idname)
+            node_class = NodeBase
+            if hasattr(sys.modules[__name__], 'NodeBase' + current_node[0].bl_idname):
+                node_class = getattr(sys.modules[__name__], 'NodeBase' + current_node[0].bl_idname)
             current_node_json = node_class.node_to_json(current_node[0])
             for current_input in current_node[1]:
                 io_name = 'IO' + current_input.bl_idname
@@ -88,13 +96,13 @@ class NodeShaderNodeGroup(NodeCommon):
         return node_json
 
     @classmethod
-    def json_to_node(cls, node_tree, node_in_json):
-        current_node = super(__class__, __class__).json_to_node(node_tree, node_in_json)
-        tree_type = node_in_json['tree_type'] if 'tree_type' in node_in_json else 'ShaderNodeTree'
-        current_node.node_tree = bpy.data.node_groups.new(type=tree_type, name=node_in_json['name'])
+    def json_to_node(cls, node_tree, node_json):
+        current_node = super(__class__, __class__).json_to_node(node_tree, node_json)
+        tree_type = node_json['tree_type'] if 'tree_type' in node_json else 'ShaderNodeTree'
+        current_node.node_tree = bpy.data.node_groups.new(type=tree_type, name=node_json['name'])
         node_group_tree_node_indexed = []
         # GroupInputs
-        for i, input_in_json in enumerate(node_in_json['GroupInput']):
+        for i, input_in_json in enumerate(node_json['GroupInput']):
             gio_class = GIOCommon
             if hasattr(sys.modules[__name__], 'GIO' + input_in_json['bl_type']):
                 gio_class = getattr(sys.modules[__name__], 'GIO' + input_in_json['bl_type'])
@@ -103,21 +111,21 @@ class NodeShaderNodeGroup(NodeCommon):
                                  input_number=i,
                                  input_in_json=input_in_json)
         # GroupOutputs
-        for output_in_json in node_in_json['GroupOutput']:
+        for output_in_json in node_json['GroupOutput']:
             gio_class = GIOCommon
             if hasattr(sys.modules[__name__], 'GIO' + output_in_json['bl_type']):
                 gio_class = getattr(sys.modules[__name__], 'GIO' + output_in_json['bl_type'])
             gio_class.json_to_go(node_tree=current_node.node_tree,
                                  output_in_json=output_in_json)
         # Nodes
-        for current_node_in_json in node_in_json['nodes']:
-            node_class = NodeCommon
-            if hasattr(sys.modules[__name__], 'Node' + current_node_in_json['bl_type']):
-                node_class = getattr(sys.modules[__name__], 'Node' + current_node_in_json['bl_type'])
-            c_node = node_class.json_to_node(node_tree=current_node.node_tree, node_in_json=current_node_in_json)
+        for current_node_json in node_json['nodes']:
+            node_class = NodeBase
+            if hasattr(sys.modules[__name__], 'NodeBase' + current_node_json['bl_type']):
+                node_class = getattr(sys.modules[__name__], 'NodeBase' + current_node_json['bl_type'])
+            c_node = node_class.json_to_node(node_tree=current_node.node_tree, node_json=current_node_json)
             if c_node:
                 # Node Inputs
-                for input_number, nodeInputInJson in enumerate(current_node_in_json['inputs']):
+                for input_number, nodeInputInJson in enumerate(current_node_json['inputs']):
                     if len(c_node.inputs) > input_number:
                         if nodeInputInJson:
                             io_class = IOCommon
@@ -128,7 +136,7 @@ class NodeShaderNodeGroup(NodeCommon):
                                                    input_number=input_number,
                                                    input_in_json=nodeInputInJson)
                 # Node Outputs
-                for output_number, nodeOutputInJson in enumerate(current_node_in_json['outputs']):
+                for output_number, nodeOutputInJson in enumerate(current_node_json['outputs']):
                     if len(c_node.outputs) > output_number:
                         if nodeOutputInJson:
                             io_class = IOCommon
@@ -140,7 +148,7 @@ class NodeShaderNodeGroup(NodeCommon):
                                                    output_in_json=nodeOutputInJson)
             node_group_tree_node_indexed.append(c_node)
         # Links
-        for linkInJson in node_in_json['links']:
+        for linkInJson in node_json['links']:
             # if nodes not None (may be None if node type is not exists - saved from future version of Blender
             if node_group_tree_node_indexed[linkInJson[0]] and node_group_tree_node_indexed[linkInJson[2]]:
                 if linkInJson[1] <= len(node_group_tree_node_indexed[linkInJson[0]].outputs) - 1 and linkInJson[3] <= len(node_group_tree_node_indexed[linkInJson[2]].inputs) - 1:
@@ -163,5 +171,5 @@ class NodeShaderNodeGroup(NodeCommon):
             return True
 
 
-class NodeCompositorNodeGroup(NodeShaderNodeGroup):
+class NodeBaseCompositorNodeGroup(NodeBaseShaderNodeGroup):
     pass

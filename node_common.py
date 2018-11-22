@@ -1,27 +1,23 @@
 # Nikita Akimov
 # interplanety@interplanety.org
 
-# --------------------------------------------------------------
-# for older compatibility
-# used for node groups version 1.4.1
-# if there would no 1.4.1 nodegroups - all this file can be removed
-# work in - node_common
-# --------------------------------------------------------------
-
 # Base Node classes
 
+import sys
+import bpy
 from . import cfg
 from .JsonEx import JsonEx
+from .node_io import *
 
 
 # Node
-class NodeBase:
+class NodeCommon:
     @classmethod
     def node_to_json(cls, node):
         # base node specification
         node_json = {
             'type': node.type,
-            'bl_type': node.bl_idname,
+            'bl_idname': node.bl_idname,
             'name': node.name,
             'label': node.label,
             'hide': node.hide,
@@ -35,6 +31,20 @@ class NodeBase:
             'outputs': [],
             'BIS_node_id': node['BIS_node_id'] if 'BIS_node_id' in node else None
         }
+        # node inputs
+        for c_input in node.inputs:
+            io_name = 'NodeIO' + c_input.bl_idname
+            io_class = NodeIOCommon
+            if hasattr(sys.modules[__name__], io_name):
+                io_class = getattr(sys.modules[__name__], io_name)
+            node_json['inputs'].append(io_class.io_to_json(c_input))
+        # node outputs
+        for c_output in node.outputs:
+            io_name = 'NodeIO' + c_output.bl_idname
+            io_class = NodeIOCommon
+            if hasattr(sys.modules[__name__], io_name):
+                io_class = getattr(sys.modules[__name__], io_name)
+            node_json['outputs'].append(io_class.io_to_json(c_output))
         # for current node specification
         cls._node_to_json_spec(node_json, node)
         return node_json
@@ -49,7 +59,10 @@ class NodeBase:
         current_node = None
         try:
             # current node type may not exists - if node saved from future version of Blender
-            current_node = node_tree.nodes.new(type=node_json['bl_type'])
+            current_node = node_tree.nodes.new(type=node_json['bl_idname'])
+            if current_node.type == 'GROUP':
+                tree_type = node_json['tree_type'] if 'tree_type' in node_json else 'ShaderNodeTree'
+                current_node.node_tree = bpy.data.node_groups.new(type=tree_type, name=node_json['name'])
         except Exception as exception:
             if cfg.show_debug_err:
                 print(repr(exception))
@@ -65,6 +78,44 @@ class NodeBase:
             JsonEx.color_from_json(current_node.color, node_json['color'])
             current_node['parent_str'] = node_json['parent'] if 'parent' in node_json else ''
             current_node['BIS_node_id'] = node_json['BIS_node_id'] if 'BIS_node_id' in node_json else None
+            # node inputs
+            for input_number, input_json in enumerate(node_json['inputs']):
+                if current_node.type == 'GROUP':
+                    # for group - generate new input
+                    current_node.node_tree.inputs.new(type=input_json['bl_idname'], name=input_json['name'])     # NodeSocketInterfaceXXX
+                    current_input = current_node.inputs[-1]   # NodeSocketXXX
+                else:
+                    # for other nodes - use existed input
+                    if current_node.bl_idname in ['NodeGroupInput', 'NodeGroupOutput']:
+                        # for group inputs/outputs - by number
+                        current_input = current_node.inputs[input_number]
+                    else:
+                        # for other nodes - by identifier
+                        current_input = __class__.input_by_identifier(current_node, input_json['identifier'])
+                if current_input:
+                    io_class = NodeIOCommon
+                    if hasattr(sys.modules[__name__], 'NodeIO' + input_json['bl_idname']):
+                        io_class = getattr(sys.modules[__name__], 'NodeIO' + input_json['bl_idname'])
+                    io_class.json_to_i(node=current_node, node_input=current_input, input_json=input_json)
+            # node outputs
+            for output_number, output_json in enumerate(node_json['outputs']):
+                if current_node.type == 'GROUP':
+                    # for group - generate new output
+                    current_node.node_tree.outputs.new(type=output_json['bl_idname'], name=output_json['name'])     # NodeSocketInterfaceXXX
+                    current_output = current_node.outputs[-1]   # NodeSocketXXX
+                else:
+                    # for other nodes - use existed input
+                    if current_node.bl_idname in ['NodeGroupInput', 'NodeGroupOutput']:
+                        # for group inputs/outputs - by number
+                        current_output = current_node.outputs[output_number]
+                    else:
+                        # for other nodes - by identifier
+                        current_output = __class__.output_by_identifier(current_node, output_json['identifier'])
+                if current_output:
+                    io_class = NodeIOCommon
+                    if hasattr(sys.modules[__name__], 'NodeIO' + output_json['bl_idname']):
+                       io_class = getattr(sys.modules[__name__], 'NodeIO' + output_json['bl_idname'])
+                    io_class.json_to_o(node=current_node, node_output=current_output, output_json=output_json)
             # for current node specification
             cls._json_to_node_spec(current_node, node_json)
         return current_node
@@ -73,6 +124,26 @@ class NodeBase:
     def _json_to_node_spec(cls, node, node_json):
         # extend to current node data
         pass
+
+    @classmethod
+    def input_by_identifier(cls, node, identifier):
+        # returns input by its identifier
+        rez = None
+        if identifier:
+            input_with_identifier = [node_input for node_input in node.inputs[:] if node_input.identifier == identifier]
+            if input_with_identifier:
+                rez = input_with_identifier[0]
+        return rez
+
+    @classmethod
+    def output_by_identifier(cls, node, identifier):
+        # returns output by its identifier
+        rez = None
+        if identifier:
+            output_with_identifier = [node_output for node_output in node.outputs[:] if node_output.identifier == identifier]
+            if output_with_identifier:
+                rez = output_with_identifier[0]
+        return rez
 
 
 # Node TextureMapping

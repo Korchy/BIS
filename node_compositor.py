@@ -1,22 +1,15 @@
 # Nikita Akimov
 # interplanety@interplanety.org
 
-# --------------------------------------------------------------
-# for older compatibility
-# used for node groups version 1.4.1
-# if there would no 1.4.1 nodegroups - all this file can be removed
-# work in - node_compositior
-# --------------------------------------------------------------
-
 # Compositing nodes description
 
 import bpy
 import os
-from .NodeBase import NodeBase, CurveMapping, NodeColorRamp
+from .node_common import NodeCommon, CurveMapping, NodeColorRamp
 from .BLTypesConversion import BLbpy_prop_collection, BLbpy_prop_array, BLColor
 
 
-class NodeBaseCompositorNodeBlur(NodeBase):
+class NodeCompositorNodeBlur(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['aspect_correction'] = node.aspect_correction
@@ -50,7 +43,7 @@ class NodeBaseCompositorNodeBlur(NodeBase):
         node.use_variable_size = node_in_json['use_variable_size']
 
 
-class NodeBaseCompositorNodeImage(NodeBase):
+class NodeCompositorNodeImage(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['frame_duration'] = node.frame_duration
@@ -82,7 +75,7 @@ class NodeBaseCompositorNodeImage(NodeBase):
         node.use_cyclic = node_in_json['use_cyclic']
 
 
-class NodeBaseCompositorNodeBokehImage(NodeBase):
+class NodeCompositorNodeBokehImage(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['angle'] = node.angle
@@ -100,7 +93,7 @@ class NodeBaseCompositorNodeBokehImage(NodeBase):
         node.shift = node_in_json['shift']
 
 
-class NodeBaseCompositorNodeMask(NodeBase):
+class NodeCompositorNodeMask(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['mask'] = ''
@@ -129,7 +122,7 @@ class NodeBaseCompositorNodeMask(NodeBase):
         node.use_motion_blur = node_in_json['use_motion_blur']
 
 
-class NodeBaseCompositorNodeMovieClip(NodeBase):
+class NodeCompositorNodeMovieClip(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['clip'] = ''
@@ -143,11 +136,11 @@ class NodeBaseCompositorNodeMovieClip(NodeBase):
                 node.clip = bpy.data.movieclips[node_in_json['clip']]
 
 
-class NodeBaseCompositorNodeColor(NodeBase):
+class NodeCompositorNodeColor(NodeCommon):
     pass
 
 
-class NodeBaseCompositorNodeTexture(NodeBase):
+class NodeCompositorNodeTexture(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['texture'] = ''
@@ -161,7 +154,7 @@ class NodeBaseCompositorNodeTexture(NodeBase):
                 node.texture = bpy.data.textures[node_in_json['texture']]
 
 
-class NodeBaseCompositorNodeTime(NodeBase):
+class NodeCompositorNodeTime(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['curve'] = CurveMapping.cum_to_json(node.curve)
@@ -175,7 +168,7 @@ class NodeBaseCompositorNodeTime(NodeBase):
         node.frame_start = node_in_json['frame_start']
 
 
-class NodeBaseCompositorNodeTrackPos(NodeBase):
+class NodeCompositorNodeTrackPos(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['clip'] = ''
@@ -197,7 +190,7 @@ class NodeBaseCompositorNodeTrackPos(NodeBase):
         node.tracking_object = node_in_json['tracking_object']
 
 
-class NodeBaseCompositorNodeComposite(NodeBase):
+class NodeCompositorNodeComposite(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['use_alpha'] = node.use_alpha
@@ -207,7 +200,7 @@ class NodeBaseCompositorNodeComposite(NodeBase):
         node.use_alpha = node_in_json['use_alpha']
 
 
-class NodeBaseCompositorNodeOutputFile(NodeBase):
+class NodeCompositorNodeOutputFile(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['active_input_index'] = node.active_input_index
@@ -221,7 +214,7 @@ class NodeBaseCompositorNodeOutputFile(NodeBase):
         BLbpy_prop_collection.from_json(node, node.file_slots, node_in_json['file_slots'])
 
 
-class NodeBaseCompositorNodeLevels(NodeBase):
+class NodeCompositorNodeLevels(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['channel'] = node.channel
@@ -231,7 +224,7 @@ class NodeBaseCompositorNodeLevels(NodeBase):
         node.channel = node_in_json['channel']
 
 
-class NodeBaseCompositorNodeSplitViewer(NodeBase):
+class NodeCompositorNodeSplitViewer(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['axis'] = node.axis
@@ -243,7 +236,7 @@ class NodeBaseCompositorNodeSplitViewer(NodeBase):
         node.factor = node_in_json['factor']
 
 
-class NodeBaseCompositorNodeViewer(NodeBase):
+class NodeCompositorNodeViewer(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['center_x'] = node.center_x
@@ -259,7 +252,7 @@ class NodeBaseCompositorNodeViewer(NodeBase):
         node.use_alpha = node_in_json['use_alpha']
 
 
-class NodeBaseCompositorNodeAlphaOver(NodeBase):
+class NodeCompositorNodeAlphaOver(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['premul'] = node.premul
@@ -271,7 +264,7 @@ class NodeBaseCompositorNodeAlphaOver(NodeBase):
         node.use_premultiply = node_in_json['use_premultiply']
 
 
-class NodeBaseCompositorNodeBrightContrast(NodeBase):
+class NodeCompositorNodeBrightContrast(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['use_premultiply'] = node.use_premultiply
@@ -281,7 +274,7 @@ class NodeBaseCompositorNodeBrightContrast(NodeBase):
         node.use_premultiply = node_in_json['use_premultiply']
 
 
-class NodeBaseCompositorNodeColorBalance(NodeBase):
+class NodeCompositorNodeColorBalance(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['correction_method'] = node.correction_method
@@ -305,7 +298,7 @@ class NodeBaseCompositorNodeColorBalance(NodeBase):
         BLColor.from_json(node.slope, node_in_json['slope'])
 
 
-class NodeBaseCompositorNodeColorCorrection(NodeBase):
+class NodeCompositorNodeColorCorrection(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['red'] = node.red
@@ -363,11 +356,11 @@ class NodeBaseCompositorNodeColorCorrection(NodeBase):
         node.shadows_saturation = node_in_json['shadows_saturation']
 
 
-class NodeBaseCompositorNodeGamma(NodeBase):
+class NodeCompositorNodeGamma(NodeCommon):
     pass
 
 
-class NodeBaseCompositorNodeHueCorrect(NodeBase):
+class NodeCompositorNodeHueCorrect(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['mapping'] = CurveMapping.cum_to_json(node.mapping)
@@ -377,11 +370,11 @@ class NodeBaseCompositorNodeHueCorrect(NodeBase):
         CurveMapping.json_to_cum(node.mapping, node_in_json['mapping'])
 
 
-class NodeBaseCompositorNodeHueSat(NodeBase):
+class NodeCompositorNodeHueSat(NodeCommon):
     pass
 
 
-class NodeBaseCompositorNodeInvert(NodeBase):
+class NodeCompositorNodeInvert(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['invert_alpha'] = node.invert_alpha
@@ -393,7 +386,7 @@ class NodeBaseCompositorNodeInvert(NodeBase):
         node.invert_rgb = node_in_json['invert_rgb']
 
 
-class NodeBaseCompositorNodeMixRGB(NodeBase):
+class NodeCompositorNodeMixRGB(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['blend_type'] = node.blend_type
@@ -407,7 +400,7 @@ class NodeBaseCompositorNodeMixRGB(NodeBase):
         node.use_clamp = node_in_json['use_clamp']
 
 
-class NodeBaseCompositorNodeCurveRGB(NodeBase):
+class NodeCompositorNodeCurveRGB(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['mapping'] = CurveMapping.cum_to_json(node.mapping)
@@ -417,7 +410,7 @@ class NodeBaseCompositorNodeCurveRGB(NodeBase):
         CurveMapping.json_to_cum(node.mapping, node_in_json['mapping'])
 
 
-class NodeBaseCompositorNodeTonemap(NodeBase):
+class NodeCompositorNodeTonemap(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['adaptation'] = node.adaptation
@@ -441,7 +434,7 @@ class NodeBaseCompositorNodeTonemap(NodeBase):
         node.tonemap_type = node_in_json['tonemap_type']
 
 
-class NodeBaseCompositorNodeZcombine(NodeBase):
+class NodeCompositorNodeZcombine(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['use_alpha'] = node.use_alpha
@@ -453,7 +446,7 @@ class NodeBaseCompositorNodeZcombine(NodeBase):
         node.use_antialias_z = node_in_json['use_antialias_z']
 
 
-class NodeBaseCompositorNodePremulKey(NodeBase):
+class NodeCompositorNodePremulKey(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['mapping'] = node.mapping
@@ -463,7 +456,7 @@ class NodeBaseCompositorNodePremulKey(NodeBase):
         node.mapping = node_in_json['mapping']
 
 
-class NodeBaseCompositorNodeValToRGB(NodeBase):
+class NodeCompositorNodeValToRGB(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['color_ramp'] = NodeColorRamp.cr_to_json(node.color_ramp)
@@ -473,15 +466,15 @@ class NodeBaseCompositorNodeValToRGB(NodeBase):
         NodeColorRamp.json_to_cr(node.color_ramp, node_in_json['color_ramp'])
 
 
-class NodeBaseCompositorNodeCombHSVA(NodeBase):
+class NodeCompositorNodeCombHSVA(NodeCommon):
     pass
 
 
-class NodeBaseCompositorNodeCombRGBA(NodeBase):
+class NodeCompositorNodeCombRGBA(NodeCommon):
     pass
 
 
-class NodeBaseCompositorNodeCombYCCA(NodeBase):
+class NodeCompositorNodeCombYCCA(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['mode'] = node.mode
@@ -491,11 +484,11 @@ class NodeBaseCompositorNodeCombYCCA(NodeBase):
         node.mode = node_in_json['mode']
 
 
-class NodeBaseCompositorNodeCombYUVA(NodeBase):
+class NodeCompositorNodeCombYUVA(NodeCommon):
     pass
 
 
-class NodeBaseCompositorNodeIDMask(NodeBase):
+class NodeCompositorNodeIDMask(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['index'] = node.index
@@ -507,7 +500,7 @@ class NodeBaseCompositorNodeIDMask(NodeBase):
         node.use_antialiasing = node_in_json['use_antialiasing']
 
 
-class NodeBaseCompositorNodeMath(NodeBase):
+class NodeCompositorNodeMath(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['operation'] = node.operation
@@ -519,19 +512,19 @@ class NodeBaseCompositorNodeMath(NodeBase):
         node.use_clamp = node_in_json['use_clamp']
 
 
-class NodeBaseCompositorNodeRGBToBW(NodeBase):
+class NodeCompositorNodeRGBToBW(NodeCommon):
     pass
 
 
-class NodeBaseCompositorNodeSepHSVA(NodeBase):
+class NodeCompositorNodeSepHSVA(NodeCommon):
     pass
 
 
-class NodeBaseCompositorNodeSepRGBA(NodeBase):
+class NodeCompositorNodeSepRGBA(NodeCommon):
     pass
 
 
-class NodeBaseCompositorNodeSepYCCA(NodeBase):
+class NodeCompositorNodeSepYCCA(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['mode'] = node.mode
@@ -541,19 +534,19 @@ class NodeBaseCompositorNodeSepYCCA(NodeBase):
         node.mode = node_in_json['mode']
 
 
-class NodeBaseCompositorNodeSepYUVA(NodeBase):
+class NodeCompositorNodeSepYUVA(NodeCommon):
     pass
 
 
-class NodeBaseCompositorNodeSetAlpha(NodeBase):
+class NodeCompositorNodeSetAlpha(NodeCommon):
     pass
 
 
-class NodeBaseCompositorNodeSwitchView(NodeBase):
+class NodeCompositorNodeSwitchView(NodeCommon):
     pass
 
 
-class NodeBaseCompositorNodeBilateralblur(NodeBase):
+class NodeCompositorNodeBilateralblur(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['iterations'] = node.iterations
@@ -567,7 +560,7 @@ class NodeBaseCompositorNodeBilateralblur(NodeBase):
         node.sigma_space = node_in_json['sigma_space']
 
 
-class NodeBaseCompositorNodeBokehBlur(NodeBase):
+class NodeCompositorNodeBokehBlur(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['blur_max'] = node.blur_max
@@ -581,7 +574,7 @@ class NodeBaseCompositorNodeBokehBlur(NodeBase):
         node.use_variable_size = node_in_json['use_variable_size']
 
 
-class NodeBaseCompositorNodeDefocus(NodeBase):
+class NodeCompositorNodeDefocus(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['angle'] = node.angle
@@ -613,7 +606,7 @@ class NodeBaseCompositorNodeDefocus(NodeBase):
         node.z_scale = node_in_json['z_scale']
 
 
-class NodeBaseCompositorNodeDespeckle(NodeBase):
+class NodeCompositorNodeDespeckle(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['threshold'] = node.threshold
@@ -625,7 +618,7 @@ class NodeBaseCompositorNodeDespeckle(NodeBase):
         node.threshold_neighbor = node_in_json['threshold_neighbor']
 
 
-class NodeBaseCompositorNodeDilateErode(NodeBase):
+class NodeCompositorNodeDilateErode(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['distance'] = node.distance
@@ -641,7 +634,7 @@ class NodeBaseCompositorNodeDilateErode(NodeBase):
         node.mode = node_in_json['mode']
 
 
-class NodeBaseCompositorNodeDBlur(NodeBase):
+class NodeCompositorNodeDBlur(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['angle'] = node.angle
@@ -665,7 +658,7 @@ class NodeBaseCompositorNodeDBlur(NodeBase):
         node.zoom = node_in_json['zoom']
 
 
-class NodeBaseCompositorNodeFilter(NodeBase):
+class NodeCompositorNodeFilter(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['filter_type'] = node.filter_type
@@ -675,7 +668,7 @@ class NodeBaseCompositorNodeFilter(NodeBase):
         node.filter_type = node_in_json['filter_type']
 
 
-class NodeBaseCompositorNodeGlare(NodeBase):
+class NodeCompositorNodeGlare(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['angle_offset'] = node.angle_offset
@@ -705,7 +698,7 @@ class NodeBaseCompositorNodeGlare(NodeBase):
         node.use_rotate_45 = node_in_json['use_rotate_45']
 
 
-class NodeBaseCompositorNodeInpaint(NodeBase):
+class NodeCompositorNodeInpaint(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['distance'] = node.distance
@@ -715,11 +708,11 @@ class NodeBaseCompositorNodeInpaint(NodeBase):
         node.distance = node_in_json['distance']
 
 
-class NodeBaseCompositorNodePixelate(NodeBase):
+class NodeCompositorNodePixelate(NodeCommon):
     pass
 
 
-class NodeBaseCompositorNodeSunBeams(NodeBase):
+class NodeCompositorNodeSunBeams(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['ray_length'] = node.ray_length
@@ -731,7 +724,7 @@ class NodeBaseCompositorNodeSunBeams(NodeBase):
         BLbpy_prop_array.from_json(node.source, node_in_json['source'])
 
 
-class NodeBaseCompositorNodeVecBlur(NodeBase):
+class NodeCompositorNodeVecBlur(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['factor'] = node.factor
@@ -749,7 +742,7 @@ class NodeBaseCompositorNodeVecBlur(NodeBase):
         node.use_curved = node_in_json['use_curved']
 
 
-class NodeBaseCompositorNodeMapRange(NodeBase):
+class NodeCompositorNodeMapRange(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['use_clamp'] = node.use_clamp
@@ -759,7 +752,7 @@ class NodeBaseCompositorNodeMapRange(NodeBase):
         node.use_clamp = node_in_json['use_clamp']
 
 
-class NodeBaseCompositorNodeMapValue(NodeBase):
+class NodeCompositorNodeMapValue(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['max'] = BLbpy_prop_array.to_json(node.max)
@@ -779,15 +772,15 @@ class NodeBaseCompositorNodeMapValue(NodeBase):
         node.use_min = node_in_json['use_min']
 
 
-class NodeBaseCompositorNodeNormal(NodeBase):
+class NodeCompositorNodeNormal(NodeCommon):
     pass
 
 
-class NodeBaseCompositorNodeNormalize(NodeBase):
+class NodeCompositorNodeNormalize(NodeCommon):
     pass
 
 
-class NodeBaseCompositorNodeCurveVec(NodeBase):
+class NodeCompositorNodeCurveVec(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['mapping'] = CurveMapping.cum_to_json(node.mapping)
@@ -797,7 +790,7 @@ class NodeBaseCompositorNodeCurveVec(NodeBase):
         CurveMapping.json_to_cum(node.mapping, node_in_json['mapping'])
 
 
-class NodeBaseCompositorNodeEllipseMask(NodeBase):
+class NodeCompositorNodeEllipseMask(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['mask_type'] = node.mask_type
@@ -817,11 +810,11 @@ class NodeBaseCompositorNodeEllipseMask(NodeBase):
         node.rotation = node_in_json['rotation']
 
 
-class NodeBaseCompositorNodeBoxMask(NodeBaseCompositorNodeEllipseMask):
+class NodeCompositorNodeBoxMask(NodeCompositorNodeEllipseMask):
     pass
 
 
-class NodeBaseCompositorNodeChannelMatte(NodeBase):
+class NodeCompositorNodeChannelMatte(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['color_space'] = node.color_space
@@ -841,7 +834,7 @@ class NodeBaseCompositorNodeChannelMatte(NodeBase):
         node.matte_channel = node_in_json['matte_channel']
 
 
-class NodeBaseCompositorNodeChromaMatte(NodeBase):
+class NodeCompositorNodeChromaMatte(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['gain'] = node.gain
@@ -859,7 +852,7 @@ class NodeBaseCompositorNodeChromaMatte(NodeBase):
         node.tolerance = node_in_json['tolerance']
 
 
-class NodeBaseCompositorNodeColorMatte(NodeBase):
+class NodeCompositorNodeColorMatte(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['color_hue'] = node.color_hue
@@ -873,7 +866,7 @@ class NodeBaseCompositorNodeColorMatte(NodeBase):
         node.color_value = node_in_json['color_value']
 
 
-class NodeBaseCompositorNodeColorSpill(NodeBase):
+class NodeCompositorNodeColorSpill(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['channel'] = node.channel
@@ -897,7 +890,7 @@ class NodeBaseCompositorNodeColorSpill(NodeBase):
         node.use_unspill = node_in_json['use_unspill']
 
 
-class NodeBaseCompositorNodeDiffMatte(NodeBase):
+class NodeCompositorNodeDiffMatte(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['falloff'] = node.falloff
@@ -909,7 +902,7 @@ class NodeBaseCompositorNodeDiffMatte(NodeBase):
         node.tolerance = node_in_json['tolerance']
 
 
-class NodeBaseCompositorNodeDistanceMatte(NodeBase):
+class NodeCompositorNodeDistanceMatte(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['channel'] = node.channel
@@ -923,7 +916,7 @@ class NodeBaseCompositorNodeDistanceMatte(NodeBase):
         node.tolerance = node_in_json['tolerance']
 
 
-class NodeBaseCompositorNodeDoubleEdgeMask(NodeBase):
+class NodeCompositorNodeDoubleEdgeMask(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['edge_mode'] = node.edge_mode
@@ -935,7 +928,7 @@ class NodeBaseCompositorNodeDoubleEdgeMask(NodeBase):
         node.inner_mode = node_in_json['inner_mode']
 
 
-class NodeBaseCompositorNodeKeying(NodeBase):
+class NodeCompositorNodeKeying(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['blur_post'] = node.blur_post
@@ -967,7 +960,7 @@ class NodeBaseCompositorNodeKeying(NodeBase):
         node.screen_balance = node_in_json['screen_balance']
 
 
-class NodeBaseCompositorNodeKeyingScreen(NodeBase):
+class NodeCompositorNodeKeyingScreen(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['clip'] = ''
@@ -983,7 +976,7 @@ class NodeBaseCompositorNodeKeyingScreen(NodeBase):
         node.tracking_object = node_in_json['tracking_object']
 
 
-class NodeBaseCompositorNodeLumaMatte(NodeBase):
+class NodeCompositorNodeLumaMatte(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['limit_max'] = node.limit_max
@@ -995,11 +988,11 @@ class NodeBaseCompositorNodeLumaMatte(NodeBase):
         node.limit_min = node_in_json['limit_min']
 
 
-class NodeBaseCompositorNodeCornerPin(NodeBase):
+class NodeCompositorNodeCornerPin(NodeCommon):
     pass
 
 
-class NodeBaseCompositorNodeCrop(NodeBase):
+class NodeCompositorNodeCrop(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['max_x'] = node.max_x
@@ -1027,11 +1020,11 @@ class NodeBaseCompositorNodeCrop(NodeBase):
         node.use_crop_size = node_in_json['use_crop_size']
 
 
-class NodeBaseCompositorNodeDisplace(NodeBase):
+class NodeCompositorNodeDisplace(NodeCommon):
     pass
 
 
-class NodeBaseCompositorNodeFlip(NodeBase):
+class NodeCompositorNodeFlip(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['axis'] = node.axis
@@ -1041,7 +1034,7 @@ class NodeBaseCompositorNodeFlip(NodeBase):
         node.axis = node_in_json['axis']
 
 
-class NodeBaseCompositorNodeLensdist(NodeBase):
+class NodeCompositorNodeLensdist(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['use_fit'] = node.use_fit
@@ -1055,7 +1048,7 @@ class NodeBaseCompositorNodeLensdist(NodeBase):
         node.use_projector = node_in_json['use_projector']
 
 
-class NodeBaseCompositorNodeMapUV(NodeBase):
+class NodeCompositorNodeMapUV(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['alpha'] = node.alpha
@@ -1065,7 +1058,7 @@ class NodeBaseCompositorNodeMapUV(NodeBase):
         node.alpha = node_in_json['alpha']
 
 
-class NodeBaseCompositorNodeMovieDistortion(NodeBase):
+class NodeCompositorNodeMovieDistortion(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['clip'] = ''
@@ -1081,7 +1074,7 @@ class NodeBaseCompositorNodeMovieDistortion(NodeBase):
         node.distortion_type = node_in_json['distortion_type']
 
 
-class NodeBaseCompositorNodePlaneTrackDeform(NodeBase):
+class NodeCompositorNodePlaneTrackDeform(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['clip'] = ''
@@ -1105,7 +1098,7 @@ class NodeBaseCompositorNodePlaneTrackDeform(NodeBase):
         node.use_motion_blur = node_in_json['use_motion_blur']
 
 
-class NodeBaseCompositorNodeRotate(NodeBase):
+class NodeCompositorNodeRotate(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['filter_type'] = node.filter_type
@@ -1115,7 +1108,7 @@ class NodeBaseCompositorNodeRotate(NodeBase):
         node.filter_type = node_in_json['filter_type']
 
 
-class NodeBaseCompositorNodeScale(NodeBase):
+class NodeCompositorNodeScale(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['frame_method'] = node.frame_method
@@ -1131,7 +1124,7 @@ class NodeBaseCompositorNodeScale(NodeBase):
         node.space = node_in_json['space']
 
 
-class NodeBaseCompositorNodeStabilize(NodeBase):
+class NodeCompositorNodeStabilize(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['clip'] = ''
@@ -1149,7 +1142,7 @@ class NodeBaseCompositorNodeStabilize(NodeBase):
         node.invert = node_in_json['invert']
 
 
-class NodeBaseCompositorNodeTransform(NodeBase):
+class NodeCompositorNodeTransform(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['filter_type'] = node.filter_type
@@ -1159,7 +1152,7 @@ class NodeBaseCompositorNodeTransform(NodeBase):
         node.filter_type = node_in_json['filter_type']
 
 
-class NodeBaseCompositorNodeTranslate(NodeBase):
+class NodeCompositorNodeTranslate(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['use_relative'] = node.use_relative
@@ -1171,7 +1164,7 @@ class NodeBaseCompositorNodeTranslate(NodeBase):
         node.wrap_axis = node_in_json['wrap_axis']
 
 
-class NodeBaseCompositorNodeSwitch(NodeBase):
+class NodeCompositorNodeSwitch(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['check'] = node.check

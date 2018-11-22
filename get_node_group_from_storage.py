@@ -2,18 +2,21 @@
 # interplanety@interplanety.org
 
 import bpy
+from bpy.props import IntProperty
+from bpy.utils import register_class, unregister_class
+from bpy.types import Operator
 import json
 from .WebRequests import WebRequest
-from .NodeManager import NodeManager
+from .node_manager import NodeManager
 
 
-class BIS_getNodeFromStorage(bpy.types.Operator):
+class GetNodeGroupFromStorage(Operator):
     bl_idname = 'bis.get_nodegroup_from_storage'
     bl_label = 'BIS_GetFromStorage'
     bl_description = 'Get nodegroup from common part of BIS'
     bl_options = {'REGISTER', 'UNDO'}
 
-    nodeGroupId = bpy.props.IntProperty(
+    nodeGroupId = IntProperty(
         name='NodeGroupId',
         default=0
     )
@@ -62,8 +65,8 @@ class BIS_getNodeFromStorage(bpy.types.Operator):
 
 
 def register():
-    bpy.utils.register_class(BIS_getNodeFromStorage)
+    register_class(GetNodeGroupFromStorage)
 
 
 def unregister():
-    bpy.utils.unregister_class(BIS_getNodeFromStorage)
+    unregister_class(GetNodeGroupFromStorage)

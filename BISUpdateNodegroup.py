@@ -2,18 +2,21 @@
 # interplanety@interplanety.org
 
 import bpy
+from bpy.props import BoolProperty
+from bpy.types import Operator
+from bpy.utils import register_class, unregister_class
 import json
-from .NodeManager import NodeManager
+from .node_manager import NodeManager
 from .WebRequests import WebRequest
 
 
-class BISUpdateNodegroup(bpy.types.Operator):
+class BISUpdateNodegroup(Operator):
     bl_idname = 'bis.update_nodegroup_in_storage'
     bl_label = 'Update nodegroup'
     bl_description = 'Update nodegroup in the BIS'
     bl_options = {'REGISTER', 'UNDO'}
 
-    showMessage = bpy.props.BoolProperty(
+    showMessage = BoolProperty(
         default=False
     )
 
@@ -59,8 +62,8 @@ class BISUpdateNodegroup(bpy.types.Operator):
 
 
 def register():
-    bpy.utils.register_class(BISUpdateNodegroup)
+    register_class(BISUpdateNodegroup)
 
 
 def unregister():
-    bpy.utils.unregister_class(BISUpdateNodegroup)
+    unregister_class(BISUpdateNodegroup)

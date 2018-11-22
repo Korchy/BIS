@@ -3,7 +3,7 @@
 
 import bpy
 from .BIS_Items import BIS_Items
-from .NodeManager import NodeManager
+from .node_manager import NodeManager
 
 
 class BISGetNodesInfoFromStorage(bpy.types.Operator):

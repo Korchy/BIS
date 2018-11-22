@@ -3,13 +3,13 @@
 
 import bpy
 import json
-from .NodeManager import NodeManager
+from .node_manager import NodeManager
 from .WebRequests import WebRequest
 from bpy.utils import register_class, unregister_class
 from bpy.props import PointerProperty
 from bpy.types import Operator, PropertyGroup, Scene
 from bpy import app
-import sys
+from .addon import Addon
 
 
 class BISAddNodeToStorage(Operator):
@@ -56,7 +56,7 @@ class BISAddNodeToStorage(Operator):
                     'bis_links': json.dumps(bis_links),
                     'item_name': node_group_in_json['name'],
                     'item_tags': node_group_tags.strip(),
-                    'addon_version': '.'.join(str(number) for number in sys.modules['BIS'].bl_info['version'])
+                    'addon_version': Addon.current_version()
                 })
                 if request:
                     context.scene.bis_add_nodegroup_to_storage_vars.tags = ''

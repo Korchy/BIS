@@ -7,6 +7,8 @@ import os
 import json
 from . import cfg
 from .NodeNodeGroup import *
+from .node_node_group import *
+from .addon import Addon
 from .WebRequests import WebRequest
 from .BIS_Items import BIS_Items
 
@@ -53,7 +55,6 @@ class NodeManager:
         # convert node group to json
         group_in_json = None
         if nodegroup.type == 'GROUP':
-            __class__.enumerate_nodes(nodegroup)
             nodegroup_class = 'Node' + nodegroup.bl_idname
             if hasattr(sys.modules[__name__], nodegroup_class):
                 group_in_json = getattr(sys.modules[__name__], nodegroup_class).node_to_json(nodegroup)
@@ -72,10 +73,20 @@ class NodeManager:
                 json.dump(node_in_json, currentFile, indent=4)
         current_node = None
         if dest_nodetree:
-            if hasattr(sys.modules[__name__], 'Node' + node_in_json['bl_type']):
-                node_class = getattr(sys.modules[__name__], 'Node' + node_in_json['bl_type'])
-                current_node = node_class.json_to_node(node_tree=dest_nodetree, node_in_json=node_in_json)
-                current_node.location = (0, 0)
+            # for older compatibility (v 1.4.1)
+            # if all node groups becomes 1.4.2. and later - remove all "else" condition
+            node_group_version = node_in_json['BIS_addon_version'] if 'BIS_addon_version' in node_in_json else Addon.node_group_first_version
+            if Addon.node_group_version_higher(node_group_version, Addon.current_version()):
+                bpy.ops.message.messagebox('INVOKE_DEFAULT', message='This node group was saved in higher BIS version and may not load correctly.\
+                 Please download the last BIS add-on version!')
+            if Addon.node_group_version_higher(node_group_version, Addon.node_group_first_version):
+                # 1.4.2
+                node_class = getattr(sys.modules[__name__], 'Node' + node_in_json['bl_idname'])
+            else:
+                # 1.4.1
+                node_class = getattr(sys.modules[__name__], 'NodeBase' + node_in_json['bl_type'])
+            current_node = node_class.json_to_node(node_tree=dest_nodetree, node_json=node_in_json)
+            current_node.location = (0, 0)
         return current_node
 
     @staticmethod
@@ -120,18 +131,7 @@ class NodeManager:
         return rez
 
     @staticmethod
-    def enumerate_nodes(material, start=-1):
-        # enumerates all nodes in node_tree and all nodes in all its subtrees
-        node_id = start + 1
-        material['BIS_node_id'] = node_id
-        for node in material.node_tree.nodes:
-            node_id += 1
-            node['BIS_node_id'] = node_id
-            if node.type == 'GROUP':
-                node_id = __class__.enumerate_nodes(node, node_id)
-        return node_id
-
-    @staticmethod
+    # returns generator to crate list with all linked items (texts, ...) to current item (nodegroup)
     def get_bis_linked_items(key, nodegroup_in_json):
         for k, v in nodegroup_in_json.items():
             if k == key:

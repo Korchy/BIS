@@ -2,6 +2,7 @@ Version history:
 -
 1.4.2
 - Some internal technical changes in saving nogdes format (connecting links by inputs/outputs identifier)
+- Added saved node groups version control
 
 1.4.1
 - Added "prev" and "next" page button for "pro" accounts
