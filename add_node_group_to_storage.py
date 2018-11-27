@@ -3,6 +3,7 @@
 
 import bpy
 import json
+from . import cfg
 from .node_manager import NodeManager
 from .WebRequests import WebRequest
 from bpy.utils import register_class, unregister_class
@@ -63,6 +64,9 @@ class BISAddNodeToStorage(Operator):
                     request_rez = json.loads(request.text)
                     if request_rez['stat'] == 'OK':
                         active_node['bis_uid'] = request_rez['data']['id']
+                    else:
+                        if cfg.show_debug_err:
+                            print(request_rez)
                     if self.showMessage:
                         bpy.ops.message.messagebox('INVOKE_DEFAULT', message=request_rez['stat'])
         else:
