@@ -8,6 +8,7 @@ from bpy.utils import register_class, unregister_class
 import json
 from .node_manager import NodeManager
 from .WebRequests import WebRequest
+from .addon import Addon
 
 
 class BISUpdateNodegroup(Operator):
@@ -40,7 +41,8 @@ class BISUpdateNodegroup(Operator):
                         'storage_subtype2': NodeManager.get_subtype2(context),
                         'bis_links': json.dumps(bis_links),
                         'item_id': active_node['bis_uid'],
-                        'item_name': node_group_in_json['name']
+                        'item_name': node_group_in_json['name'],
+                        'addon_version': Addon.current_version()
                     })
                     if request:
                         request_rez = json.loads(request.text)

@@ -3,7 +3,7 @@
 
 from . import cfg
 from . import add_node_group_to_storage
-from . import BISUpdateNodegroup
+from . import update_node_group
 from . import get_node_group_from_storage
 from . import BIS_getNodesFromStorage
 from . import nodes_panel
@@ -34,7 +34,7 @@ bl_info = {
 
 def register():
     add_node_group_to_storage.register()
-    BISUpdateNodegroup.register()
+    update_node_group.register()
     get_node_group_from_storage.register()
     BIS_getNodesFromStorage.register()
     nodes_panel.register()
@@ -64,7 +64,7 @@ def unregister():
     nodes_panel.unregister()
     BIS_getNodesFromStorage.unregister()
     get_node_group_from_storage.unregister()
-    BISUpdateNodegroup.unregister()
+    update_node_group.unregister()
     add_node_group_to_storage.unregister()
 
 
