@@ -1,5 +1,8 @@
 Version history:
 -
+1.4.3
+- Fixed bug with several node groups enumeration
+
 1.4.2
 - Some internal technical changes in saving nogdes format (connecting links by inputs/outputs identifier)
 - Added saved node groups version control

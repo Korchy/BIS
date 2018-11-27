@@ -114,7 +114,7 @@ class NodeCommon:
                 if current_output:
                     io_class = NodeIOCommon
                     if hasattr(sys.modules[__name__], 'NodeIO' + output_json['bl_idname']):
-                       io_class = getattr(sys.modules[__name__], 'NodeIO' + output_json['bl_idname'])
+                        io_class = getattr(sys.modules[__name__], 'NodeIO' + output_json['bl_idname'])
                     io_class.json_to_o(node=current_node, node_output=current_output, output_json=output_json)
             # for current node specification
             cls._json_to_node_spec(current_node, node_json)

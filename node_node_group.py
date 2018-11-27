@@ -35,12 +35,12 @@ class NodeShaderNodeGroup(NodeCommon):
         for link in node.node_tree.links:
             from_node = link.from_node['BIS_node_id']
             to_node = link.to_node['BIS_node_id']
-            # for group inputs/outputs - by number, for other nodes - by identifier
-            if link.from_node.bl_idname in ['NodeGroupInput', 'NodeGroupOutput']:
+            # for group nodes and group inputs/output nodes - by number, for other nodes - by identifier
+            if link.from_node.type in ['GROUP', 'GROUP_INPUT', 'GROUP_OUTPUT']:
                 from_output = link.from_node.outputs[:].index(link.from_socket)
             else:
                 from_output = link.from_socket.identifier
-            if link.to_node.bl_idname in ['NodeGroupInput', 'NodeGroupOutput']:
+            if link.to_node.type in ['GROUP', 'GROUP_INPUT', 'GROUP_OUTPUT']:
                 to_input = link.to_node.inputs[:].index(link.to_socket)
             else:
                 to_input = link.to_socket.identifier
@@ -60,7 +60,7 @@ class NodeShaderNodeGroup(NodeCommon):
         for link_json in node_json['links']:
             from_node = __class__._node_by_bis_id(node.node_tree, link_json[0])
             to_node = __class__._node_by_bis_id(node.node_tree, link_json[2])
-            # for group inputs/outputs - by number, for other nodes - by identifier
+            # for group nodes and group inputs/output nodes - by number, for other nodes - by identifier
             if isinstance(link_json[1], str):
                 from_output = __class__.output_by_identifier(from_node, link_json[1])
             else:
@@ -80,15 +80,12 @@ class NodeShaderNodeGroup(NodeCommon):
 
     @staticmethod
     def enumerate(node, start=0):
-        # enumerates node and all nodes in all its subtrees (for node groups)
-        node_id = start + 1
-        node['BIS_node_id'] = node_id
+        # enumerates all nodes in the group
+        # don't enumerate node group itself - not to loose if it is already enumerated by parent node group
         for current_node in node.node_tree.nodes:
-            node_id += 1
-            current_node['BIS_node_id'] = node_id
-            if current_node.type == 'GROUP':
-                node_id = __class__.enumerate(current_node, node_id)
-        return node_id
+            start += 1
+            current_node['BIS_node_id'] = start
+        return start
 
     @staticmethod
     def _node_by_bis_id(node_tree, bis_node_id):
