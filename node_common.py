@@ -37,14 +37,14 @@ class NodeCommon:
             io_class = NodeIOCommon
             if hasattr(sys.modules[__name__], io_name):
                 io_class = getattr(sys.modules[__name__], io_name)
-            node_json['inputs'].append(io_class.io_to_json(c_input))
+            node_json['inputs'].append(io_class.input_to_json(c_input))
         # node outputs
         for c_output in node.outputs:
             io_name = 'NodeIO' + c_output.bl_idname
             io_class = NodeIOCommon
             if hasattr(sys.modules[__name__], io_name):
                 io_class = getattr(sys.modules[__name__], io_name)
-            node_json['outputs'].append(io_class.io_to_json(c_output))
+            node_json['outputs'].append(io_class.output_to_json(c_output))
         # for current node specification
         cls._node_to_json_spec(node_json, node)
         return node_json
@@ -96,7 +96,7 @@ class NodeCommon:
                     io_class = NodeIOCommon
                     if hasattr(sys.modules[__name__], 'NodeIO' + input_json['bl_idname']):
                         io_class = getattr(sys.modules[__name__], 'NodeIO' + input_json['bl_idname'])
-                    io_class.json_to_i(node=current_node, node_input=current_input, input_json=input_json)
+                    io_class.json_to_i(node_input=current_input, input_json=input_json)
             # node outputs
             for output_number, output_json in enumerate(node_json['outputs']):
                 if current_node.type == 'GROUP':
@@ -115,7 +115,7 @@ class NodeCommon:
                     io_class = NodeIOCommon
                     if hasattr(sys.modules[__name__], 'NodeIO' + output_json['bl_idname']):
                         io_class = getattr(sys.modules[__name__], 'NodeIO' + output_json['bl_idname'])
-                    io_class.json_to_o(node=current_node, node_output=current_output, output_json=output_json)
+                    io_class.json_to_o(node_output=current_output, output_json=output_json)
             # for current node specification
             cls._json_to_node_spec(current_node, node_json)
         return current_node

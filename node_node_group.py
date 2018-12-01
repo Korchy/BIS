@@ -35,12 +35,12 @@ class NodeShaderNodeGroup(NodeCommon):
         for link in node.node_tree.links:
             from_node = link.from_node['BIS_node_id']
             to_node = link.to_node['BIS_node_id']
-            # for group nodes and group inputs/output nodes - by number, for other nodes - by identifier
-            if link.from_node.type in ['GROUP', 'GROUP_INPUT', 'GROUP_OUTPUT']:
+            # for group nodes, reroute and group inputs/output nodes - by number, for other nodes - by identifier
+            if link.from_node.type in ['GROUP', 'GROUP_INPUT', 'GROUP_OUTPUT', 'REROUTE']:
                 from_output = link.from_node.outputs[:].index(link.from_socket)
             else:
                 from_output = link.from_socket.identifier
-            if link.to_node.type in ['GROUP', 'GROUP_INPUT', 'GROUP_OUTPUT']:
+            if link.to_node.type in ['GROUP', 'GROUP_INPUT', 'GROUP_OUTPUT', 'REROUTE']:
                 to_input = link.to_node.inputs[:].index(link.to_socket)
             else:
                 to_input = link.to_socket.identifier

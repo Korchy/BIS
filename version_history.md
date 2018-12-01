@@ -1,5 +1,8 @@
 Version history:
 -
+1.4.4
+- Fixed some bugs with reroute node and inputs/outputs default values
+
 1.4.3
 - Fixed bug with several node groups enumeration
 
