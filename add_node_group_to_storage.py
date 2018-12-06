@@ -7,7 +7,7 @@ from . import cfg
 from .node_manager import NodeManager
 from .WebRequests import WebRequest
 from bpy.utils import register_class, unregister_class
-from bpy.props import PointerProperty
+from bpy.props import PointerProperty, BoolProperty
 from bpy.types import Operator, PropertyGroup, Scene
 from bpy import app
 from .addon import Addon
@@ -16,10 +16,10 @@ from .addon import Addon
 class BISAddNodeToStorage(Operator):
     bl_idname = 'bis.add_nodegroup_to_storage'
     bl_label = 'BIS_AddToIStorage'
-    bl_description = 'Add nodegroup to common part of BIS'
+    bl_description = 'Add nodegroup to the BIS'
     bl_options = {'REGISTER', 'UNDO'}
 
-    showMessage = bpy.props.BoolProperty(
+    showMessage = BoolProperty(
         default=False
     )
 

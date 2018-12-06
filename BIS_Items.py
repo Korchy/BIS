@@ -17,6 +17,8 @@ class BIS_Items():
         __class__.itemsLists['NODE_EDITOR'].items = []
         __class__.itemsLists['TEXT_EDITOR'] = bpy.utils.previews.new()
         __class__.itemsLists['TEXT_EDITOR'].items = []
+        __class__.itemsLists['VIEW_3D'] = bpy.utils.previews.new()
+        __class__.itemsLists['VIEW_3D'].items = []
 
     @staticmethod
     def unregister():
@@ -49,11 +51,11 @@ class BIS_Items():
         __class__.itemsLists[name].items.clear()
 
     @staticmethod
-    def getPreviewRelativeDir(id, listName):
-        dir = 0
-        while id > dir:
-            dir += 10000
-        return 'previews' + os.path.sep + listName + os.path.sep + str(dir - (0 if dir == 0 else 10000)) + '-' + str(dir)
+    def getPreviewRelativeDir(item_id, list_name):
+        item_dir = 0
+        while item_id > item_dir:
+            item_dir += 1000
+        return 'previews' + os.path.sep + list_name + os.path.sep + str(item_dir - (0 if item_dir == 0 else 1000)) + '-' + str(item_dir)
 
     @staticmethod
     def getPreviewDir(id, listName):
@@ -82,9 +84,11 @@ class BIS_Items():
     @staticmethod
     def onPreviewSelect(self, context):
         if context.area.spaces.active.type == 'NODE_EDITOR':
-            bpy.ops.bis.get_nodegroup_from_storage(nodeGroupId=int(self.items))
+            bpy.ops.bis.get_nodegroup_from_storage(node_group_id=int(self.items))
         elif context.area.spaces.active.type == 'TEXT_EDITOR':
-            bpy.ops.bis.get_text_from_storage(textId=int(self.items))
+            bpy.ops.bis.get_text_from_storage(text_id=int(self.items))
+        elif context.area.spaces.active.type == 'VIEW_3D':
+            bpy.ops.bis.get_mesh_from_storage(mesh_id=int(self.items))
 
 
 def register():

@@ -1,5 +1,8 @@
 Version history:
 -
+1.5.0
+- Added storage for meshes
+
 1.4.4
 - Fixed some bugs with reroute node and inputs/outputs default values
 

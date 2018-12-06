@@ -11,8 +11,8 @@ class BIS_getTextFromStorage(bpy.types.Operator):
     bl_description = 'Get text from BIS'
     bl_options = {'REGISTER', 'UNDO'}
 
-    textId = bpy.props.IntProperty(
-        name='TextId',
+    text_id = bpy.props.IntProperty(
+        name='text_id',
         default=0
     )
     showMessage = bpy.props.BoolProperty(
@@ -20,7 +20,7 @@ class BIS_getTextFromStorage(bpy.types.Operator):
     )
 
     def execute(self, context):
-        rez = TextManager.TextManager.from_bis(self.textId)
+        rez = TextManager.TextManager.from_bis(self.text_id)
         if rez['stat'] == 'OK':
             if self.showMessage:
                 bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['data']['text'])

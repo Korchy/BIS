@@ -16,13 +16,13 @@ class GetNodeGroupFromStorage(Operator):
     bl_description = 'Get nodegroup from common part of BIS'
     bl_options = {'REGISTER', 'UNDO'}
 
-    nodeGroupId = IntProperty(
-        name='NodeGroupId',
+    node_group_id = IntProperty(
+        name='node_group_id',
         default=0
     )
 
     def execute(self, context):
-        if self.nodeGroupId:
+        if self.node_group_id:
             subtype = NodeManager.get_subtype(context)
             subtype2 = NodeManager.get_subtype2(context)
             request = WebRequest.send_request({
@@ -30,7 +30,7 @@ class GetNodeGroupFromStorage(Operator):
                 'storage': context.area.spaces.active.type,
                 'storage_subtype': subtype,
                 'storage_subtype2': subtype2,
-                'id': self.nodeGroupId
+                'id': self.node_group_id
             })
             if request:
                 request_rez = json.loads(request.text)
@@ -58,7 +58,7 @@ class GetNodeGroupFromStorage(Operator):
                     if node_in_json and dest_node_tree:
                         nodegroup = NodeManager.json_to_node_group(dest_node_tree, node_in_json)
                         if nodegroup:
-                            nodegroup['bis_uid'] = self.nodeGroupId
+                            nodegroup['bis_uid'] = self.node_group_id
         else:
             bpy.ops.message.messagebox('INVOKE_DEFAULT', message='No NodeGroup To Get')
         return {'FINISHED'}

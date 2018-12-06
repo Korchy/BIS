@@ -2,51 +2,54 @@
 # interplanety@interplanety.org
 
 import bpy
+from bpy.utils import register_class, unregister_class
+from bpy.props import StringProperty, BoolProperty
+from bpy.types import Operator, PropertyGroup
 import json
 import os
 import requests
 
 
-class WebAuthVars(bpy.types.PropertyGroup):
-    logged = bpy.props.BoolProperty(
+class WebAuthVars(PropertyGroup):
+    logged = BoolProperty(
         default=False
     )
-    host = bpy.props.StringProperty(
+    host = StringProperty(
         default=''
     )
-    userLogin = bpy.props.StringProperty(
+    userLogin = StringProperty(
         default=''
     )
-    userStayLogged = bpy.props.BoolProperty(
+    userStayLogged = BoolProperty(
         default=False
     )
-    userProStatus = bpy.props.BoolProperty(
+    userProStatus = BoolProperty(
         default=False
     )
-    token = bpy.props.StringProperty(
+    token = StringProperty(
         default=''
     )
-    requestBase = bpy.props.StringProperty(
+    requestBase = StringProperty(
         default=''
     )
 
 
-class WebAuth(bpy.types.Operator):
+class WebAuth(Operator):
     bl_idname = 'dialog.web_auth'
     bl_label = 'Authorization'
 
-    userLogin = bpy.props.StringProperty(
+    userLogin = StringProperty(
         name='Login',
         description='User Login',
         default=''
     )
-    userPassword = bpy.props.StringProperty(
+    userPassword = StringProperty(
         subtype='PASSWORD',
         name='Password',
         description='User Password',
         default=''
     )
-    userStayLogged = bpy.props.BoolProperty(
+    userStayLogged = BoolProperty(
         name='Stay logged (insecure)',
         description='Stay logged',
         default=False
@@ -166,29 +169,30 @@ class WebRequest:
         try:
             request = session.post(WebAuthVars.host + '/' + host_target, data=request_data, files=files)
         except requests.exceptions.RequestException as error:
-            print('ERR: No internet connection to BIS')
+            print('ERR: No internet connection to BIS ', error)
         if request:
-            request_rez = None
-            try:
-                request_rez = json.loads(request.text)
-            except ValueError as error:
-                print(request.text)
-                request = None
-            if request_rez:
-                if request_rez['stat'] != 'OK':
-                    print(request_rez['stat'] + ': ' + (request_rez['data']['text'] if 'data' in request_rez else ''))
+            if 'text-html' in request.headers['Content-Type']:
+                request_rez = None
+                try:
+                    request_rez = json.loads(request.text)
+                except ValueError as error:
+                    print(request.text, error)
+                    request = None
+                if request_rez:
+                    if request_rez['stat'] != 'OK':
+                        print(request_rez['stat'] + ': ' + (request_rez['data']['text'] if 'data' in request_rez else ''))
         return request
 
 
 def register():
-    bpy.utils.register_class(WebAuthVars)
-    bpy.utils.register_class(WebAuth)
+    register_class(WebAuthVars)
+    register_class(WebAuth)
     WebAuth.get_init_data()
 
 
 def unregister():
-    bpy.utils.unregister_class(WebAuth)
-    bpy.utils.unregister_class(WebAuthVars)
+    unregister_class(WebAuth)
+    unregister_class(WebAuthVars)
     WebRequestsVars.close_session()
 
 

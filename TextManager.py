@@ -2,11 +2,12 @@
 # interplanety@interplanety.org
 
 import json
+import sys
 import bpy
 import base64
 from .WebRequests import WebRequest
 from .BIS_Items import BIS_Items
-import sys
+from .addon import Addon
 
 
 class TextManager:
@@ -64,7 +65,7 @@ class TextManager:
                 'item_body': json.dumps(text_in_json),
                 'item_name': text_in_json['name'],
                 'item_tags': tags,
-                'addon_version': '.'.join(str(number) for number in sys.modules['BIS'].bl_info['version'])
+                'addon_version': Addon.current_version()
             })
             if request:
                 rez = json.loads(request.text)

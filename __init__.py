@@ -12,6 +12,11 @@ from . import BISUpdateText
 from . import BIS_getTextFromStorage
 from . import BIS_getTextsFromStorage
 from . import texts_panel
+from . import mesh_panel
+from . import get_meshes_from_storage
+from . import add_mesh_to_storage
+from . import update_mesh_in_storage
+from . import get_mesh_from_storage
 from . import WebRequests
 from . import MessageBox
 from . import BIS_Items
@@ -23,7 +28,7 @@ bl_info = {
     'name': 'BIS',
     'category': 'Material',
     'author': 'Nikita Akimov',
-    'version': (1, 4, 4),
+    'version': (1, 5, 0),
     'blender': (2, 79, 0),
     'location': 'T-Panel > BIS',
     'wiki_url': 'https://b3d.interplanety.org/en/bis-online-blender-material-storage/',
@@ -45,6 +50,11 @@ def register():
     BIS_getTextFromStorage.register()
     BIS_getTextsFromStorage.register()
     texts_panel.register()
+    mesh_panel.register()
+    get_meshes_from_storage.register()
+    add_mesh_to_storage.register()
+    update_mesh_in_storage.register()
+    get_mesh_from_storage.register()
     WebRequests.register()
     MessageBox.register()
     BIS_Items.register()
@@ -54,6 +64,11 @@ def unregister():
     BIS_Items.unregister()
     MessageBox.unregister()
     WebRequests.unregister()
+    get_mesh_from_storage.unregister()
+    update_mesh_in_storage.unregister()
+    add_mesh_to_storage.unregister()
+    get_meshes_from_storage.unregister()
+    mesh_panel.unregister()
     texts_panel.unregister()
     BIS_getTextsFromStorage.unregister()
     BIS_getTextFromStorage.unregister()
