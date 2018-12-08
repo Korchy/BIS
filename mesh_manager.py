@@ -2,14 +2,19 @@
 # interplanety@interplanety.org
 
 import json
-import tempfile
-import zipfile
 import os
+import re
+import sys
+import tempfile
 import bpy
+import zipfile
+from mathutils import Vector
 from .WebRequests import WebRequest
 from .BIS_Items import BIS_Items
 from .addon import Addon
+from .mesh_modifiers import MeshModifierCommon
 from . import cfg
+from .BLTypesConversion import BLVector
 
 
 class MeshManager:
@@ -61,9 +66,23 @@ class MeshManager:
         if mesh_list:
             if not name:
                 name = mesh_list[0].name
-            mesh_in_json = {
-                'obj_file_name': name
+            meshes_in_json = {
+                'obj_file_name': name,
+                'meshes': []
             }
+            for i, mesh in enumerate(mesh_list):
+                # remove animation data
+                mesh.animation_data_clear()
+                # mesh to json
+                mesh_in_json = {
+                    'bis_uid': i,   # uid = number in "meshes" list
+                    'origin': BLVector.to_json(mesh.location),
+                    'modifiers': []
+                }
+                # modifiers stack
+                mesh.name += '<bis_uid>' + str(i) + '</bis_uid>'    # add bis_uid for mesh to connect with saved modifiers stack
+                mesh_in_json['modifiers'] = __class__.modifiers_to_json(mesh)
+                meshes_in_json['meshes'].append(mesh_in_json)
             with tempfile.TemporaryDirectory() as temp_dir:
                 mesh_obj_path = __class__.export_to_obj(mesh_list=mesh_list, name=name, export_to=temp_dir)
                 if mesh_obj_path and os.path.exists(mesh_obj_path):
@@ -71,7 +90,7 @@ class MeshManager:
                     request = WebRequest.send_request(data={
                         'for': 'add_item',
                         'storage': __class__.storage_type(),
-                        'item_body': json.dumps(mesh_in_json),
+                        'item_body': json.dumps(meshes_in_json),
                         'item_name': name,
                         'item_tags': tags,
                         'addon_version': Addon.current_version()
@@ -85,6 +104,12 @@ class MeshManager:
                                 mesh['bis_uid'] = rez['data']['id']
                         else:
                             bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['stat'] + ': ' + rez['data']['text'])
+            if cfg.to_server_to_file:
+                with open(os.path.join(os.path.dirname(bpy.data.filepath), 'send_to_server.json'), 'w') as currentFile:
+                    json.dump(meshes_in_json, currentFile, indent=4)
+            # remove bis_uid from meshes names
+            for mesh in mesh_list:
+                mesh.name = re.sub('<bis_uid>.*</bis_uid>', '', mesh.name)
         else:
             rez['data']['text'] = 'No mesh to save'
         return rez
@@ -118,7 +143,20 @@ class MeshManager:
                                         if cfg.from_server_to_file:
                                             from shutil import copyfile
                                             copyfile(zip_file_path, os.path.join(os.path.dirname(bpy.data.filepath), zip_file_name))
+                                        __class__._deselect_all(context)
                                         __class__.import_from_obj(context, zip_file_path, obj_file_name=item_in_json['obj_file_name'])
+                                        # add mesh data from json to mesh
+                                        for mesh in context.selected_objects:
+                                            if '<bis_uid>' in mesh.name:
+                                                mesh_bis_uid = int(re.search('<bis_uid>(.*)</bis_uid>', mesh.name).group(1))
+                                                # origin
+                                                mesh_origin = Vector((0, 0, 0))
+                                                BLVector.from_json(mesh_origin, item_in_json['meshes'][mesh_bis_uid]['origin'])
+                                                __class__._set_mesh_origin(context=context, mesh=mesh, to=mesh_origin)
+                                                # modifiers
+                                                __class__.modifiers_from_json(mesh=mesh, modifiers_in_json=item_in_json['meshes'][mesh_bis_uid]['modifiers'])
+                                                # remove bis_uid from meshes names
+                                                mesh.name = re.sub('<bis_uid>.*</bis_uid>', '', mesh.name)
                             elif item_in_json['file_attachment']['link_type'] == 'external':
                                 # external links - not supports at present
                                 pass
@@ -140,6 +178,8 @@ class MeshManager:
                 bpy.ops.export_scene.obj(
                     filepath=obj_file_path,
                     check_existing=False,
+                    axis_forward='Y',
+                    axis_up='Z',
                     use_selection=True,
                     use_mesh_modifiers=False,
                     use_edges=False,
@@ -172,8 +212,7 @@ class MeshManager:
         # add meshes to scene from zipped archive with obj file
         if context.active_object and context.active_object.mode == 'EDIT':
             bpy.ops.object.mode_set(mode='OBJECT')
-        for mesh in context.selected_objects:
-            mesh.select = False
+        __class__._deselect_all(context)
         if os.path.exists(zip_fipe_path):
             obj_file_path = os.path.dirname(zip_fipe_path)
             obj_file_name = os.path.join(obj_file_path, obj_file_name + '.obj')
@@ -182,5 +221,50 @@ class MeshManager:
             if os.path.exists(obj_file_name):
                 bpy.ops.import_scene.obj(
                     filepath=obj_file_name,
+                    axis_forward='Y',
+                    axis_up='Z',
                     use_image_search=False
                 )
+
+    @staticmethod
+    def modifiers_to_json(mesh):
+        # convert mesh modifiers stack to json
+        modifiers_in_json = []
+        for modifier in mesh.modifiers:
+            modifier_class = MeshModifierCommon
+            if hasattr(sys.modules['BIS.mesh_modifiers'], 'MeshModifier' + modifier.type):
+                modifier_class = getattr(sys.modules['BIS.mesh_modifiers'], 'MeshModifier' + modifier.type)
+            modifiers_in_json.append(modifier_class.to_json(modifier))
+        return modifiers_in_json
+
+    @staticmethod
+    def modifiers_from_json(mesh, modifiers_in_json):
+        # recreate modifiers from json to mesh
+        if mesh:
+            for modifier_json in modifiers_in_json:
+                modifier_class = MeshModifierCommon
+                if hasattr(sys.modules['BIS.mesh_modifiers'], 'MeshModifier' + modifier_json['type']):
+                    modifier_class = getattr(sys.modules['BIS.mesh_modifiers'], 'MeshModifier' + modifier_json['type'])
+                modifier_class.from_json(mesh=mesh, modifier_json=modifier_json)
+        return mesh
+
+    @staticmethod
+    def _deselect_all(context):
+        # deselect all selected meshes
+        for mesh in context.selected_objects:
+            mesh.select = False
+
+    @staticmethod
+    def _set_mesh_origin(context, mesh, to: Vector):
+        # move "mesh" origin to coordinates "to"
+        if mesh:
+            cursor_location = context.scene.cursor_location.copy()
+            context.scene.cursor_location = to
+            current_selection = context.selected_objects[:]
+            __class__._deselect_all(context=context)
+            mesh.select = True
+            bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
+            __class__._deselect_all(context=context)
+            for mesh in current_selection:
+                mesh.select = True
+            context.scene.cursor_location = cursor_location

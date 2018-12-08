@@ -177,6 +177,27 @@ class BLColor(BLBaseType):
         return instance
 
 
+class BLVector(BLBaseType):
+
+    @classmethod
+    def _instance_to_json(cls, instance):
+        # data to json
+        json = {
+            'x': instance.x,
+            'y': instance.y,
+            'z': instance.z
+        }
+        return json
+
+    @classmethod
+    def _json_to_instance(cls, instance, json):
+        # data from json
+        instance.x = json['instance']['x']
+        instance.y = json['instance']['y']
+        instance.z = json['instance']['z']
+        return instance
+
+
 class BLbpy_prop_array:
 
     @classmethod
