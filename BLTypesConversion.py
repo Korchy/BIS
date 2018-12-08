@@ -63,7 +63,7 @@ class BLBaseType:
     @classmethod
     def from_json(cls, instance, json):
         # instance from json call
-        return cls._json_to_instance(instance, json)
+        return cls._json_to_instance(instance, json['instance'])
 
     @classmethod
     def _instance_to_json(cls, instance):
@@ -143,9 +143,9 @@ class BLNodeOutputFileSlotFile(BLBaseType):
     @classmethod
     def _json_to_instance(cls, instance, json):
         # data from json
-        BLImageFormatSettings.from_json(instance.format, json['instance']['format']['instance'])
-        instance.path = json['instance']['path']
-        instance.use_node_format = json['instance']['use_node_format']
+        BLImageFormatSettings.from_json(instance.format, json['format'])
+        instance.path = json['path']
+        instance.use_node_format = json['use_node_format']
         return instance
 
     @classmethod
@@ -171,9 +171,9 @@ class BLColor(BLBaseType):
     @classmethod
     def _json_to_instance(cls, instance, json):
         # data from json
-        instance.r = json['instance']['r']
-        instance.g = json['instance']['g']
-        instance.b = json['instance']['b']
+        instance.r = json['r']
+        instance.g = json['g']
+        instance.b = json['b']
         return instance
 
 
@@ -192,9 +192,9 @@ class BLVector(BLBaseType):
     @classmethod
     def _json_to_instance(cls, instance, json):
         # data from json
-        instance.x = json['instance']['x']
-        instance.y = json['instance']['y']
-        instance.z = json['instance']['z']
+        instance.x = json['x']
+        instance.y = json['y']
+        instance.z = json['z']
         return instance
 
 
@@ -213,3 +213,34 @@ class BLbpy_prop_array:
         # instance from json call
         for i, prop in enumerate(json):
             prop_array[i] = prop
+
+
+class BLset:
+
+    @classmethod
+    def to_json(cls, instance):
+        # instance to json call
+        return list(instance)
+
+    @classmethod
+    def from_json(cls, json):
+        # instance from json call
+        return set(json)
+
+
+class BLObject(BLBaseType):
+
+    @classmethod
+    def _instance_to_json(cls, instance):
+        # data to json
+        json = {}
+        if instance:
+            json['name'] = instance.name
+        return json
+
+    @classmethod
+    def _json_to_instance(cls, instance, json):
+        # data from json
+        if 'name' in json and json['name'] in bpy.data.objects:
+            instance.object = bpy.data.objects[json['name']]
+        return instance

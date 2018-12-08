@@ -3,6 +3,8 @@
 
 # Mesh Modifiers
 
+from .BLTypesConversion import BLset, BLObject
+
 
 class MeshModifierCommon:
     @classmethod
@@ -64,3 +66,67 @@ class MeshModifierSUBSURF(MeshModifierCommon):
         modifier.subdivision_type = modifier_json['subdivision_type']
         modifier.use_opensubdiv = modifier_json['use_opensubdiv']
         modifier.use_subsurf_uv = modifier_json['use_subsurf_uv']
+
+
+class MeshModifierDATA_TRANSFER(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['data_types_edges'] = BLset.to_json(modifier.data_types_edges)
+        modifier_json['data_types_loops'] = BLset.to_json(modifier.data_types_loops)
+        modifier_json['data_types_polys'] = BLset.to_json(modifier.data_types_polys)
+        modifier_json['data_types_verts'] = BLset.to_json(modifier.data_types_verts)
+        modifier_json['edge_mapping'] = modifier.edge_mapping
+        modifier_json['invert_vertex_group'] = modifier.invert_vertex_group
+        modifier_json['islands_precision'] = modifier.islands_precision
+        modifier_json['layers_uv_select_dst'] = modifier.layers_uv_select_dst
+        modifier_json['layers_uv_select_src'] = modifier.layers_uv_select_src
+        modifier_json['layers_vcol_select_dst'] = modifier.layers_vcol_select_dst
+        modifier_json['layers_vcol_select_src'] = modifier.layers_vcol_select_src
+        modifier_json['layers_vgroup_select_dst'] = modifier.layers_vgroup_select_dst
+        modifier_json['layers_vgroup_select_src'] = modifier.layers_vgroup_select_src
+        modifier_json['loop_mapping'] = modifier.loop_mapping
+        modifier_json['max_distance'] = modifier.max_distance
+        modifier_json['mix_factor'] = modifier.mix_factor
+        modifier_json['mix_mode'] = modifier.mix_mode
+        modifier_json['object'] = BLObject.to_json(instance=modifier.object)
+        modifier_json['poly_mapping'] = modifier.poly_mapping
+        modifier_json['ray_radius'] = modifier.ray_radius
+        modifier_json['use_edge_data'] = modifier.use_edge_data
+        modifier_json['use_loop_data'] = modifier.use_loop_data
+        modifier_json['use_max_distance'] = modifier.use_max_distance
+        modifier_json['use_object_transform'] = modifier.use_object_transform
+        modifier_json['use_poly_data'] = modifier.use_poly_data
+        modifier_json['use_vert_data'] = modifier.use_vert_data
+        modifier_json['vert_mapping'] = modifier.vert_mapping
+        modifier_json['vertex_group'] = modifier.vertex_group
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        BLObject.from_json(instance=modifier, json=modifier_json['object'])
+        modifier.use_poly_data = modifier_json['use_poly_data']
+        modifier.use_vert_data = modifier_json['use_vert_data']
+        modifier.use_edge_data = modifier_json['use_edge_data']
+        modifier.use_loop_data = modifier_json['use_loop_data']
+        modifier.use_max_distance = modifier_json['use_max_distance']
+        modifier.use_object_transform = modifier_json['use_object_transform']
+        modifier.data_types_edges = BLset.from_json(json=modifier_json['data_types_edges'])
+        modifier.data_types_loops = BLset.from_json(json=modifier_json['data_types_loops'])
+        modifier.data_types_polys = BLset.from_json(json=modifier_json['data_types_polys'])
+        modifier.data_types_verts = BLset.from_json(json=modifier_json['data_types_verts'])
+        modifier.edge_mapping = modifier_json['edge_mapping']
+        modifier.invert_vertex_group = modifier_json['invert_vertex_group']
+        modifier.islands_precision = modifier_json['islands_precision']
+        modifier.layers_uv_select_dst = modifier_json['layers_uv_select_dst']
+        modifier.layers_uv_select_src = modifier_json['layers_uv_select_src']
+        modifier.layers_vcol_select_dst = modifier_json['layers_vcol_select_dst']
+        modifier.layers_vcol_select_src = modifier_json['layers_vcol_select_src']
+        modifier.layers_vgroup_select_dst = modifier_json['layers_vgroup_select_dst']
+        modifier.layers_vgroup_select_src = modifier_json['layers_vgroup_select_src']
+        modifier.loop_mapping = modifier_json['loop_mapping']
+        modifier.max_distance = modifier_json['max_distance']
+        modifier.mix_factor = modifier_json['mix_factor']
+        modifier.mix_mode = modifier_json['mix_mode']
+        modifier.poly_mapping = modifier_json['poly_mapping']
+        modifier.ray_radius = modifier_json['ray_radius']
+        modifier.vert_mapping = modifier_json['vert_mapping']
+        modifier.vertex_group = modifier_json['vertex_group']
