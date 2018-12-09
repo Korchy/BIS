@@ -46,7 +46,7 @@ class BLbpy_prop_collection:
                 if len(collection) <= i and hasattr(instance_conversion_class, 'new_item'):
                     instance_conversion_class.new_item(node)
                 if len(collection) > i:
-                    instance_conversion_class.from_json(collection[i], collection_item_in_json)
+                    instance_conversion_class.from_json(instance=collection[i], json=collection_item_in_json)
         return collection
 
 
@@ -243,7 +243,27 @@ class BLObject(BLBaseType):
     def _json_to_instance(cls, instance, json, instance_field=None):
         # data from json
         if 'name' in json and json['name'] in bpy.data.objects:
-            instance.object = bpy.data.objects[json['name']]
+            if instance_field:
+                setattr(instance, instance_field, bpy.data.objects[json['name']])
+            else:
+                instance.object = bpy.data.objects[json['name']]
+        return instance
+
+
+class BLUVProjector(BLBaseType):
+
+    @classmethod
+    def _instance_to_json(cls, instance):
+        # data to json
+        json = {}
+        if instance:
+            json['object'] = BLObject.to_json(instance=instance.object)
+        return json
+
+    @classmethod
+    def _json_to_instance(cls, instance, json, instance_field=None):
+        # data from json
+        BLObject.from_json(instance=instance, json=json['object'], instance_field='object')
         return instance
 
 
@@ -268,4 +288,35 @@ class BLCacheFile(BLBaseType):
             if json['name'] in bpy.data.cache_files:
                 if instance_field:
                     setattr(instance, instance_field, bpy.data.cache_files[json['name']])
+        return instance
+
+
+class BLImage(BLBaseType):
+
+    @classmethod
+    def _instance_to_json(cls, instance):
+        # data to json
+        json = {}
+        if instance:
+            json['source'] = instance.source
+            json['filepath'] = os.path.normpath(os.path.join(os.path.dirname(bpy.data.filepath), instance.filepath.replace('//', '')))
+        return json
+
+    @classmethod
+    def _json_to_instance(cls, instance, json, instance_field=None):
+        # data from json
+        if 'filepath' in json and json['filepath']:
+            image_name = os.path.basename(json['filepath'])
+            if os.path.exists(json['filepath']) and os.path.isfile(json['filepath']):
+                if image_name in bpy.data.images:
+                    bpy.data.images[image_name].reload()
+                else:
+                    bpy.data.images.load(json['filepath'], check_existing=True)
+            if image_name in bpy.data.images:
+                image = bpy.data.images[image_name]
+                image.source = json['source']
+                if instance_field:
+                    setattr(instance, instance_field, image)
+                else:
+                    instance.image = image
         return instance

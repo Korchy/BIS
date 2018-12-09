@@ -3,7 +3,7 @@
 
 # Mesh Modifiers
 
-from .BLTypesConversion import BLset, BLObject, BLCacheFile
+from .BLTypesConversion import BLset, BLObject, BLCacheFile, BLVector, BLImage, BLbpy_prop_collection
 
 
 class MeshModifierCommon:
@@ -182,3 +182,55 @@ class MeshModifierMESH_SEQUENCE_CACHE(MeshModifierCommon):
         BLCacheFile.from_json(instance=modifier, json=modifier_json['cache_file'], instance_field='cache_file')
         modifier.object_path = modifier_json['object_path']
         modifier.read_data = BLset.from_json(json=modifier_json['read_data'])
+
+
+class MeshModifierNORMAL_EDIT(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['target'] = BLObject.to_json(instance=modifier.target)
+        modifier_json['invert_vertex_group'] = modifier.invert_vertex_group
+        modifier_json['mix_factor'] = modifier.mix_factor
+        modifier_json['mix_limit'] = modifier.mix_limit
+        modifier_json['mix_mode'] = modifier.mix_mode
+        modifier_json['mode'] = modifier.mode
+        modifier_json['offset'] = BLVector.to_json(instance=modifier.offset)
+        modifier_json['use_direction_parallel'] = modifier.use_direction_parallel
+        modifier_json['vertex_group'] = modifier.vertex_group
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        BLObject.from_json(instance=modifier, json=modifier_json['target'], instance_field='target')
+        modifier.invert_vertex_group = modifier_json['invert_vertex_group']
+        modifier.mix_factor = modifier_json['mix_factor']
+        modifier.mix_limit = modifier_json['mix_limit']
+        modifier.mix_mode = modifier_json['mix_mode']
+        modifier.mode = modifier_json['mode']
+        BLVector.from_json(instance=modifier.offset, json=modifier_json['offset'])
+        modifier.use_direction_parallel = modifier_json['use_direction_parallel']
+        modifier.vertex_group = modifier_json['vertex_group']
+
+
+class MeshModifierUV_PROJECT(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['aspect_x'] = modifier.aspect_x
+        modifier_json['aspect_y'] = modifier.aspect_y
+        modifier_json['image'] = BLImage.to_json(instance=modifier.image)
+        modifier_json['projector_count'] = modifier.projector_count
+        modifier_json['projectors'] = BLbpy_prop_collection.to_json(modifier.projectors)
+        modifier_json['scale_x'] = modifier.scale_x
+        modifier_json['scale_y'] = modifier.scale_y
+        modifier_json['use_image_override'] = modifier.use_image_override
+        modifier_json['uv_layer'] = modifier.uv_layer
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        modifier.aspect_x = modifier_json['aspect_x']
+        modifier.aspect_y = modifier_json['aspect_y']
+        BLImage.from_json(instance=modifier, json=modifier_json['image'], instance_field='image')
+        modifier.projector_count = modifier_json['projector_count']
+        BLbpy_prop_collection.from_json(modifier, modifier.projectors, modifier_json['projectors'])
+        modifier.scale_x = modifier_json['scale_x']
+        modifier.scale_y = modifier_json['scale_y']
+        modifier.use_image_override = modifier_json['use_image_override']
+        modifier.uv_layer = modifier_json['uv_layer']
