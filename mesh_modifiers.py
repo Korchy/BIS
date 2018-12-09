@@ -3,7 +3,7 @@
 
 # Mesh Modifiers
 
-from .BLTypesConversion import BLset, BLObject
+from .BLTypesConversion import BLset, BLObject, BLCacheFile
 
 
 class MeshModifierCommon:
@@ -71,6 +71,11 @@ class MeshModifierSUBSURF(MeshModifierCommon):
 class MeshModifierDATA_TRANSFER(MeshModifierCommon):
     @classmethod
     def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['object'] = BLObject.to_json(instance=modifier.object)
+        modifier_json['use_poly_data'] = modifier.use_poly_data
+        modifier_json['use_vert_data'] = modifier.use_vert_data
+        modifier_json['use_edge_data'] = modifier.use_edge_data
+        modifier_json['use_loop_data'] = modifier.use_loop_data
         modifier_json['data_types_edges'] = BLset.to_json(modifier.data_types_edges)
         modifier_json['data_types_loops'] = BLset.to_json(modifier.data_types_loops)
         modifier_json['data_types_polys'] = BLset.to_json(modifier.data_types_polys)
@@ -88,15 +93,10 @@ class MeshModifierDATA_TRANSFER(MeshModifierCommon):
         modifier_json['max_distance'] = modifier.max_distance
         modifier_json['mix_factor'] = modifier.mix_factor
         modifier_json['mix_mode'] = modifier.mix_mode
-        modifier_json['object'] = BLObject.to_json(instance=modifier.object)
         modifier_json['poly_mapping'] = modifier.poly_mapping
         modifier_json['ray_radius'] = modifier.ray_radius
-        modifier_json['use_edge_data'] = modifier.use_edge_data
-        modifier_json['use_loop_data'] = modifier.use_loop_data
         modifier_json['use_max_distance'] = modifier.use_max_distance
         modifier_json['use_object_transform'] = modifier.use_object_transform
-        modifier_json['use_poly_data'] = modifier.use_poly_data
-        modifier_json['use_vert_data'] = modifier.use_vert_data
         modifier_json['vert_mapping'] = modifier.vert_mapping
         modifier_json['vertex_group'] = modifier.vertex_group
 
@@ -130,3 +130,55 @@ class MeshModifierDATA_TRANSFER(MeshModifierCommon):
         modifier.ray_radius = modifier_json['ray_radius']
         modifier.vert_mapping = modifier_json['vert_mapping']
         modifier.vertex_group = modifier_json['vertex_group']
+
+
+class MeshModifierMESH_CACHE(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['cache_format'] = modifier.cache_format
+        modifier_json['deform_mode'] = modifier.deform_mode
+        modifier_json['eval_factor'] = modifier.eval_factor
+        modifier_json['eval_frame'] = modifier.eval_frame
+        modifier_json['eval_time'] = modifier.eval_time
+        modifier_json['factor'] = modifier.factor
+        modifier_json['filepath'] = modifier.filepath
+        modifier_json['flip_axis'] = BLset.to_json(modifier.flip_axis)
+        modifier_json['forward_axis'] = modifier.forward_axis
+        modifier_json['frame_scale'] = modifier.frame_scale
+        modifier_json['frame_start'] = modifier.frame_start
+        modifier_json['interpolation'] = modifier.interpolation
+        modifier_json['play_mode'] = modifier.play_mode
+        modifier_json['time_mode'] = modifier.time_mode
+        modifier_json['up_axis'] = modifier.up_axis
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        modifier.cache_format = modifier_json['cache_format']
+        modifier.deform_mode = modifier_json['deform_mode']
+        modifier.eval_factor = modifier_json['eval_factor']
+        modifier.eval_frame = modifier_json['eval_frame']
+        modifier.eval_time = modifier_json['eval_time']
+        modifier.factor = modifier_json['factor']
+        modifier.filepath = modifier_json['filepath']
+        modifier.flip_axis = BLset.from_json(json=modifier_json['flip_axis'])
+        modifier.forward_axis = modifier_json['forward_axis']
+        modifier.frame_scale = modifier_json['frame_scale']
+        modifier.frame_start = modifier_json['frame_start']
+        modifier.interpolation = modifier_json['interpolation']
+        modifier.play_mode = modifier_json['play_mode']
+        modifier.time_mode = modifier_json['time_mode']
+        modifier.up_axis = modifier_json['up_axis']
+
+
+class MeshModifierMESH_SEQUENCE_CACHE(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['cache_file'] = BLCacheFile.to_json(instance=modifier.cache_file)
+        modifier_json['object_path'] = modifier.object_path
+        modifier_json['read_data'] = BLset.to_json(modifier.read_data)
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        BLCacheFile.from_json(instance=modifier, json=modifier_json['cache_file'], instance_field='cache_file')
+        modifier.object_path = modifier_json['object_path']
+        modifier.read_data = BLset.from_json(json=modifier_json['read_data'])

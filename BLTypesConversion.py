@@ -4,9 +4,10 @@
 # Blender types to/from JSON conversion
 # Blender types with prefix BL
 
-import bpy
+import os
 import sys
 from typing import Dict, Any
+import bpy
 
 
 class BLbpy_prop_collection:
@@ -14,13 +15,13 @@ class BLbpy_prop_collection:
     @classmethod
     def to_json(cls, instance):
         # instance to json call
-        instance_in_json = cls._instance_to_json(instance)
+        instance_in_json = cls._instance_to_json(collection=instance)
         return instance_in_json
 
     @classmethod
     def from_json(cls, node, collection, json):
         # instance from json call
-        return cls._json_to_instance(node, collection, json)
+        return cls._json_to_instance(node=node, collection=collection, json=json)
 
     @classmethod
     def _instance_to_json(cls, collection):
@@ -30,7 +31,7 @@ class BLbpy_prop_collection:
             if hasattr(sys.modules[__name__], 'BL' + type(instance).__name__):
                 # has class for conversion
                 instance_conversion_class = getattr(sys.modules[__name__], 'BL' + type(instance).__name__)
-            collection_item_in_json = instance_conversion_class.to_json(instance)
+            collection_item_in_json = instance_conversion_class.to_json(instance=instance)
             collection_in_json.append(collection_item_in_json)
         return collection_in_json
 
@@ -56,14 +57,14 @@ class BLBaseType:
         # instance to json call
         instance_in_json = {
             'class': type(instance).__name__,
-            'instance': cls._instance_to_json(instance)
+            'instance': cls._instance_to_json(instance=instance)
         }
         return instance_in_json
 
     @classmethod
-    def from_json(cls, instance, json):
+    def from_json(cls, instance, json, instance_field=None):
         # instance from json call
-        return cls._json_to_instance(instance, json['instance'])
+        return cls._json_to_instance(instance=instance, json=json['instance'], instance_field=instance_field)
 
     @classmethod
     def _instance_to_json(cls, instance):
@@ -72,7 +73,7 @@ class BLBaseType:
         return json
 
     @classmethod
-    def _json_to_instance(cls, instance, json):
+    def _json_to_instance(cls, instance, json, instance_field=None):
         # get data from json and fill instance with that data
         return instance
 
@@ -105,7 +106,7 @@ class BLImageFormatSettings(BLBaseType):
         return json
 
     @classmethod
-    def _json_to_instance(cls, instance, json):
+    def _json_to_instance(cls, instance, json, instance_field=None):
         # data from json
         instance.file_format = json['file_format']
         instance.cineon_black = json['cineon_black']
@@ -141,7 +142,7 @@ class BLNodeOutputFileSlotFile(BLBaseType):
         return json
 
     @classmethod
-    def _json_to_instance(cls, instance, json):
+    def _json_to_instance(cls, instance, json, instance_field=None):
         # data from json
         BLImageFormatSettings.from_json(instance.format, json['format'])
         instance.path = json['path']
@@ -169,7 +170,7 @@ class BLColor(BLBaseType):
         return json
 
     @classmethod
-    def _json_to_instance(cls, instance, json):
+    def _json_to_instance(cls, instance, json, instance_field=None):
         # data from json
         instance.r = json['r']
         instance.g = json['g']
@@ -190,7 +191,7 @@ class BLVector(BLBaseType):
         return json
 
     @classmethod
-    def _json_to_instance(cls, instance, json):
+    def _json_to_instance(cls, instance, json, instance_field=None):
         # data from json
         instance.x = json['x']
         instance.y = json['y']
@@ -239,8 +240,32 @@ class BLObject(BLBaseType):
         return json
 
     @classmethod
-    def _json_to_instance(cls, instance, json):
+    def _json_to_instance(cls, instance, json, instance_field=None):
         # data from json
         if 'name' in json and json['name'] in bpy.data.objects:
             instance.object = bpy.data.objects[json['name']]
+        return instance
+
+
+class BLCacheFile(BLBaseType):
+
+    @classmethod
+    def _instance_to_json(cls, instance):
+        # data to json
+        json = {}
+        if instance:
+            json['name'] = instance.name
+            json['filepath'] = os.path.normpath(os.path.join(os.path.dirname(bpy.data.filepath), instance.filepath.replace('//', '')))
+        return json
+
+    @classmethod
+    def _json_to_instance(cls, instance, json, instance_field=None):
+        # data from json
+        if 'name' in json:
+            if json['name'] not in bpy.data.cache_files:
+                if 'filepath' in json and json['filepath']:
+                    bpy.ops.cachefile.open(filepath=json['filepath'])
+            if json['name'] in bpy.data.cache_files:
+                if instance_field:
+                    setattr(instance, instance_field, bpy.data.cache_files[json['name']])
         return instance
