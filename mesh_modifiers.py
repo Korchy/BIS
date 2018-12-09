@@ -3,7 +3,7 @@
 
 # Mesh Modifiers
 
-from .BLTypesConversion import BLset, BLObject, BLCacheFile, BLVector, BLImage, BLbpy_prop_collection
+from .BLTypesConversion import BLset, BLObject, BLCacheFile, BLVector, BLImage, BLbpy_prop_collection, BLbpy_prop_array
 
 
 class MeshModifierCommon:
@@ -234,3 +234,29 @@ class MeshModifierUV_PROJECT(MeshModifierCommon):
         modifier.scale_y = modifier_json['scale_y']
         modifier.use_image_override = modifier_json['use_image_override']
         modifier.uv_layer = modifier_json['uv_layer']
+
+
+class MeshModifierUV_WARP(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['axis_u'] = modifier.axis_u
+        modifier_json['axis_v'] = modifier.axis_v
+        modifier_json['bone_from'] = modifier.bone_from
+        modifier_json['bone_to'] = modifier.bone_to
+        modifier_json['center'] = BLbpy_prop_array.to_json(prop_array=modifier.center)
+        modifier_json['object_from'] = BLObject.to_json(instance=modifier.object_from)
+        modifier_json['object_to'] = BLObject.to_json(instance=modifier.object_to)
+        modifier_json['uv_layer'] = modifier.uv_layer
+        modifier_json['vertex_group'] = modifier.vertex_group
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        modifier.axis_u = modifier_json['axis_u']
+        modifier.axis_v = modifier_json['axis_v']
+        modifier.bone_from = modifier_json['bone_from']
+        modifier.bone_to = modifier_json['bone_to']
+        BLbpy_prop_array.from_json(prop_array=modifier.center, json=modifier_json['center'])
+        BLObject.from_json(instance=modifier, json=modifier_json['object_from'], instance_field='object_from')
+        BLObject.from_json(instance=modifier, json=modifier_json['object_to'], instance_field='object_to')
+        modifier.uv_layer = modifier_json['uv_layer']
+        modifier.vertex_group = modifier_json['vertex_group']
