@@ -3,7 +3,7 @@
 
 # Mesh Modifiers
 
-from .BLTypesConversion import BLset, BLObject, BLCacheFile, BLVector, BLImage, BLbpy_prop_collection, BLbpy_prop_array
+from .BLTypesConversion import BLset,BLObject, BLCacheFile, BLVector, BLImage, BLbpy_prop_collection, BLbpy_prop_array, BLCurveMapping, BLTexture
 
 
 class MeshModifierCommon:
@@ -259,4 +259,42 @@ class MeshModifierUV_WARP(MeshModifierCommon):
         BLObject.from_json(instance=modifier, json=modifier_json['object_from'], instance_field='object_from')
         BLObject.from_json(instance=modifier, json=modifier_json['object_to'], instance_field='object_to')
         modifier.uv_layer = modifier_json['uv_layer']
+        modifier.vertex_group = modifier_json['vertex_group']
+
+
+class MeshModifierVERTEX_WEIGHT_EDIT(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['add_threshold'] = modifier.add_threshold
+        modifier_json['default_weight'] = modifier.default_weight
+        modifier_json['falloff_type'] = modifier.falloff_type
+        modifier_json['map_curve'] = BLCurveMapping.to_json(instance=modifier.map_curve)
+        modifier_json['mask_constant'] = modifier.mask_constant
+        modifier_json['mask_tex_map_object'] = BLObject.to_json(instance=modifier.mask_tex_map_object)
+        modifier_json['mask_tex_mapping'] = modifier.mask_tex_mapping
+        modifier_json['mask_tex_use_channel'] = modifier.mask_tex_use_channel
+        modifier_json['mask_tex_uv_layer'] = modifier.mask_tex_uv_layer
+        modifier_json['mask_texture'] = BLTexture.to_json(instance=modifier.mask_texture)
+        modifier_json['mask_vertex_group'] = modifier.mask_vertex_group
+        modifier_json['remove_threshold'] = modifier.remove_threshold
+        modifier_json['use_add'] = modifier.use_add
+        modifier_json['use_remove'] = modifier.use_remove
+        modifier_json['vertex_group'] = modifier.vertex_group
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        modifier.add_threshold = modifier_json['add_threshold']
+        modifier.default_weight = modifier_json['default_weight']
+        modifier.falloff_type = modifier_json['falloff_type']
+        BLCurveMapping.from_json(instance=modifier.map_curve, json=modifier_json['map_curve'])
+        modifier.mask_constant = modifier_json['mask_constant']
+        BLObject.from_json(instance=modifier, json=modifier_json['mask_tex_map_object'], instance_field='mask_tex_map_object')
+        modifier.mask_tex_mapping = modifier_json['mask_tex_mapping']
+        modifier.mask_tex_use_channel = modifier_json['mask_tex_use_channel']
+        modifier.mask_tex_uv_layer = modifier_json['mask_tex_uv_layer']
+        BLTexture.from_json(instance=modifier, json=modifier_json['mask_texture'], instance_field='mask_texture')
+        modifier.mask_vertex_group = modifier_json['mask_vertex_group']
+        modifier.remove_threshold = modifier_json['remove_threshold']
+        modifier.use_add = modifier_json['use_add']
+        modifier.use_remove = modifier_json['use_remove']
         modifier.vertex_group = modifier_json['vertex_group']

@@ -185,9 +185,10 @@ class BLVector(BLBaseType):
         # data to json
         json = {
             'x': instance.x,
-            'y': instance.y,
-            'z': instance.z
+            'y': instance.y
         }
+        if hasattr(instance, 'z'):
+            json['z'] = instance.z
         return json
 
     @classmethod
@@ -195,7 +196,8 @@ class BLVector(BLBaseType):
         # data from json
         instance.x = json['x']
         instance.y = json['y']
-        instance.z = json['z']
+        if hasattr(instance, 'z'):
+            instance.z = json['z']
         return instance
 
 
@@ -319,4 +321,90 @@ class BLImage(BLBaseType):
                     setattr(instance, instance_field, image)
                 else:
                     instance.image = image
+        return instance
+
+
+class BLCurveMapping(BLBaseType):
+    @classmethod
+    def _instance_to_json(cls, instance):
+        json = {
+            'use_clip': instance.use_clip,
+            'clip_min_x': instance.clip_min_x,
+            'clip_min_y': instance.clip_min_y,
+            'clip_max_x': instance.clip_max_x,
+            'clip_max_y': instance.clip_max_y,
+            'black_level': BLColor.to_json(instance.black_level),
+            'white_level': BLColor.to_json(instance.white_level),
+            'curves': []
+        }
+        for curve_map in instance.curves:
+            json['curves'].append(BLCurveMap.to_json(curve_map))
+        return json
+
+    @classmethod
+    def _json_to_instance(cls, instance, json, instance_field=None):
+        instance.use_clip = json['use_clip']
+        instance.clip_min_x = json['clip_min_x']
+        instance.clip_min_y = json['clip_min_y']
+        instance.clip_max_x = json['clip_max_x']
+        instance.clip_max_y = json['clip_max_y']
+        BLColor.from_json(instance.black_level, json['black_level'])
+        BLColor.from_json(instance.white_level, json['white_level'])
+        for i, curve in enumerate(json['curves']):
+            BLCurveMap.from_json(instance.curves[i], curve)
+        instance.update()
+
+
+class BLCurveMap(BLBaseType):
+    @classmethod
+    def _instance_to_json(cls, instance):
+        json = {
+            'extend': instance.extend,
+            'points': []
+        }
+        for point in instance.points:
+            json['points'].append(BLCurveMapPoint.to_json(point))
+        return json
+
+    @classmethod
+    def _json_to_instance(cls, instance, json, instance_field=None):
+        instance.extend = json['extend']
+        for i, point in enumerate(json['points']):
+            if len(instance.points) <= i:
+                instance.points.new(point['instance']['location']['instance']['x'], point['instance']['location']['instance']['y'])
+            BLCurveMapPoint.from_json(instance.points[i], point)
+
+
+class BLCurveMapPoint(BLBaseType):
+    @classmethod
+    def _instance_to_json(cls, instance):
+        return {
+            'location': BLVector.to_json(instance=instance.location),
+            'handle_type': instance.handle_type,
+            'select': instance.select
+        }
+
+    @classmethod
+    def _json_to_instance(cls, instance, json, instance_field=None):
+        BLVector.from_json(instance=instance.location, json=json['location'])
+        instance.handle_type = json['handle_type']
+        instance.select = json['select']
+
+
+class BLTexture(BLBaseType):
+
+    @classmethod
+    def _instance_to_json(cls, instance):
+        # data to json
+        json = {}
+        if instance:
+            json['name'] = instance.name
+        return json
+
+    @classmethod
+    def _json_to_instance(cls, instance, json, instance_field=None):
+        # data from json
+        if 'name' in json and json['name'] in bpy.data.textures:
+            if instance_field:
+                setattr(instance, instance_field, bpy.data.textures[json['name']])
         return instance
