@@ -436,3 +436,101 @@ class MeshModifierBEVEL(MeshModifierCommon):
         modifier.use_only_vertices = modifier_json['use_only_vertices']
         modifier.vertex_group = modifier_json['vertex_group']
         modifier.width = modifier_json['width']
+
+
+class MeshModifierBOOLEAN(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['debug_options'] = BLset.to_json(modifier.debug_options)
+        modifier_json['double_threshold'] = modifier.double_threshold
+        modifier_json['object'] = BLObject.to_json(instance=modifier.object)
+        modifier_json['operation'] = modifier.operation
+        modifier_json['solver'] = modifier.solver
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        modifier.debug_options = BLset.from_json(json=modifier_json['debug_options'])
+        modifier.double_threshold = modifier_json['double_threshold']
+        BLObject.from_json(instance=modifier, json=modifier_json['object'], instance_field='object')
+        modifier.operation = modifier_json['operation']
+        modifier.solver = modifier_json['solver']
+
+
+class MeshModifierBUILD(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['frame_duration'] = modifier.frame_duration
+        modifier_json['frame_start'] = modifier.frame_start
+        modifier_json['seed'] = modifier.seed
+        modifier_json['use_random_order'] = modifier.use_random_order
+        modifier_json['use_reverse'] = modifier.use_reverse
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        modifier.frame_duration = modifier_json['frame_duration']
+        modifier.frame_start = modifier_json['frame_start']
+        modifier.seed = modifier_json['seed']
+        modifier.use_random_order = modifier_json['use_random_order']
+        modifier.use_reverse = modifier_json['use_reverse']
+
+
+class MeshModifierDECIMATE(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['angle_limit'] = modifier.angle_limit
+        modifier_json['decimate_type'] = modifier.decimate_type
+        modifier_json['delimit'] = BLset.to_json(modifier.delimit)
+        modifier_json['invert_vertex_group'] = modifier.invert_vertex_group
+        modifier_json['iterations'] = modifier.iterations
+        modifier_json['ratio'] = modifier.ratio
+        modifier_json['symmetry_axis'] = modifier.symmetry_axis
+        modifier_json['use_collapse_triangulate'] = modifier.use_collapse_triangulate
+        modifier_json['use_dissolve_boundaries'] = modifier.use_dissolve_boundaries
+        modifier_json['use_symmetry'] = modifier.use_symmetry
+        modifier_json['vertex_group'] = modifier.vertex_group
+        modifier_json['vertex_group_factor'] = modifier.vertex_group_factor
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        modifier.angle_limit = modifier_json['angle_limit']
+        modifier.decimate_type = modifier_json['decimate_type']
+        modifier.delimit = BLset.from_json(json=modifier_json['delimit'])
+        modifier.invert_vertex_group = modifier_json['invert_vertex_group']
+        modifier.iterations = modifier_json['iterations']
+        modifier.ratio = modifier_json['ratio']
+        modifier.symmetry_axis = modifier_json['symmetry_axis']
+        modifier.use_collapse_triangulate = modifier_json['use_collapse_triangulate']
+        modifier.use_dissolve_boundaries = modifier_json['use_dissolve_boundaries']
+        modifier.use_symmetry = modifier_json['use_symmetry']
+        modifier.vertex_group = modifier_json['vertex_group']
+        modifier.vertex_group_factor = modifier_json['vertex_group_factor']
+
+
+class MeshModifierEDGE_SPLIT(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['split_angle'] = modifier.split_angle
+        modifier_json['use_edge_angle'] = modifier.use_edge_angle
+        modifier_json['use_edge_sharp'] = modifier.use_edge_sharp
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        modifier.split_angle = modifier_json['split_angle']
+        modifier.use_edge_angle = modifier_json['use_edge_angle']
+        modifier.use_edge_sharp = modifier_json['use_edge_sharp']
+
+
+class MeshModifierMASK(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['armature'] = BLObject.to_json(instance=modifier.armature)
+        modifier_json['invert_vertex_group'] = modifier.invert_vertex_group
+        modifier_json['mode'] = modifier.mode
+        modifier_json['vertex_group'] = modifier.vertex_group
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        BLObject.from_json(instance=modifier, json=modifier_json['armature'], instance_field='armature')
+        modifier.invert_vertex_group = modifier_json['invert_vertex_group']
+        modifier.mode = modifier_json['mode']
+        modifier.vertex_group = modifier_json['vertex_group']
