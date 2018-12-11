@@ -3,7 +3,7 @@
 
 # Mesh Modifiers
 
-from .BLTypesConversion import BLset,BLObject, BLCacheFile, BLVector, BLImage, BLbpy_prop_collection, BLbpy_prop_array, BLCurveMapping, BLTexture
+from .BLTypesConversion import BLset, BLObject, BLCacheFile, BLVector, BLImage, BLbpy_prop_collection, BLbpy_prop_array, BLCurveMapping, BLTexture
 
 
 class MeshModifierCommon:
@@ -297,4 +297,72 @@ class MeshModifierVERTEX_WEIGHT_EDIT(MeshModifierCommon):
         modifier.remove_threshold = modifier_json['remove_threshold']
         modifier.use_add = modifier_json['use_add']
         modifier.use_remove = modifier_json['use_remove']
+        modifier.vertex_group = modifier_json['vertex_group']
+
+
+class MeshModifierVERTEX_WEIGHT_MIX(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['default_weight_a'] = modifier.default_weight_a
+        modifier_json['default_weight_b'] = modifier.default_weight_b
+        modifier_json['mask_constant'] = modifier.mask_constant
+        modifier_json['mask_tex_map_object'] = BLObject.to_json(instance=modifier.mask_tex_map_object)
+        modifier_json['mask_tex_mapping'] = modifier.mask_tex_mapping
+        modifier_json['mask_tex_use_channel'] = modifier.mask_tex_use_channel
+        modifier_json['mask_tex_uv_layer'] = modifier.mask_tex_uv_layer
+        modifier_json['mask_texture'] = BLTexture.to_json(instance=modifier.mask_texture)
+        modifier_json['mask_vertex_group'] = modifier.mask_vertex_group
+        modifier_json['mix_mode'] = modifier.mix_mode
+        modifier_json['mix_set'] = modifier.mix_set
+        modifier_json['vertex_group_a'] = modifier.vertex_group_a
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        modifier.default_weight_a = modifier_json['default_weight_a']
+        modifier.default_weight_b = modifier_json['default_weight_b']
+        modifier.mask_constant = modifier_json['mask_constant']
+        BLObject.from_json(instance=modifier, json=modifier_json['mask_tex_map_object'], instance_field='mask_tex_map_object')
+        modifier.mask_tex_mapping = modifier_json['mask_tex_mapping']
+        modifier.mask_tex_use_channel = modifier_json['mask_tex_use_channel']
+        modifier.mask_tex_uv_layer = modifier_json['mask_tex_uv_layer']
+        BLTexture.from_json(instance=modifier, json=modifier_json['mask_texture'], instance_field='mask_texture')
+        modifier.mask_vertex_group = modifier_json['mask_vertex_group']
+        modifier.mix_mode = modifier_json['mix_mode']
+        modifier.mix_set = modifier_json['mix_set']
+        modifier.vertex_group_a = modifier_json['vertex_group_a']
+
+
+class MeshModifierVERTEX_WEIGHT_PROXIMITY(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['falloff_type'] = modifier.falloff_type
+        modifier_json['mask_constant'] = modifier.mask_constant
+        modifier_json['mask_tex_map_object'] = BLObject.to_json(instance=modifier.mask_tex_map_object)
+        modifier_json['mask_tex_mapping'] = modifier.mask_tex_mapping
+        modifier_json['mask_tex_use_channel'] = modifier.mask_tex_use_channel
+        modifier_json['mask_tex_uv_layer'] = modifier.mask_tex_uv_layer
+        modifier_json['mask_texture'] = BLTexture.to_json(instance=modifier.mask_texture)
+        modifier_json['mask_vertex_group'] = modifier.mask_vertex_group
+        modifier_json['max_dist'] = modifier.max_dist
+        modifier_json['min_dist'] = modifier.min_dist
+        modifier_json['proximity_geometry'] = BLset.to_json(modifier.proximity_geometry)
+        modifier_json['proximity_mode'] = modifier.proximity_mode
+        modifier_json['target'] = BLObject.to_json(instance=modifier.target)
+        modifier_json['vertex_group'] = modifier.vertex_group
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        modifier.falloff_type = modifier_json['falloff_type']
+        modifier.mask_constant = modifier_json['mask_constant']
+        BLObject.from_json(instance=modifier, json=modifier_json['mask_tex_map_object'], instance_field='mask_tex_map_object')
+        modifier.mask_tex_mapping = modifier_json['mask_tex_mapping']
+        modifier.mask_tex_use_channel = modifier_json['mask_tex_use_channel']
+        modifier.mask_tex_uv_layer = modifier_json['mask_tex_uv_layer']
+        BLTexture.from_json(instance=modifier, json=modifier_json['mask_texture'], instance_field='mask_texture')
+        modifier.mask_vertex_group = modifier_json['mask_vertex_group']
+        modifier.max_dist = modifier_json['max_dist']
+        modifier.min_dist = modifier_json['min_dist']
+        modifier.proximity_geometry = BLset.from_json(json=modifier_json['proximity_geometry'])
+        modifier.proximity_mode = modifier_json['proximity_mode']
+        BLObject.from_json(instance=modifier, json=modifier_json['target'], instance_field='target')
         modifier.vertex_group = modifier_json['vertex_group']
