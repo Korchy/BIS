@@ -3,6 +3,8 @@
 
 # Mesh Modifiers
 
+import os
+import bpy
 from .BLTypesConversion import BLset, BLObject, BLCacheFile, BLVector, BLImage, BLbpy_prop_collection, BLbpy_prop_array, BLCurveMapping, BLTexture
 
 
@@ -534,3 +536,117 @@ class MeshModifierMASK(MeshModifierCommon):
         modifier.invert_vertex_group = modifier_json['invert_vertex_group']
         modifier.mode = modifier_json['mode']
         modifier.vertex_group = modifier_json['vertex_group']
+
+
+class MeshModifierMIRROR(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['mirror_object'] = BLObject.to_json(instance=modifier.mirror_object)
+        modifier_json['merge_threshold'] = modifier.merge_threshold
+        modifier_json['mirror_offset_u'] = modifier.mirror_offset_u
+        modifier_json['mirror_offset_v'] = modifier.mirror_offset_v
+        modifier_json['use_clip'] = modifier.use_clip
+        modifier_json['use_mirror_merge'] = modifier.use_mirror_merge
+        modifier_json['use_mirror_u'] = modifier.use_mirror_u
+        modifier_json['use_mirror_v'] = modifier.use_mirror_v
+        modifier_json['use_mirror_vertex_groups'] = modifier.use_mirror_vertex_groups
+        modifier_json['use_x'] = modifier.use_x
+        modifier_json['use_y'] = modifier.use_y
+        modifier_json['use_z'] = modifier.use_z
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        BLObject.from_json(instance=modifier, json=modifier_json['mirror_object'], instance_field='mirror_object')
+        modifier.merge_threshold = modifier_json['merge_threshold']
+        modifier.mirror_offset_u = modifier_json['mirror_offset_u']
+        modifier.mirror_offset_v = modifier_json['mirror_offset_v']
+        modifier.use_clip = modifier_json['use_clip']
+        modifier.use_mirror_merge = modifier_json['use_mirror_merge']
+        modifier.use_mirror_u = modifier_json['use_mirror_u']
+        modifier.use_mirror_v = modifier_json['use_mirror_v']
+        modifier.use_mirror_vertex_groups = modifier_json['use_mirror_vertex_groups']
+        modifier.use_x = modifier_json['use_x']
+        modifier.use_y = modifier_json['use_y']
+        modifier.use_z = modifier_json['use_z']
+
+
+class MeshModifierMULTIRES(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['filepath'] = os.path.normpath(os.path.join(os.path.dirname(bpy.data.filepath), modifier.filepath.replace('//', '')))
+        modifier_json['levels'] = modifier.levels
+        modifier_json['render_levels'] = modifier.render_levels
+        modifier_json['sculpt_levels'] = modifier.sculpt_levels
+        modifier_json['show_only_control_edges'] = modifier.show_only_control_edges
+        modifier_json['subdivision_type'] = modifier.subdivision_type
+        modifier_json['use_subsurf_uv'] = modifier.use_subsurf_uv
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        modifier.filepath = modifier_json['filepath']
+        modifier.levels = modifier_json['levels']
+        modifier.render_levels = modifier_json['render_levels']
+        modifier.sculpt_levels = modifier_json['sculpt_levels']
+        modifier.show_only_control_edges = modifier_json['show_only_control_edges']
+        modifier.subdivision_type = modifier_json['subdivision_type']
+        modifier.use_subsurf_uv = modifier_json['use_subsurf_uv']
+
+
+class MeshModifierREMESH(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['mode'] = modifier.mode
+        modifier_json['octree_depth'] = modifier.octree_depth
+        modifier_json['scale'] = modifier.scale
+        modifier_json['sharpness'] = modifier.sharpness
+        modifier_json['threshold'] = modifier.threshold
+        modifier_json['use_remove_disconnected'] = modifier.use_remove_disconnected
+        modifier_json['use_smooth_shade'] = modifier.use_smooth_shade
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        modifier.mode = modifier_json['mode']
+        modifier.octree_depth = modifier_json['octree_depth']
+        modifier.scale = modifier_json['scale']
+        modifier.sharpness = modifier_json['sharpness']
+        modifier.threshold = modifier_json['threshold']
+        modifier.use_remove_disconnected = modifier_json['use_remove_disconnected']
+        modifier.use_smooth_shade = modifier_json['use_smooth_shade']
+
+
+class MeshModifierSCREW(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['object'] = BLObject.to_json(instance=modifier.object)
+        modifier_json['angle'] = modifier.angle
+        modifier_json['axis'] = modifier.axis
+        modifier_json['iterations'] = modifier.iterations
+        modifier_json['merge_threshold'] = modifier.merge_threshold
+        modifier_json['render_steps'] = modifier.render_steps
+        modifier_json['screw_offset'] = modifier.screw_offset
+        modifier_json['steps'] = modifier.steps
+        modifier_json['use_merge_vertices'] = modifier.use_merge_vertices
+        modifier_json['use_normal_calculate'] = modifier.use_normal_calculate
+        modifier_json['use_normal_flip'] = modifier.use_normal_flip
+        modifier_json['use_object_screw_offset'] = modifier.use_object_screw_offset
+        modifier_json['use_smooth_shade'] = modifier.use_smooth_shade
+        modifier_json['use_stretch_u'] = modifier.use_stretch_u
+        modifier_json['use_stretch_v'] = modifier.use_stretch_v
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        BLObject.from_json(instance=modifier, json=modifier_json['object'], instance_field='object')
+        modifier.angle = modifier_json['angle']
+        modifier.axis = modifier_json['axis']
+        modifier.iterations = modifier_json['iterations']
+        modifier.merge_threshold = modifier_json['merge_threshold']
+        modifier.render_steps = modifier_json['render_steps']
+        modifier.screw_offset = modifier_json['screw_offset']
+        modifier.steps = modifier_json['steps']
+        modifier.use_merge_vertices = modifier_json['use_merge_vertices']
+        modifier.use_normal_calculate = modifier_json['use_normal_calculate']
+        modifier.use_normal_flip = modifier_json['use_normal_flip']
+        modifier.use_object_screw_offset = modifier_json['use_object_screw_offset']
+        modifier.use_smooth_shade = modifier_json['use_smooth_shade']
+        modifier.use_stretch_u = modifier_json['use_stretch_u']
+        modifier.use_stretch_v = modifier_json['use_stretch_v']
