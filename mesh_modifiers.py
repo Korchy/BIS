@@ -366,3 +366,73 @@ class MeshModifierVERTEX_WEIGHT_PROXIMITY(MeshModifierCommon):
         modifier.proximity_mode = modifier_json['proximity_mode']
         BLObject.from_json(instance=modifier, json=modifier_json['target'], instance_field='target')
         modifier.vertex_group = modifier_json['vertex_group']
+
+
+class MeshModifierARRAY(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['constant_offset_displace'] = BLVector.to_json(instance=modifier.constant_offset_displace)
+        modifier_json['count'] = modifier.count
+        modifier_json['curve'] = BLObject.to_json(instance=modifier.curve)
+        modifier_json['end_cap'] = BLObject.to_json(instance=modifier.end_cap)
+        modifier_json['start_cap'] = BLObject.to_json(instance=modifier.start_cap)
+        modifier_json['offset_object'] = BLObject.to_json(instance=modifier.offset_object)
+        modifier_json['fit_length'] = modifier.fit_length
+        modifier_json['fit_type'] = modifier.fit_type
+        modifier_json['merge_threshold'] = modifier.merge_threshold
+        modifier_json['relative_offset_displace'] = BLbpy_prop_array.to_json(prop_array=modifier.relative_offset_displace)
+        modifier_json['use_constant_offset'] = modifier.use_constant_offset
+        modifier_json['use_merge_vertices'] = modifier.use_merge_vertices
+        modifier_json['use_merge_vertices_cap'] = modifier.use_merge_vertices_cap
+        modifier_json['use_object_offset'] = modifier.use_object_offset
+        modifier_json['use_relative_offset'] = modifier.use_relative_offset
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        BLVector.from_json(instance=modifier.constant_offset_displace, json=modifier_json['constant_offset_displace'])
+        modifier.count = modifier_json['count']
+        BLObject.from_json(instance=modifier, json=modifier_json['curve'], instance_field='curve')
+        BLObject.from_json(instance=modifier, json=modifier_json['end_cap'], instance_field='end_cap')
+        BLObject.from_json(instance=modifier, json=modifier_json['start_cap'], instance_field='start_cap')
+        BLObject.from_json(instance=modifier, json=modifier_json['offset_object'], instance_field='offset_object')
+        modifier.fit_length = modifier_json['fit_length']
+        modifier.fit_type = modifier_json['fit_type']
+        modifier.merge_threshold = modifier_json['merge_threshold']
+        BLbpy_prop_array.from_json(prop_array=modifier.relative_offset_displace, json=modifier_json['relative_offset_displace'])
+        modifier.use_constant_offset = modifier_json['use_constant_offset']
+        modifier.use_merge_vertices = modifier_json['use_merge_vertices']
+        modifier.use_merge_vertices_cap = modifier_json['use_merge_vertices_cap']
+        modifier.use_object_offset = modifier_json['use_object_offset']
+        modifier.use_relative_offset = modifier_json['use_relative_offset']
+
+
+class MeshModifierBEVEL(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['angle_limit'] = modifier.angle_limit
+        modifier_json['edge_weight_method'] = modifier.edge_weight_method
+        modifier_json['limit_method'] = modifier.limit_method
+        modifier_json['loop_slide'] = modifier.loop_slide
+        modifier_json['material'] = modifier.material
+        modifier_json['offset_type'] = modifier.offset_type
+        modifier_json['profile'] = modifier.profile
+        modifier_json['segments'] = modifier.segments
+        modifier_json['use_clamp_overlap'] = modifier.use_clamp_overlap
+        modifier_json['use_only_vertices'] = modifier.use_only_vertices
+        modifier_json['vertex_group'] = modifier.vertex_group
+        modifier_json['width'] = modifier.width
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        modifier.angle_limit = modifier_json['angle_limit']
+        modifier.edge_weight_method = modifier_json['edge_weight_method']
+        modifier.limit_method = modifier_json['limit_method']
+        modifier.loop_slide = modifier_json['loop_slide']
+        modifier.material = modifier_json['material']
+        modifier.offset_type = modifier_json['offset_type']
+        modifier.profile = modifier_json['profile']
+        modifier.segments = modifier_json['segments']
+        modifier.use_clamp_overlap = modifier_json['use_clamp_overlap']
+        modifier.use_only_vertices = modifier_json['use_only_vertices']
+        modifier.vertex_group = modifier_json['vertex_group']
+        modifier.width = modifier_json['width']
