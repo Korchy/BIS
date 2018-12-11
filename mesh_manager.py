@@ -140,23 +140,23 @@ class MeshManager:
                                     zip_file_path = os.path.join(temp_dir, zip_file_name)
                                     with open(zip_file_path, 'wb') as temp_item_file_attachment:
                                         temp_item_file_attachment.write(request_file.content)
-                                        if cfg.from_server_to_file:
-                                            from shutil import copyfile
-                                            copyfile(zip_file_path, os.path.join(os.path.dirname(bpy.data.filepath), zip_file_name))
-                                        __class__._deselect_all(context)
-                                        __class__.import_from_obj(context, zip_file_path, obj_file_name=item_in_json['obj_file_name'])
-                                        # add mesh data from json to mesh
-                                        for mesh in context.selected_objects:
-                                            if '<bis_uid>' in mesh.name:
-                                                mesh_bis_uid = int(re.search('<bis_uid>(.*)</bis_uid>', mesh.name).group(1))
-                                                # origin
-                                                mesh_origin = Vector((0, 0, 0))
-                                                BLVector.from_json(mesh_origin, item_in_json['meshes'][mesh_bis_uid]['origin'])
-                                                __class__._set_mesh_origin(context=context, mesh=mesh, to=mesh_origin)
-                                                # modifiers
-                                                __class__.modifiers_from_json(mesh=mesh, modifiers_in_json=item_in_json['meshes'][mesh_bis_uid]['modifiers'])
-                                                # remove bis_uid from meshes names
-                                                mesh.name = re.sub('<bis_uid>.*</bis_uid>', '', mesh.name)
+                                    if cfg.from_server_to_file:
+                                        from shutil import copyfile
+                                        copyfile(zip_file_path, os.path.join(os.path.dirname(bpy.data.filepath), zip_file_name))
+                                    __class__._deselect_all(context)
+                                    __class__.import_from_obj(context, zip_file_path, obj_file_name=item_in_json['obj_file_name'])
+                                    # add mesh data from json to mesh
+                                    for mesh in context.selected_objects:
+                                        if '<bis_uid>' in mesh.name:
+                                            mesh_bis_uid = int(re.search('<bis_uid>(.*)</bis_uid>', mesh.name).group(1))
+                                            # origin
+                                            mesh_origin = Vector((0, 0, 0))
+                                            BLVector.from_json(mesh_origin, item_in_json['meshes'][mesh_bis_uid]['origin'])
+                                            __class__._set_mesh_origin(context=context, mesh=mesh, to=mesh_origin)
+                                            # modifiers
+                                            __class__.modifiers_from_json(mesh=mesh, modifiers_in_json=item_in_json['meshes'][mesh_bis_uid]['modifiers'])
+                                            # remove bis_uid from meshes names
+                                            mesh.name = re.sub('<bis_uid>.*</bis_uid>', '', mesh.name)
                             elif item_in_json['file_attachment']['link_type'] == 'external':
                                 # external links - not supports at present
                                 pass

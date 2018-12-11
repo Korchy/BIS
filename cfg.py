@@ -15,7 +15,7 @@ no_sending_to_server = False
 to_server_to_file = True
 
 # write loaded from server content to file
-from_server_to_file = False
+from_server_to_file = True
 
 
 # -------------------------------------------------------------------------------

@@ -650,3 +650,21 @@ class MeshModifierSCREW(MeshModifierCommon):
         modifier.use_smooth_shade = modifier_json['use_smooth_shade']
         modifier.use_stretch_u = modifier_json['use_stretch_u']
         modifier.use_stretch_v = modifier_json['use_stretch_v']
+
+
+class MeshModifierSKIN(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['branch_smoothing'] = modifier.branch_smoothing
+        modifier_json['use_smooth_shade'] = modifier.use_smooth_shade
+        modifier_json['use_x_symmetry'] = modifier.use_x_symmetry
+        modifier_json['use_y_symmetry'] = modifier.use_y_symmetry
+        modifier_json['use_z_symmetry'] = modifier.use_z_symmetry
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        modifier.branch_smoothing = modifier_json['branch_smoothing']
+        modifier.use_smooth_shade = modifier_json['use_smooth_shade']
+        modifier.use_x_symmetry = modifier_json['use_x_symmetry']
+        modifier.use_y_symmetry = modifier_json['use_y_symmetry']
+        modifier.use_z_symmetry = modifier_json['use_z_symmetry']
