@@ -668,3 +668,163 @@ class MeshModifierSKIN(MeshModifierCommon):
         modifier.use_x_symmetry = modifier_json['use_x_symmetry']
         modifier.use_y_symmetry = modifier_json['use_y_symmetry']
         modifier.use_z_symmetry = modifier_json['use_z_symmetry']
+
+
+class MeshModifierSOLIDIFY(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['edge_crease_inner'] = modifier.edge_crease_inner
+        modifier_json['edge_crease_outer'] = modifier.edge_crease_outer
+        modifier_json['edge_crease_rim'] = modifier.edge_crease_rim
+        modifier_json['invert_vertex_group'] = modifier.invert_vertex_group
+        modifier_json['material_offset'] = modifier.material_offset
+        modifier_json['material_offset_rim'] = modifier.material_offset_rim
+        modifier_json['offset'] = modifier.offset
+        modifier_json['thickness'] = modifier.thickness
+        modifier_json['thickness_clamp'] = modifier.thickness_clamp
+        modifier_json['thickness_vertex_group'] = modifier.thickness_vertex_group
+        modifier_json['use_even_offset'] = modifier.use_even_offset
+        modifier_json['use_flip_normals'] = modifier.use_flip_normals
+        modifier_json['use_quality_normals'] = modifier.use_quality_normals
+        modifier_json['use_rim'] = modifier.use_rim
+        modifier_json['use_rim_only'] = modifier.use_rim_only
+        modifier_json['vertex_group'] = modifier.vertex_group
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        modifier.edge_crease_inner = modifier_json['edge_crease_inner']
+        modifier.edge_crease_outer = modifier_json['edge_crease_outer']
+        modifier.edge_crease_rim = modifier_json['edge_crease_rim']
+        modifier.invert_vertex_group = modifier_json['invert_vertex_group']
+        modifier.material_offset = modifier_json['material_offset']
+        modifier.material_offset_rim = modifier_json['material_offset_rim']
+        modifier.offset = modifier_json['offset']
+        modifier.thickness = modifier_json['thickness']
+        modifier.thickness_clamp = modifier_json['thickness_clamp']
+        modifier.thickness_vertex_group = modifier_json['thickness_vertex_group']
+        modifier.use_even_offset = modifier_json['use_even_offset']
+        modifier.use_flip_normals = modifier_json['use_flip_normals']
+        modifier.use_quality_normals = modifier_json['use_quality_normals']
+        modifier.use_rim = modifier_json['use_rim']
+        modifier.use_rim_only = modifier_json['use_rim_only']
+        modifier.vertex_group = modifier_json['vertex_group']
+
+
+class MeshModifierTRIANGULATE(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['ngon_method'] = modifier.ngon_method
+        modifier_json['quad_method'] = modifier.quad_method
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        modifier.ngon_method = modifier_json['ngon_method']
+        modifier.quad_method = modifier_json['quad_method']
+
+
+class MeshModifierWIREFRAME(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['crease_weight'] = modifier.crease_weight
+        modifier_json['invert_vertex_group'] = modifier.invert_vertex_group
+        modifier_json['material_offset'] = modifier.material_offset
+        modifier_json['offset'] = modifier.offset
+        modifier_json['thickness'] = modifier.thickness
+        modifier_json['thickness_vertex_group'] = modifier.thickness_vertex_group
+        modifier_json['use_boundary'] = modifier.use_boundary
+        modifier_json['use_crease'] = modifier.use_crease
+        modifier_json['use_even_offset'] = modifier.use_even_offset
+        modifier_json['use_relative_offset'] = modifier.use_relative_offset
+        modifier_json['use_replace'] = modifier.use_replace
+        modifier_json['vertex_group'] = modifier.vertex_group
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        modifier.crease_weight = modifier_json['crease_weight']
+        modifier.invert_vertex_group = modifier_json['invert_vertex_group']
+        modifier.material_offset = modifier_json['material_offset']
+        modifier.offset = modifier_json['offset']
+        modifier.thickness = modifier_json['thickness']
+        modifier.thickness_vertex_group = modifier_json['thickness_vertex_group']
+        modifier.use_boundary = modifier_json['use_boundary']
+        modifier.use_crease = modifier_json['use_crease']
+        modifier.use_even_offset = modifier_json['use_even_offset']
+        modifier.use_relative_offset = modifier_json['use_relative_offset']
+        modifier.use_replace = modifier_json['use_replace']
+        modifier.vertex_group = modifier_json['vertex_group']
+
+
+class MeshModifierARMATURE(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['invert_vertex_group'] = modifier.invert_vertex_group
+        modifier_json['object'] = BLObject.to_json(instance=modifier.object)
+        modifier_json['use_bone_envelopes'] = modifier.use_bone_envelopes
+        modifier_json['use_deform_preserve_volume'] = modifier.use_deform_preserve_volume
+        modifier_json['use_multi_modifier'] = modifier.use_multi_modifier
+        modifier_json['use_vertex_groups'] = modifier.use_vertex_groups
+        modifier_json['vertex_group'] = modifier.vertex_group
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        modifier.invert_vertex_group = modifier_json['invert_vertex_group']
+        BLObject.from_json(instance=modifier, json=modifier_json['object'], instance_field='object')
+        modifier.use_bone_envelopes = modifier_json['use_bone_envelopes']
+        modifier.use_deform_preserve_volume = modifier_json['use_deform_preserve_volume']
+        modifier.use_multi_modifier = modifier_json['use_multi_modifier']
+        modifier.use_vertex_groups = modifier_json['use_vertex_groups']
+        modifier.vertex_group = modifier_json['vertex_group']
+
+
+class MeshModifierCAST(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['object'] = BLObject.to_json(instance=modifier.object)
+        modifier_json['cast_type'] = modifier.cast_type
+        modifier_json['factor'] = modifier.factor
+        modifier_json['radius'] = modifier.radius
+        modifier_json['size'] = modifier.size
+        modifier_json['use_radius_as_size'] = modifier.use_radius_as_size
+        modifier_json['use_transform'] = modifier.use_transform
+        modifier_json['use_x'] = modifier.use_x
+        modifier_json['use_y'] = modifier.use_y
+        modifier_json['use_z'] = modifier.use_z
+        modifier_json['vertex_group'] = modifier.vertex_group
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        BLObject.from_json(instance=modifier, json=modifier_json['object'], instance_field='object')
+        modifier.cast_type = modifier_json['cast_type']
+        modifier.factor = modifier_json['factor']
+        modifier.radius = modifier_json['radius']
+        modifier.size = modifier_json['size']
+        modifier.use_radius_as_size = modifier_json['use_radius_as_size']
+        modifier.use_transform = modifier_json['use_transform']
+        modifier.use_x = modifier_json['use_x']
+        modifier.use_y = modifier_json['use_y']
+        modifier.use_z = modifier_json['use_z']
+        modifier.vertex_group = modifier_json['vertex_group']
+
+
+class MeshModifierCORRECTIVE_SMOOTH(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['factor'] = modifier.factor
+        modifier_json['invert_vertex_group'] = modifier.invert_vertex_group
+        modifier_json['iterations'] = modifier.iterations
+        modifier_json['rest_source'] = modifier.rest_source
+        modifier_json['smooth_type'] = modifier.smooth_type
+        modifier_json['use_only_smooth'] = modifier.use_only_smooth
+        modifier_json['use_pin_boundary'] = modifier.use_pin_boundary
+        modifier_json['vertex_group'] = modifier.vertex_group
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        modifier.factor = modifier_json['factor']
+        modifier.invert_vertex_group = modifier_json['invert_vertex_group']
+        modifier.iterations = modifier_json['iterations']
+        modifier.rest_source = modifier_json['rest_source']
+        modifier.smooth_type = modifier_json['smooth_type']
+        modifier.use_only_smooth = modifier_json['use_only_smooth']
+        modifier.use_pin_boundary = modifier_json['use_pin_boundary']
+        modifier.vertex_group = modifier_json['vertex_group']
