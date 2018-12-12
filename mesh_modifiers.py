@@ -828,3 +828,69 @@ class MeshModifierCORRECTIVE_SMOOTH(MeshModifierCommon):
         modifier.use_only_smooth = modifier_json['use_only_smooth']
         modifier.use_pin_boundary = modifier_json['use_pin_boundary']
         modifier.vertex_group = modifier_json['vertex_group']
+
+
+class MeshModifierCURVE(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['object'] = BLObject.to_json(instance=modifier.object)
+        modifier_json['deform_axis'] = modifier.deform_axis
+        modifier_json['vertex_group'] = modifier.vertex_group
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        BLObject.from_json(instance=modifier, json=modifier_json['object'], instance_field='object')
+        modifier.deform_axis = modifier_json['deform_axis']
+        modifier.vertex_group = modifier_json['vertex_group']
+
+
+class MeshModifierDISPLACE(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['texture_coords_object'] = BLObject.to_json(instance=modifier.texture_coords_object)
+        modifier_json['direction'] = modifier.direction
+        modifier_json['mid_level'] = modifier.mid_level
+        modifier_json['space'] = modifier.space
+        modifier_json['strength'] = modifier.strength
+        modifier_json['texture'] = BLTexture.to_json(instance=modifier.texture)
+        modifier_json['texture_coords'] = modifier.texture_coords
+        modifier_json['uv_layer'] = modifier.uv_layer
+        modifier_json['vertex_group'] = modifier.vertex_group
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        BLObject.from_json(instance=modifier, json=modifier_json['texture_coords_object'], instance_field='texture_coords_object')
+        modifier.direction = modifier_json['direction']
+        modifier.mid_level = modifier_json['mid_level']
+        modifier.space = modifier_json['space']
+        modifier.strength = modifier_json['strength']
+        BLTexture.from_json(instance=modifier, json=modifier_json['texture'], instance_field='texture')
+        modifier.texture_coords = modifier_json['texture_coords']
+        modifier.uv_layer = modifier_json['uv_layer']
+        modifier.vertex_group = modifier_json['vertex_group']
+
+
+class MeshModifierHOOK(MeshModifierCommon):
+    @classmethod
+    def _to_json_spec(cls, modifier_json, modifier):
+        modifier_json['object'] = BLObject.to_json(instance=modifier.object)
+        modifier_json['center'] = BLbpy_prop_array.to_json(prop_array=modifier.center)
+        modifier_json['falloff_curve'] = BLCurveMapping.to_json(instance=modifier.falloff_curve)
+        modifier_json['falloff_radius'] = modifier.falloff_radius
+        modifier_json['falloff_type'] = modifier.falloff_type
+        modifier_json['strength'] = modifier.strength
+        modifier_json['subtarget'] = modifier.subtarget
+        modifier_json['use_falloff_uniform'] = modifier.use_falloff_uniform
+        modifier_json['vertex_group'] = modifier.vertex_group
+
+    @classmethod
+    def _from_json_spec(cls, modifier, modifier_json):
+        BLObject.from_json(instance=modifier, json=modifier_json['object'], instance_field='object')
+        BLbpy_prop_array.from_json(prop_array=modifier.center, json=modifier_json['center'])
+        BLCurveMapping.from_json(instance=modifier.falloff_curve, json=modifier_json['falloff_curve'])
+        modifier.falloff_radius = modifier_json['falloff_radius']
+        modifier.falloff_type = modifier_json['falloff_type']
+        modifier.strength = modifier_json['strength']
+        modifier.subtarget = modifier_json['subtarget']
+        modifier.use_falloff_uniform = modifier_json['use_falloff_uniform']
+        modifier.vertex_group = modifier_json['vertex_group']
