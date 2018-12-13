@@ -7,7 +7,7 @@ import base64
 import bpy.utils.previews
 
 
-class BIS_Items():
+class BIS_Items:
 
     itemsLists = {}
 
@@ -89,6 +89,14 @@ class BIS_Items():
             bpy.ops.bis.get_text_from_storage(text_id=int(self.items))
         elif context.area.spaces.active.type == 'VIEW_3D':
             bpy.ops.bis.get_mesh_from_storage(mesh_id=int(self.items))
+
+    @staticmethod
+    def get_item_name_by_id(item_id, storage):
+        item_in_list = [item[1] for item in __class__.itemsLists[storage].items if item[4] == item_id]
+        if item_in_list:
+            return item_in_list[0]
+        else:
+            return ''
 
 
 def register():

@@ -22,8 +22,8 @@ class BISUpdateMeshInStorage(Operator):
     )
 
     def execute(self, context):
-        print('add mesh to storage ', context.active_object)
 
+        mesh_list = context.selected_objects[:]
 
         if context.active_object:
             pass
@@ -32,8 +32,10 @@ class BISUpdateMeshInStorage(Operator):
         return {'FINISHED'}
 
     def draw(self, context):
+
+        # if context.active_object and 'bis_uid_name' in context.active_object:
         self.layout.separator()
-        self.layout.label('Update selected Mesh in the BIS?')
+        self.layout.label('Update selected Meshes in the BIS?')
         self.layout.separator()
 
     def invoke(self, context, event):

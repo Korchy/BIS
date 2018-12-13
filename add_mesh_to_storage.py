@@ -28,7 +28,7 @@ class BISAddMeshToStorage(Operator):
         if self.mesh_by_name:
             mesh_list = [bpy.data.objects[self.mesh_by_name]]
         else:
-            mesh_list = context.selected_objects
+            mesh_list = context.selected_objects[:]
         if mesh_list:
             request_rez = MeshManager.to_bis(mesh_list=mesh_list,
                                              name=context.window_manager.bis_add_mesh_to_storage_vars.name,
@@ -40,13 +40,15 @@ class BISAddMeshToStorage(Operator):
             else:
                 if cfg.show_debug_err:
                     print(request_rez)
+            context.window_manager.bis_add_mesh_to_storage_vars.name = ''
+            context.window_manager.bis_add_mesh_to_storage_vars.tags = ''
         else:
             bpy.ops.message.messagebox('INVOKE_DEFAULT', message='No selected Meshes')
         return {'FINISHED'}
 
     @classmethod
     def poll(cls, context):
-        return context.active_object and context.active_object.mode == 'OBJECT'
+        return context.selected_objects and context.active_object and context.active_object.mode == 'OBJECT'
 
 
 class BISAddMeshToStorageVars(PropertyGroup):

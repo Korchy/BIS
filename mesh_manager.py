@@ -75,12 +75,12 @@ class MeshManager:
                 mesh.animation_data_clear()
                 # mesh to json
                 mesh_in_json = {
-                    'bis_uid': i,   # uid = number in "meshes" list
+                    'bis_mesh_uid': i,   # uid = number in "meshes" list
                     'origin': BLVector.to_json(mesh.location),
                     'modifiers': []
                 }
                 # modifiers stack
-                mesh.name += '<bis_uid>' + str(i) + '</bis_uid>'    # add bis_uid for mesh to connect with saved modifiers stack
+                mesh.name += '<bis_mesh_uid>' + str(i) + '</bis_mesh_uid>'    # add bis_mesh_uid for mesh to connect with saved modifiers stack
                 mesh_in_json['modifiers'] = __class__.modifiers_to_json(mesh)
                 meshes_in_json['meshes'].append(mesh_in_json)
             with tempfile.TemporaryDirectory() as temp_dir:
@@ -102,6 +102,7 @@ class MeshManager:
                         if rez['stat'] == 'OK':
                             for mesh in mesh_list:
                                 mesh['bis_uid'] = rez['data']['id']
+                                mesh['bis_uid_name'] = name
                         else:
                             bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['stat'] + ': ' + rez['data']['text'])
             if cfg.to_server_to_file:
@@ -109,7 +110,7 @@ class MeshManager:
                     json.dump(meshes_in_json, currentFile, indent=4)
             # remove bis_uid from meshes names
             for mesh in mesh_list:
-                mesh.name = re.sub('<bis_uid>.*</bis_uid>', '', mesh.name)
+                mesh.name = re.sub('<bis_mesh_uid>.*</bis_mesh_uid>', '', mesh.name)
         else:
             rez['data']['text'] = 'No mesh to save'
         return rez
@@ -147,16 +148,19 @@ class MeshManager:
                                     __class__.import_from_obj(context, zip_file_path, obj_file_name=item_in_json['obj_file_name'])
                                     # add mesh data from json to mesh
                                     for mesh in context.selected_objects:
-                                        if '<bis_uid>' in mesh.name:
-                                            mesh_bis_uid = int(re.search('<bis_uid>(.*)</bis_uid>', mesh.name).group(1))
+                                        if '<bis_mesh_uid>' in mesh.name:
+                                            mesh_bis_uid = int(re.search('<bis_mesh_uid>(.*)</bis_mesh_uid>', mesh.name).group(1))
                                             # origin
                                             mesh_origin = Vector((0, 0, 0))
                                             BLVector.from_json(mesh_origin, item_in_json['meshes'][mesh_bis_uid]['origin'])
                                             __class__._set_mesh_origin(context=context, mesh=mesh, to=mesh_origin)
                                             # modifiers
                                             __class__.modifiers_from_json(mesh=mesh, modifiers_in_json=item_in_json['meshes'][mesh_bis_uid]['modifiers'])
-                                            # remove bis_uid from meshes names
-                                            mesh.name = re.sub('<bis_uid>.*</bis_uid>', '', mesh.name)
+                                            # remove bis_mesh_uid from meshes names
+                                            mesh.name = re.sub('<bis_mesh_uid>.*</bis_mesh_uid>', '', mesh.name)
+                                            # set uid
+                                            mesh['bis_uid'] = bis_item_id
+                                            mesh['bis_uid_name'] = BIS_Items.get_item_name_by_id(item_id=bis_item_id, storage=__class__.storage_type())
                             elif item_in_json['file_attachment']['link_type'] == 'external':
                                 # external links - not supports at present
                                 pass
