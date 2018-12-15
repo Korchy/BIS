@@ -112,7 +112,7 @@ class MeshManager:
             for mesh in mesh_list:
                 mesh.name = re.sub('<bis_mesh_uid>.*</bis_mesh_uid>', '', mesh.name)
         else:
-            rez['data']['text'] = 'No mesh to save'
+            rez['data']['text'] = 'No selected mesh to save'
         return rez
 
     @staticmethod
@@ -166,6 +166,63 @@ class MeshManager:
                                 pass
         else:
             bpy.ops.message.messagebox('INVOKE_DEFAULT',  message=rez['stat'] + ': ' + rez['data']['text'])
+        return rez
+
+    @staticmethod
+    def update_in_bis(bis_uid, mesh_list=[], name=''):
+        rez = {"stat": "ERR", "data": {"text": "Error to update"}}
+        if mesh_list:
+            if bis_uid:
+                if not name:
+                    name = mesh_list[0].name
+                meshes_in_json = {
+                    'obj_file_name': name,
+                    'meshes': []
+                }
+                for i, mesh in enumerate(mesh_list):
+                    # remove animation data
+                    mesh.animation_data_clear()
+                    # mesh to json
+                    mesh_in_json = {
+                        'bis_mesh_uid': i,   # uid = number in "meshes" list
+                        'origin': BLVector.to_json(mesh.location),
+                        'modifiers': []
+                    }
+                    # modifiers stack
+                    mesh.name += '<bis_mesh_uid>' + str(i) + '</bis_mesh_uid>'    # add bis_mesh_uid for mesh to connect with saved modifiers stack
+                    mesh_in_json['modifiers'] = __class__.modifiers_to_json(mesh)
+                    meshes_in_json['meshes'].append(mesh_in_json)
+                with tempfile.TemporaryDirectory() as temp_dir:
+                    mesh_obj_path = __class__.export_to_obj(mesh_list=mesh_list, name=name, export_to=temp_dir)
+                    if mesh_obj_path and os.path.exists(mesh_obj_path):
+                        request = WebRequest.send_request(data={
+                            'for': 'update_item',
+                            'storage': __class__.storage_type(),
+                            'item_body': json.dumps(meshes_in_json),
+                            'item_name': name,
+                            'item_id': bis_uid,
+                            'addon_version': Addon.current_version()
+                        }, files={
+                            'mesh_file': open(mesh_obj_path, 'rb')
+                        })
+                        if request:
+                            rez = json.loads(request.text)
+                            if rez['stat'] == 'OK':
+                                for mesh in mesh_list:
+                                    mesh['bis_uid'] = rez['data']['id']
+                                    mesh['bis_uid_name'] = name
+                            else:
+                                bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['stat'] + ': ' + rez['data']['text'])
+                if cfg.to_server_to_file:
+                    with open(os.path.join(os.path.dirname(bpy.data.filepath), 'send_to_server.json'), 'w') as currentFile:
+                        json.dump(meshes_in_json, currentFile, indent=4)
+                # remove bis_uid from meshes names
+                for mesh in mesh_list:
+                    mesh.name = re.sub('<bis_mesh_uid>.*</bis_mesh_uid>', '', mesh.name)
+            else:
+                rez['data']['text'] = 'Can not update unsaved mesh group. Save it first.'
+        else:
+            rez['data']['text'] = 'No selected mesh to save'
         return rez
 
     @staticmethod

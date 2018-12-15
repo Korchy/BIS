@@ -34,14 +34,13 @@ class BISAddMeshToStorage(Operator):
                                              name=context.window_manager.bis_add_mesh_to_storage_vars.name,
                                              tags=context.window_manager.bis_add_mesh_to_storage_vars.tags)
             if request_rez['stat'] == 'OK':
+                context.window_manager.bis_add_mesh_to_storage_vars.name = ''
                 context.window_manager.bis_add_mesh_to_storage_vars.tags = ''
                 if self.show_message:
                     bpy.ops.message.messagebox('INVOKE_DEFAULT', message=request_rez['stat'] + ': ' + request_rez['data']['text'])
             else:
                 if cfg.show_debug_err:
                     print(request_rez)
-            context.window_manager.bis_add_mesh_to_storage_vars.name = ''
-            context.window_manager.bis_add_mesh_to_storage_vars.tags = ''
         else:
             bpy.ops.message.messagebox('INVOKE_DEFAULT', message='No selected Meshes')
         return {'FINISHED'}
