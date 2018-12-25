@@ -54,6 +54,7 @@ class BISAddNodeToStorage(Operator):
                     'storage_subtype': NodeManager.get_subtype(context),
                     'storage_subtype2': NodeManager.get_subtype2(context),
                     'procedural': procedural,
+                    'engine': context.screen.scene.render.engine,
                     'bis_links': json.dumps(bis_links),
                     'item_name': node_group_in_json['name'],
                     'item_tags': node_group_tags.strip(),

@@ -1,5 +1,9 @@
 Version history:
 -
+1.5.1
+- Added automatical preview generation for saved meshes
+- Hided "search" field for free accounts
+
 1.5.0
 - Added storage for meshes
 

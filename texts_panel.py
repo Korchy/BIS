@@ -13,8 +13,8 @@ class BISTextsPanel(bpy.types.Panel):
 
     def draw(self, context):
         if WebRequests.WebAuthVars.logged:
-            self.layout.prop(context.window_manager.bis_get_texts_info_from_storage_vars, 'searchFilter')
             if WebRequests.WebAuthVars.userProStatus:
+                self.layout.prop(context.window_manager.bis_get_texts_info_from_storage_vars, 'searchFilter')
                 self.layout.operator('bis.get_texts_info_from_storage', icon='VIEWZOOM', text=' Search')
                 row = self.layout.row()
                 row.operator('bis.get_texts_info_from_storage_prev_page', text='Prev')

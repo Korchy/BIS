@@ -293,8 +293,8 @@ class MeshManager:
         modifiers_in_json = []
         for modifier in mesh.modifiers:
             modifier_class = MeshModifierCommon
-            if hasattr(sys.modules['BIS.mesh_modifiers'], 'MeshModifier' + modifier.type):
-                modifier_class = getattr(sys.modules['BIS.mesh_modifiers'], 'MeshModifier' + modifier.type)
+            if hasattr(sys.modules[__package__+'.mesh_modifiers'], 'MeshModifier' + modifier.type):
+                modifier_class = getattr(sys.modules[__package__+'.mesh_modifiers'], 'MeshModifier' + modifier.type)
             modifiers_in_json.append(modifier_class.to_json(modifier))
         return modifiers_in_json
 
@@ -304,8 +304,8 @@ class MeshManager:
         if mesh:
             for modifier_json in modifiers_in_json:
                 modifier_class = MeshModifierCommon
-                if hasattr(sys.modules['BIS.mesh_modifiers'], 'MeshModifier' + modifier_json['type']):
-                    modifier_class = getattr(sys.modules['BIS.mesh_modifiers'], 'MeshModifier' + modifier_json['type'])
+                if hasattr(sys.modules[__package__+'.mesh_modifiers'], 'MeshModifier' + modifier_json['type']):
+                    modifier_class = getattr(sys.modules[__package__+'.mesh_modifiers'], 'MeshModifier' + modifier_json['type'])
                 modifier_class.from_json(mesh=mesh, modifier_json=modifier_json)
         return mesh
 
