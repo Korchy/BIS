@@ -27,7 +27,7 @@ class GetNodeGroupFromStorage(Operator):
             subtype2 = NodeManager.get_subtype2(context)
             request = WebRequest.send_request({
                 'for': 'get_item',
-                'storage': context.area.spaces.active.type,
+                'storage': NodeManager.storage_type(context=context),
                 'storage_subtype': subtype,
                 'storage_subtype2': subtype2,
                 'id': self.node_group_id

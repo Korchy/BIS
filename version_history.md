@@ -1,5 +1,9 @@
 Version history:
 -
+1.5.2
+- Added "Tools" section to Node editor panel
+- Added "Add input/output" tool in Node editor "Tools"
+
 1.5.1
 - Added automatical preview generation for saved meshes
 - Hided "search" field for free accounts

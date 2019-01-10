@@ -2,11 +2,14 @@
 # interplanety@interplanety.org
 
 import bpy
-from .BIS_Items import BIS_Items
+from bpy.types import Operator, PropertyGroup, WindowManager
+from bpy.props import PointerProperty, StringProperty, BoolProperty, IntProperty, EnumProperty
+from bpy.utils import register_class, unregister_class
+from .bis_items import BISItems
 from .node_manager import NodeManager
 
 
-class BISGetNodesInfoFromStorage(bpy.types.Operator):
+class BISGetNodesInfoFromStorage(Operator):
     bl_idname = 'bis.get_nodes_info_from_storage'
     bl_label = 'BIS: get items'
     bl_description = 'Search nodegroups in BIS'
@@ -22,7 +25,7 @@ class BISGetNodesInfoFromStorage(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class BISGetNodesInfoFromStoragePrevPage(bpy.types.Operator):
+class BISGetNodesInfoFromStoragePrevPage(Operator):
     bl_idname = 'bis.get_nodes_info_from_storage_prev_page'
     bl_label = 'BIS: get items (prev page)'
     bl_description = 'Get prev page'
@@ -42,7 +45,7 @@ class BISGetNodesInfoFromStoragePrevPage(bpy.types.Operator):
         return context.window_manager.bis_get_nodes_info_from_storage_vars.current_page > 0
 
 
-class BISGetNodesInfoFromStorageNextPage(bpy.types.Operator):
+class BISGetNodesInfoFromStorageNextPage(Operator):
     bl_idname = 'bis.get_nodes_info_from_storage_next_page'
     bl_label = 'BIS: get items (next page)'
     bl_description = 'Get next page'
@@ -62,40 +65,40 @@ class BISGetNodesInfoFromStorageNextPage(bpy.types.Operator):
         return context.window_manager.bis_get_nodes_info_from_storage_vars.current_page_status not in ('', 'EOF')
 
 
-class BISGetNodesInfoFromStorageVars(bpy.types.PropertyGroup):
-    searchFilter = bpy.props.StringProperty(
+class BISGetNodesInfoFromStorageVars(PropertyGroup):
+    searchFilter = StringProperty(
         name='Search',
         description='Filter to search',
         default=''
     )
-    updatePreviews = bpy.props.BoolProperty(
+    updatePreviews = BoolProperty(
         name='Update Previews',
         description='Update previews from server',
         default=False
     )
-    items = bpy.props.EnumProperty(
-        items=lambda self, context: BIS_Items.getPreviews(self, context),
-        update=lambda self, context: BIS_Items.onPreviewSelect(self, context)
+    items = EnumProperty(
+        items=lambda self, context: BISItems.get_previews(self, NodeManager.storage_type(context)),
+        update=lambda self, context: BISItems.on_preview_select(self, NodeManager.storage_type(context))
     )
-    current_page = bpy.props.IntProperty(
+    current_page = IntProperty(
         default=0
     )
-    current_page_status = bpy.props.StringProperty(
+    current_page_status = StringProperty(
         default=''
     )
 
 
 def register():
-    bpy.utils.register_class(BISGetNodesInfoFromStorage)
-    bpy.utils.register_class(BISGetNodesInfoFromStoragePrevPage)
-    bpy.utils.register_class(BISGetNodesInfoFromStorageNextPage)
-    bpy.utils.register_class(BISGetNodesInfoFromStorageVars)
-    bpy.types.WindowManager.bis_get_nodes_info_from_storage_vars = bpy.props.PointerProperty(type=BISGetNodesInfoFromStorageVars)
+    register_class(BISGetNodesInfoFromStorage)
+    register_class(BISGetNodesInfoFromStoragePrevPage)
+    register_class(BISGetNodesInfoFromStorageNextPage)
+    register_class(BISGetNodesInfoFromStorageVars)
+    WindowManager.bis_get_nodes_info_from_storage_vars = PointerProperty(type=BISGetNodesInfoFromStorageVars)
 
 
 def unregister():
-    del bpy.types.WindowManager.bis_get_nodes_info_from_storage_vars
-    bpy.utils.unregister_class(BISGetNodesInfoFromStorageVars)
-    bpy.utils.unregister_class(BISGetNodesInfoFromStorageNextPage)
-    bpy.utils.unregister_class(BISGetNodesInfoFromStoragePrevPage)
-    bpy.utils.unregister_class(BISGetNodesInfoFromStorage)
+    del WindowManager.bis_get_nodes_info_from_storage_vars
+    unregister_class(BISGetNodesInfoFromStorageVars)
+    unregister_class(BISGetNodesInfoFromStorageNextPage)
+    unregister_class(BISGetNodesInfoFromStoragePrevPage)
+    unregister_class(BISGetNodesInfoFromStorage)

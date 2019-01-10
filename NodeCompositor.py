@@ -13,7 +13,7 @@
 import bpy
 import os
 from .NodeBase import NodeBase, CurveMapping, NodeColorRamp
-from .BLTypesConversion import BLbpy_prop_collection, BLbpy_prop_array, BLColor
+from .bl_types_conversion import BLbpy_prop_collection, BLbpy_prop_array, BLColor
 
 
 class NodeBaseCompositorNodeBlur(NodeBase):

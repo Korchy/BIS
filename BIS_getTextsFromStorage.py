@@ -2,7 +2,7 @@
 # interplanety@interplanety.org
 
 import bpy
-from . import BIS_Items
+from .bis_items import BISItems
 from .TextManager import TextManager
 
 
@@ -66,8 +66,8 @@ class BISGetTextsInfoFromStorageVars(bpy.types.PropertyGroup):
         default=''
     )
     items = bpy.props.EnumProperty(
-        items=lambda self, context: BIS_Items.BIS_Items.getPreviews(self, context),
-        update=lambda self, context: BIS_Items.BIS_Items.onPreviewSelect(self, context)
+        items=lambda self, context: BISItems.get_previews(self, TextManager.storage_type()),
+        update=lambda self, context: BISItems.on_preview_select(self, TextManager.storage_type())
     )
     current_page = bpy.props.IntProperty(
         default=0

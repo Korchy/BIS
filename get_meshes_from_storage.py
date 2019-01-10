@@ -5,7 +5,7 @@ from bpy.types import Operator, PropertyGroup, WindowManager
 from bpy.utils import register_class, unregister_class
 from bpy.props import StringProperty, BoolProperty, EnumProperty, IntProperty, PointerProperty
 from .mesh_manager import MeshManager
-from .BIS_Items import BIS_Items
+from .bis_items import BISItems
 
 
 class BISGetMeshesInfoFromStorage(Operator):
@@ -76,8 +76,8 @@ class BISGetMeshesInfoFromStorageVars(PropertyGroup):
         default=False
     )
     items = EnumProperty(
-        items=lambda self, context: BIS_Items.getPreviews(self, context),
-        update=lambda self, context: BIS_Items.onPreviewSelect(self, context)
+        items=lambda self, context: BISItems.get_previews(self, MeshManager.storage_type(context)),
+        update=lambda self, context: BISItems.on_preview_select(self, MeshManager.storage_type(context))
     )
     current_page = IntProperty(
         default=0

@@ -264,7 +264,7 @@ class NodeColorRamp:
             JsonEx.prop_array_from_json(color_ramp.elements[i].color, element['color'])
 
 
-# do not use next classes, use them from BLTypesConversion !!!
+# do not use next classes, use them from bl_types_conversion !!!
 
 # Node Curve Mapping (mapping)
 class CurveMapping:

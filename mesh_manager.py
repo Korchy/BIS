@@ -10,11 +10,11 @@ import bpy
 import zipfile
 from mathutils import Vector
 from .WebRequests import WebRequest
-from .BIS_Items import BIS_Items
+from .bis_items import BISItems
 from .addon import Addon
 from .mesh_modifiers import MeshModifierCommon
 from . import cfg
-from .BLTypesConversion import BLVector
+from .bl_types_conversion import BLVector
 
 
 class MeshManager:
@@ -37,7 +37,7 @@ class MeshManager:
             request_rez = json.loads(request.text)
             rez = request_rez['stat']
             if request_rez['stat'] == 'OK':
-                preview_to_update = BIS_Items.updatePreviewsFromData(request_rez['data']['items'], __class__.storage_type(context))
+                preview_to_update = BISItems.update_previews_from_data(data=request_rez['data']['items'], list_name=__class__.storage_type(context))
                 if preview_to_update:
                     request = WebRequest.send_request({
                         'for': 'update_previews',
@@ -47,8 +47,8 @@ class MeshManager:
                     if request:
                         previews_update_rez = json.loads(request.text)
                         if previews_update_rez['stat'] == 'OK':
-                            BIS_Items.updatePreviewsFromData(previews_update_rez['data']['items'], __class__.storage_type(context))
-                BIS_Items.createItemsList(request_rez['data']['items'], __class__.storage_type(context))
+                            BISItems.update_previews_from_data(data=previews_update_rez['data']['items'], list_name=__class__.storage_type(context))
+                BISItems.create_items_list(request_rez['data']['items'], __class__.storage_type(context))
                 context.window_manager.bis_get_meshes_info_from_storage_vars.current_page = page
                 context.window_manager.bis_get_meshes_info_from_storage_vars.current_page_status = request_rez['data']['status']
         return rez
@@ -160,7 +160,7 @@ class MeshManager:
                                             mesh.name = re.sub('<bis_mesh_uid>.*</bis_mesh_uid>', '', mesh.name)
                                             # set uid
                                             mesh['bis_uid'] = bis_item_id
-                                            mesh['bis_uid_name'] = BIS_Items.get_item_name_by_id(item_id=bis_item_id, storage=__class__.storage_type())
+                                            mesh['bis_uid_name'] = BISItems.get_item_name_by_id(item_id=bis_item_id, storage=__class__.storage_type())
                             elif item_in_json['file_attachment']['link_type'] == 'external':
                                 # external links - not supports at present
                                 pass

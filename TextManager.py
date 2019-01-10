@@ -6,7 +6,7 @@ import sys
 import bpy
 import base64
 from .WebRequests import WebRequest
-from .BIS_Items import BIS_Items
+from .bis_items import BISItems
 from .addon import Addon
 
 
@@ -26,7 +26,7 @@ class TextManager:
             request_rez = json.loads(request.text)
             rez = request_rez['stat']
             if request_rez['stat'] == 'OK':
-                BIS_Items.createItemsList(request_rez['data']['items'], context.area.spaces.active.type, previews=False)
+                BISItems.create_items_list(request_rez['data']['items'], context.area.spaces.active.type, previews=False)
                 context.window_manager.bis_get_texts_info_from_storage_vars.current_page = page
                 context.window_manager.bis_get_texts_info_from_storage_vars.current_page_status = request_rez['data']['status']
         return rez
