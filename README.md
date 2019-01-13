@@ -18,7 +18,7 @@ Supported Blender versions:
 
 **Work In Progress: porting to Blender 2.80**
 
-The BIS repository for Blender 2.79 is here: https://github.com/Korchy/bis_2.7
+The BIS repository for Blender 2.79 is here: https://github.com/Korchy/bis_2_7
 
 Installation and usage:
 -
