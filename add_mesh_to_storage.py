@@ -15,12 +15,12 @@ class BISAddMeshToStorage(Operator):
     bl_description = 'Add mesh to the BIS'
     bl_options = {'REGISTER'}
 
-    mesh_by_name = StringProperty(
+    mesh_by_name: StringProperty(
         name='mesh_by_name',
         description='Add mesh by name',
         default=''
     )
-    show_message = BoolProperty(
+    show_message: BoolProperty(
         default=False
     )
 
@@ -51,12 +51,12 @@ class BISAddMeshToStorage(Operator):
 
 
 class BISAddMeshToStorageVars(PropertyGroup):
-    name = StringProperty(
+    name: StringProperty(
         name='Name',
         description='Mesh name',
         default=''
     )
-    tags = StringProperty(
+    tags: StringProperty(
         name='Tags',
         description='Tags',
         default=''

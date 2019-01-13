@@ -14,7 +14,7 @@ class BISNodesToolsAddNodeGroupIO(Operator):
     bl_description = 'Add input to active node group'
     bl_options = {'REGISTER', 'UNDO'}
 
-    in_out = StringProperty(
+    in_out: StringProperty(
         name='IN_OUT',
         default='IN'
     )
@@ -40,7 +40,7 @@ class BISNodesToolsAddNodeGroupIO(Operator):
 
 
 class BISNodesToolsVars(PropertyGroup):
-    io_type = bpy.props.EnumProperty(
+    io_type: bpy.props.EnumProperty(
         items=[
             ('NodeSocketInt', 'Int', 'Int', '', 0),
             ('NodeSocketFloat', 'Float', 'Float', '', 1),

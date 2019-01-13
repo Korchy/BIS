@@ -10,36 +10,37 @@ class BISMeshPanel(Panel):
     bl_idname = 'bis.mesh_panel'
     bl_label = 'BIS'
     bl_space_type = 'VIEW_3D'
-    bl_region_type = 'TOOLS'
+    bl_region_type = 'UI'
     bl_category = 'BIS'
 
     def draw(self, context):
+        layout = self.layout
         if WebRequests.WebAuthVars.logged:
             if WebRequests.WebAuthVars.userProStatus:
-                self.layout.prop(context.window_manager.bis_get_meshes_info_from_storage_vars, 'searchFilter')
-                self.layout.operator('bis.get_meshes_info_from_storage', icon='VIEWZOOM', text=' Search')
-                row = self.layout.row()
+                layout.prop(context.window_manager.bis_get_meshes_info_from_storage_vars, 'search_filter')
+                layout.operator('bis.get_meshes_info_from_storage', icon='VIEWZOOM', text=' Search')
+                row = layout.row()
                 row.operator('bis.get_meshes_info_from_storage_prev_page', text='Prev')
                 row.operator('bis.get_meshes_info_from_storage_next_page', text='Next')
             else:
-                self.layout.operator('bis.get_meshes_info_from_storage', icon='FILE_REFRESH', text=' Get active palette')
-            self.layout.prop(context.window_manager.bis_get_meshes_info_from_storage_vars, 'updatePreviews')
-            self.layout.separator()
-            self.layout.separator()
-            self.layout.template_icon_view(context.window_manager.bis_get_meshes_info_from_storage_vars, 'items', show_labels=True)
-            self.layout.separator()
-            self.layout.separator()
-            self.layout.prop(context.window_manager.bis_add_mesh_to_storage_vars, 'name')
-            self.layout.prop(context.window_manager.bis_add_mesh_to_storage_vars, 'tags')
-            button = self.layout.operator('bis.add_mesh_to_storage', text='Save')
+                layout.operator('bis.get_meshes_info_from_storage', icon='FILE_REFRESH', text=' Get active palette')
+            layout.prop(context.window_manager.bis_get_meshes_info_from_storage_vars, 'update_previews')
+            layout.separator()
+            layout.separator()
+            layout.template_icon_view(context.window_manager.bis_get_meshes_info_from_storage_vars, 'items', show_labels=True)
+            layout.separator()
+            layout.separator()
+            layout.prop(context.window_manager.bis_add_mesh_to_storage_vars, 'name')
+            layout.prop(context.window_manager.bis_add_mesh_to_storage_vars, 'tags')
+            button = layout.operator('bis.add_mesh_to_storage', text='Save')
             button.show_message = True
-            button = self.layout.operator('bis.update_mesh_in_storage', text='Update')
+            button = layout.operator('bis.update_mesh_in_storage', text='Update')
             button.show_message = True
-            self.layout.separator()
-            self.layout.separator()
-            self.layout.operator('dialog.web_auth', icon='FILE_TICK', text='Sign out')
+            layout.separator()
+            layout.separator()
+            layout.operator('dialog.web_auth', icon='FILE_TICK', text='Sign out')
         else:
-            self.layout.operator('dialog.web_auth', icon='WORLD', text='Sign in')
+            layout.operator('dialog.web_auth', icon='WORLD', text='Sign in')
 
 
 def register():

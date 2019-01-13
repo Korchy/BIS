@@ -79,15 +79,20 @@ class NodeBaseShaderNodeTexCoord(NodeBase):
         node_json['object'] = ''
         if node.object:
             node_json['object'] = node.object.name
-        node_json['from_dupli'] = node.from_dupli
+        if hasattr(node, 'from_dupli'):
+            node_json['from_dupli'] = node.from_dupli
+        if hasattr(node, 'from_instancer'):
+            node_json['from_instancer'] = node.from_instancer
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json):
         if node_in_json['object']:
             if node_in_json['object'] in bpy.data.objects:
                 node.object = bpy.data.objects[node_in_json['object']]
-        node.from_dupli = node_in_json['from_dupli']
-
+        if 'from_dupli' in node_in_json and hasattr(node, 'from_dupli'):
+            node.from_dupli = node_in_json['from_dupli']
+        if 'from_instancer' in node_in_json and hasattr(node, 'from_instancer'):
+            node.from_instancer = node_in_json['from_instancer']
 
 class NodeBaseShaderNodeTexPointDensity(NodeBase):
     @classmethod

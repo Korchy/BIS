@@ -11,25 +11,25 @@ import requests
 
 
 class WebAuthVars(PropertyGroup):
-    logged = BoolProperty(
+    logged: BoolProperty(
         default=False
     )
-    host = StringProperty(
+    host: StringProperty(
         default=''
     )
-    userLogin = StringProperty(
+    userLogin: StringProperty(
         default=''
     )
-    userStayLogged = BoolProperty(
+    userStayLogged: BoolProperty(
         default=False
     )
-    userProStatus = BoolProperty(
+    userProStatus: BoolProperty(
         default=False
     )
-    token = StringProperty(
+    token: StringProperty(
         default=''
     )
-    requestBase = StringProperty(
+    requestBase: StringProperty(
         default=''
     )
 
@@ -38,18 +38,18 @@ class WebAuth(Operator):
     bl_idname = 'dialog.web_auth'
     bl_label = 'Authorization'
 
-    userLogin = StringProperty(
+    userLogin: StringProperty(
         name='Login',
         description='User Login',
         default=''
     )
-    userPassword = StringProperty(
+    userPassword: StringProperty(
         subtype='PASSWORD',
         name='Password',
         description='User Password',
         default=''
     )
-    userStayLogged = BoolProperty(
+    userStayLogged: BoolProperty(
         name='Stay logged (insecure)',
         description='Stay logged',
         default=False

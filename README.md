@@ -11,12 +11,14 @@ BIS website: https://bis.interplanety.org
 
 Current version:
 -
-1.5.2
+1.6.0
 
 Supported Blender versions:
 -
 
-2.78, 2.79
+**Work In Progress: porting to Blender 2.80**
+
+The BIS repository for Blender 2.79 is here: https://github.com/Korchy/bis_2.7
 
 Installation and usage:
 -

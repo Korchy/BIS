@@ -16,7 +16,7 @@ class GetNodeGroupFromStorage(Operator):
     bl_description = 'Get nodegroup from common part of BIS'
     bl_options = {'REGISTER', 'UNDO'}
 
-    node_group_id = IntProperty(
+    node_group_id: IntProperty(
         name='node_group_id',
         default=0
     )
@@ -41,8 +41,8 @@ class GetNodeGroupFromStorage(Operator):
                     dest_node_tree = None
                     if subtype == 'CompositorNodeTree':
                         dest_node_tree = context.area.spaces.active.node_tree
-                        if not context.screen.scene.use_nodes:
-                            context.screen.scene.use_nodes = True
+                        if not context.window.scene.use_nodes:
+                            context.window.scene.use_nodes = True
                     elif subtype == 'ShaderNodeTree':
                         if context.active_object:
                             if not context.active_object.active_material:

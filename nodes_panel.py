@@ -10,7 +10,7 @@ class BISNodesPanel(Panel):
     bl_idname = 'bis.nodes_panel'
     bl_label = 'BIS'
     bl_space_type = 'NODE_EDITOR'
-    bl_region_type = 'TOOLS'
+    bl_region_type = 'UI'
     bl_category = 'BIS'
 
     def draw(self, context):
@@ -30,9 +30,9 @@ class BISNodesPanel(Panel):
             layout.template_icon_view(context.window_manager.bis_get_nodes_info_from_storage_vars, 'items', show_labels=True)
             layout.separator()
             layout.separator()
-            layout.prop(context.scene.bis_add_nodegroup_to_storage_vars, 'tags')
+            layout.prop(context.window_manager.bis_add_nodegroup_to_storage_vars, 'tags')
             button = layout.operator('bis.add_nodegroup_to_storage', text='Save')
-            button.showMessage = True
+            button.show_message = True
             button = layout.operator('bis.update_nodegroup_in_storage', text='Update')
             button.showMessage = True
             layout.separator()
@@ -46,7 +46,7 @@ class BISNodesToolsPanel(Panel):
     bl_idname = 'bis.nodes_tools_panel'
     bl_label = 'Tools'
     bl_space_type = 'NODE_EDITOR'
-    bl_region_type = 'TOOLS'
+    bl_region_type = 'UI'
     bl_category = 'BIS'
 
     def draw(self, context):
@@ -56,9 +56,9 @@ class BISNodesToolsPanel(Panel):
         row = box.row()
         row.prop(context.window_manager.bis_nodes_tools_vars, 'io_type', expand=True)
         row = box.row(align=True)
-        button = row.operator('bis.add_node_group_io', icon='ZOOMIN', text='Input')
+        button = row.operator('bis.add_node_group_io', icon='ADD', text='Input')
         button.in_out = 'IN'
-        button = row.operator('bis.add_node_group_io', icon='ZOOMIN', text='Output')
+        button = row.operator('bis.add_node_group_io', icon='ADD', text='Output')
         button.in_out = 'OUT'
 
 

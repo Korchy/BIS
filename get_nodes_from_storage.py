@@ -66,24 +66,24 @@ class BISGetNodesInfoFromStorageNextPage(Operator):
 
 
 class BISGetNodesInfoFromStorageVars(PropertyGroup):
-    searchFilter = StringProperty(
+    searchFilter: StringProperty(
         name='Search',
         description='Filter to search',
         default=''
     )
-    updatePreviews = BoolProperty(
+    updatePreviews: BoolProperty(
         name='Update Previews',
         description='Update previews from server',
         default=False
     )
-    items = EnumProperty(
+    items: EnumProperty(
         items=lambda self, context: BISItems.get_previews(self, NodeManager.storage_type(context)),
         update=lambda self, context: BISItems.on_preview_select(self, NodeManager.storage_type(context))
     )
-    current_page = IntProperty(
+    current_page: IntProperty(
         default=0
     )
-    current_page_status = StringProperty(
+    current_page_status: StringProperty(
         default=''
     )
 

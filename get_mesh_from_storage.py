@@ -14,12 +14,12 @@ class GetMeshFromStorage(Operator):
     bl_description = 'Get Mesh from the BIS'
     bl_options = {'REGISTER', 'UNDO'}
 
-    mesh_id = IntProperty(
+    mesh_id: IntProperty(
         name='mesh_id',
         default=0
     )
 
-    show_message = BoolProperty(
+    show_message: BoolProperty(
         default=False
     )
 

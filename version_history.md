@@ -1,5 +1,8 @@
 Version history:
 -
+1.6.0
+- Porting to Blender 2.80
+
 1.5.2
 - Added "Tools" section to Node editor panel
 - Added "Add input/output" tool in Node editor "Tools"

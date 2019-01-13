@@ -17,7 +17,7 @@ class BISUpdateNodegroup(Operator):
     bl_description = 'Update nodegroup in the BIS'
     bl_options = {'REGISTER', 'UNDO'}
 
-    showMessage = BoolProperty(
+    showMessage: BoolProperty(
         default=False
     )
 
@@ -55,9 +55,10 @@ class BISUpdateNodegroup(Operator):
         return {'FINISHED'}
 
     def draw(self, context):
-        self.layout.separator()
-        self.layout.label('Update selected nodegroup in the BIS?')
-        self.layout.separator()
+        layout = self.layout
+        layout.separator()
+        layout.label('Update selected nodegroup in the BIS?')
+        layout.separator()
 
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self, width=400)

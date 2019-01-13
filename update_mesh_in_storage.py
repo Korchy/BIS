@@ -15,12 +15,11 @@ class BISUpdateMeshInStorage(Operator):
     bl_description = 'Update mesh in the BIS'
     bl_options = {'REGISTER', 'UNDO'}
 
-    show_message = BoolProperty(
+    show_message: BoolProperty(
         default=False
     )
 
     def execute(self, context):
-
         bis_uid_mesh = self.get_bis_uid(context)
         if bis_uid_mesh:
             request_rez = MeshManager.update_in_bis(
@@ -41,10 +40,11 @@ class BISUpdateMeshInStorage(Operator):
         return {'FINISHED'}
 
     def draw(self, context):
-        self.layout.separator()
-        self.layout.label('Update selected Meshes?')
-        self.layout.label('This will update the item: " ' + self.get_bis_uid(context)['bis_uid_name'] + ' "')
-        self.layout.separator()
+        layout = self.layout
+        layout.separator()
+        layout.label('Update selected Meshes?')
+        layout.label('This will update the item: " ' + self.get_bis_uid(context)['bis_uid_name'] + ' "')
+        layout.separator()
 
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self, width=400)

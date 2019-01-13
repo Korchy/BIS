@@ -57,13 +57,19 @@ class NodeShaderNodeTangent(NodeCommon):
 class NodeShaderNodeUVMap(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
-        node_json['from_dupli'] = node.from_dupli
         node_json['uv_map'] = node.uv_map
+        if hasattr(node, 'from_dupli'):
+            node_json['from_dupli'] = node.from_dupli
+        if hasattr(node, 'from_instancer'):
+            node_json['from_instancer'] = node.from_instancer
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json):
-        node.from_dupli = node_in_json['from_dupli']
         node.uv_map = node_in_json['uv_map']
+        if 'from_dupli' in node_in_json and hasattr(node, 'from_dupli'):
+            node.from_dupli = node_in_json['from_dupli']
+        if 'from_instancer' in node_in_json and hasattr(node, 'from_instancer'):
+            node.from_instancer = node_in_json['from_instancer']
 
 
 class NodeShaderNodeTexCoord(NodeCommon):
@@ -72,14 +78,20 @@ class NodeShaderNodeTexCoord(NodeCommon):
         node_json['object'] = ''
         if node.object:
             node_json['object'] = node.object.name
-        node_json['from_dupli'] = node.from_dupli
+        if hasattr(node, 'from_dupli'):
+            node_json['from_dupli'] = node.from_dupli
+        if hasattr(node, 'from_instancer'):
+            node_json['from_instancer'] = node.from_instancer
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json):
         if node_in_json['object']:
             if node_in_json['object'] in bpy.data.objects:
                 node.object = bpy.data.objects[node_in_json['object']]
-        node.from_dupli = node_in_json['from_dupli']
+        if 'from_dupli' in node_in_json and hasattr(node, 'from_dupli'):
+            node.from_dupli = node_in_json['from_dupli']
+        if 'from_instancer' in node_in_json and hasattr(node, 'from_instancer'):
+            node.from_instancer = node_in_json['from_instancer']
 
 
 class NodeShaderNodeTexPointDensity(NodeCommon):
@@ -520,3 +532,23 @@ class NodeNodeGroupOutput(NodeCommon):
     def _json_to_node_spec(cls, node, node_in_json):
         if 'is_active_output' in node_in_json:
             node.is_active_output = node_in_json['is_active_output']
+
+
+class NodeShaderNodeAmbientOcclusion(NodeCommon):
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
+        if hasattr(node, 'inside'):
+            node_json['inside'] = node.inside
+        if hasattr(node, 'only_local'):
+            node_json['only_local'] = node.only_local
+        if hasattr(node, 'samples'):
+            node_json['samples'] = node.samples
+
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
+        if 'inside' in node_in_json and hasattr(node, 'inside'):
+            node.inside = node_in_json['inside']
+        if 'only_local' in node_in_json and hasattr(node, 'only_local'):
+            node.only_local = node_in_json['only_local']
+        if 'samples' in node_in_json and hasattr(node, 'samples'):
+            node.samples = node_in_json['samples']

@@ -1,12 +1,14 @@
 # Nikita Akimov
 # interplanety@interplanety.org
 
-import bpy
+from bpy.props import PointerProperty, StringProperty, EnumProperty, IntProperty
+from bpy.types import Operator, PropertyGroup, WindowManager
+from bpy.utils import register_class, unregister_class
 from .bis_items import BISItems
 from .TextManager import TextManager
 
 
-class BISGetTextsInfoFromStorage(bpy.types.Operator):
+class BISGetTextsInfoFromStorage(Operator):
     bl_idname = 'bis.get_texts_info_from_storage'
     bl_label = 'BIS: get items'
     bl_description = 'Search texts in BIS'
@@ -15,13 +17,13 @@ class BISGetTextsInfoFromStorage(bpy.types.Operator):
     def execute(self, context):
         TextManager.items_from_bis(
             context,
-            search_filter=context.window_manager.bis_get_texts_info_from_storage_vars.searchFilter,
+            search_filter=context.window_manager.bis_get_texts_info_from_storage_vars.search_filter,
             page=0
         )
         return {'FINISHED'}
 
 
-class BISGetTextsInfoFromStoragePrevPage(bpy.types.Operator):
+class BISGetTextsInfoFromStoragePrevPage(Operator):
     bl_idname = 'bis.get_texts_info_from_storage_prev_page'
     bl_label = 'BIS: get items'
     bl_description = 'Get prev page'
@@ -30,7 +32,7 @@ class BISGetTextsInfoFromStoragePrevPage(bpy.types.Operator):
     def execute(self, context):
         TextManager.items_from_bis(
             context,
-            search_filter=context.window_manager.bis_get_texts_info_from_storage_vars.searchFilter,
+            search_filter=context.window_manager.bis_get_texts_info_from_storage_vars.search_filter,
             page=context.window_manager.bis_get_texts_info_from_storage_vars.current_page - 1
         )
         return {'FINISHED'}
@@ -40,7 +42,7 @@ class BISGetTextsInfoFromStoragePrevPage(bpy.types.Operator):
         return context.window_manager.bis_get_texts_info_from_storage_vars.current_page > 0
 
 
-class BISGetTextsInfoFromStorageNextPage(bpy.types.Operator):
+class BISGetTextsInfoFromStorageNextPage(Operator):
     bl_idname = 'bis.get_texts_info_from_storage_next_page'
     bl_label = 'BIS: get items'
     bl_description = 'Get next page'
@@ -49,7 +51,7 @@ class BISGetTextsInfoFromStorageNextPage(bpy.types.Operator):
     def execute(self, context):
         TextManager.items_from_bis(
             context,
-            search_filter=context.window_manager.bis_get_texts_info_from_storage_vars.searchFilter,
+            search_filter=context.window_manager.bis_get_texts_info_from_storage_vars.search_filter,
             page=context.window_manager.bis_get_texts_info_from_storage_vars.current_page + 1
         )
         return {'FINISHED'}
@@ -59,35 +61,35 @@ class BISGetTextsInfoFromStorageNextPage(bpy.types.Operator):
         return context.window_manager.bis_get_texts_info_from_storage_vars.current_page_status not in ('', 'EOF')
 
 
-class BISGetTextsInfoFromStorageVars(bpy.types.PropertyGroup):
-    searchFilter = bpy.props.StringProperty(
+class BISGetTextsInfoFromStorageVars(PropertyGroup):
+    search_filter: StringProperty(
         name='Search',
         description='Filter to search',
         default=''
     )
-    items = bpy.props.EnumProperty(
+    items: EnumProperty(
         items=lambda self, context: BISItems.get_previews(self, TextManager.storage_type()),
         update=lambda self, context: BISItems.on_preview_select(self, TextManager.storage_type())
     )
-    current_page = bpy.props.IntProperty(
+    current_page: IntProperty(
         default=0
     )
-    current_page_status = bpy.props.StringProperty(
+    current_page_status: StringProperty(
         default=''
     )
 
 
 def register():
-    bpy.utils.register_class(BISGetTextsInfoFromStorage)
-    bpy.utils.register_class(BISGetTextsInfoFromStoragePrevPage)
-    bpy.utils.register_class(BISGetTextsInfoFromStorageNextPage)
-    bpy.utils.register_class(BISGetTextsInfoFromStorageVars)
-    bpy.types.WindowManager.bis_get_texts_info_from_storage_vars = bpy.props.PointerProperty(type=BISGetTextsInfoFromStorageVars)
+    register_class(BISGetTextsInfoFromStorage)
+    register_class(BISGetTextsInfoFromStoragePrevPage)
+    register_class(BISGetTextsInfoFromStorageNextPage)
+    register_class(BISGetTextsInfoFromStorageVars)
+    WindowManager.bis_get_texts_info_from_storage_vars = PointerProperty(type=BISGetTextsInfoFromStorageVars)
 
 
 def unregister():
-    del bpy.types.WindowManager.bis_get_texts_info_from_storage_vars
-    bpy.utils.unregister_class(BISGetTextsInfoFromStorageVars)
-    bpy.utils.unregister_class(BISGetTextsInfoFromStorageNextPage)
-    bpy.utils.unregister_class(BISGetTextsInfoFromStoragePrevPage)
-    bpy.utils.unregister_class(BISGetTextsInfoFromStorage)
+    del WindowManager.bis_get_texts_info_from_storage_vars
+    unregister_class(BISGetTextsInfoFromStorageVars)
+    unregister_class(BISGetTextsInfoFromStorageNextPage)
+    unregister_class(BISGetTextsInfoFromStoragePrevPage)
+    unregister_class(BISGetTextsInfoFromStorage)

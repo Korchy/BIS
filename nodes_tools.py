@@ -1,6 +1,8 @@
 # Nikita Akimov
 # interplanety@interplanety.org
 
+from .node_manager import NodeManager
+
 
 class NodesTools:
 
@@ -8,10 +10,18 @@ class NodesTools:
     def active_node(context):
         # returns currently active node in NODE_EDITOR window
         selected_node = None
-        if context.active_object \
-                and context.active_object.active_material \
-                and hasattr(context.space_data, 'path'):
-            selected_node = context.active_object.active_material.node_tree.nodes.active
+        subtype = NodeManager.get_subtype(context=context)
+        if subtype == 'ShaderNodeTree':
+            subtype2 = NodeManager.get_subtype2(context=context)
+            if subtype2 == 'OBJECT':
+                if context.active_object and context.active_object.active_material:
+                    selected_node = context.active_object.active_material.node_tree.nodes.active
+            elif subtype2 == 'WORLD':
+                selected_node = context.scene.world.node_tree.nodes.active
+        elif subtype == 'CompositorNodeTree':
+            if context.window.scene.use_nodes:
+                selected_node = context.area.spaces.active.node_tree.nodes.active
+        if selected_node and hasattr(context.space_data, 'path'):
             for i in range(len(context.space_data.path) - 1):
                 selected_node = selected_node.node_tree.nodes.active
         return selected_node
