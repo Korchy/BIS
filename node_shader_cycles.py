@@ -552,3 +552,143 @@ class NodeShaderNodeAmbientOcclusion(NodeCommon):
             node.only_local = node_in_json['only_local']
         if 'samples' in node_in_json and hasattr(node, 'samples'):
             node.samples = node_in_json['samples']
+
+
+class NodeShaderNodeBevel(NodeCommon):
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
+        if hasattr(node, 'samples'):
+            node_json['samples'] = node.samples
+
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
+        if 'samples' in node_in_json and hasattr(node, 'samples'):
+            node.samples = node_in_json['samples']
+
+
+class NodeShaderNodeCameraData(NodeCommon):
+    pass
+
+
+class NodeShaderNodeFresnel(NodeCommon):
+    pass
+
+
+class NodeShaderNodeGeometry(NodeCommon):
+    pass
+
+
+class NodeShaderNodeHairInfo(NodeCommon):
+    pass
+
+
+class NodeShaderNodeLayerWeight(NodeCommon):
+    pass
+
+
+class NodeShaderNodeLightPass(NodeCommon):
+    pass
+
+
+class NodeShaderNodeObjectInfo(NodeCommon):
+    pass
+
+
+class NodeShaderNodeParticleInfo(NodeCommon):
+    pass
+
+
+class NodeShaderNodeRGB(NodeCommon):
+    pass
+
+
+class NodeShaderNodeValue(NodeCommon):
+    pass
+
+
+class NodeShaderNodeOutputMaterial(NodeCommon):
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
+        if hasattr(node, 'is_active_output'):
+            node_json['is_active_output'] = node.is_active_output
+        if hasattr(node, 'target'):
+            node_json['target'] = node.target
+
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
+        if 'is_active_output' in node_in_json and hasattr(node, 'is_active_output'):
+            node.is_active_output = node_in_json['is_active_output']
+        if 'target' in node_in_json and hasattr(node, 'target'):
+            node.target = node_in_json['target']
+
+
+class NodeShaderNodeOutputLight(NodeShaderNodeOutputMaterial):
+    pass
+
+
+class NodeShaderNodeAddShader(NodeCommon):
+    pass
+
+
+class NodeShaderNodeBsdfDiffuse(NodeCommon):
+    pass
+
+
+class NodeShaderNodeEmission(NodeCommon):
+    pass
+
+
+class NodeShaderNodeHoldout(NodeCommon):
+    pass
+
+
+class NodeShaderNodeBsdfPrincipled(NodeCommon):
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
+        if hasattr(node, 'distribution'):
+            node_json['distribution'] = node.distribution
+        if hasattr(node, 'subsurface_method'):
+            node_json['subsurface_method'] = node.subsurface_method
+
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
+        if 'distribution' in node_in_json and hasattr(node, 'distribution'):
+            node.distribution = node_in_json['distribution']
+        if 'subsurface_method' in node_in_json and hasattr(node, 'subsurface_method'):
+            node.subsurface_method = node_in_json['subsurface_method']
+
+
+class NodeShaderNodeBsdfHairPrincipled(NodeCommon):
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
+        if hasattr(node, 'parametrization'):
+            node_json['parametrization'] = node.parametrization
+
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
+        if 'parametrization' in node_in_json and hasattr(node, 'parametrization'):
+            node.parametrization = node_in_json['parametrization']
+
+
+class NodeShaderNodeVolumePrincipled(NodeCommon):
+    pass
+
+
+class NodeShaderNodeBsdfTranslucent(NodeCommon):
+    pass
+
+
+class NodeShaderNodeBsdfTransparent(NodeCommon):
+    pass
+
+
+class NodeShaderNodeBsdfVelvet(NodeCommon):
+    pass
+
+
+class NodeShaderNodeVolumeAbsorption(NodeCommon):
+    pass
+
+
+class NodeShaderNodeVolumeScatter(NodeCommon):
+    pass
