@@ -6,7 +6,7 @@
 import bpy
 import os
 from .node_common import NodeCommon, CurveMapping, NodeColorRamp
-from .bl_types_conversion import BLbpy_prop_collection, BLbpy_prop_array, BLColor
+from .bl_types_conversion import BLbpy_prop_collection, BLbpy_prop_array, BLColor, BLScene
 
 
 class NodeCompositorNodeBlur(NodeCommon):
@@ -17,7 +17,8 @@ class NodeCompositorNodeBlur(NodeCommon):
         node_json['factor_x'] = node.factor_x
         node_json['factor_y'] = node.factor_y
         node_json['filter_type'] = node.filter_type
-        node_json['mute'] = node.mute
+        if hasattr(node, 'mute'):
+            node_json['mute'] = node.mute
         node_json['size_x'] = node.size_x
         node_json['size_y'] = node.size_y
         node_json['use_bokeh'] = node.use_bokeh
@@ -33,7 +34,8 @@ class NodeCompositorNodeBlur(NodeCommon):
         node.factor_x = node_in_json['factor_x']
         node.factor_y = node_in_json['factor_y']
         node.filter_type = node_in_json['filter_type']
-        node.mute = node_in_json['mute']
+        if 'mute' in node_in_json and hasattr(node, 'mute'):
+            node.mute = node_in_json['mute']
         node.size_x = node_in_json['size_x']
         node.size_y = node_in_json['size_y']
         node.use_bokeh = node_in_json['use_bokeh']
@@ -104,7 +106,8 @@ class NodeCompositorNodeMask(NodeCommon):
         node_json['size_source'] = node.size_source
         node_json['size_x'] = node.size_x
         node_json['size_y'] = node.size_y
-        node_json['use_antialiasing'] = node.use_antialiasing
+        if hasattr(node, 'use_antialiasing'):
+            node_json['use_antialiasing'] = node.use_antialiasing
         node_json['use_feather'] = node.use_feather
         node_json['use_motion_blur'] = node.use_motion_blur
 
@@ -118,6 +121,8 @@ class NodeCompositorNodeMask(NodeCommon):
         node.size_source = node_in_json['size_source']
         node.size_x = node_in_json['size_x']
         node.size_y = node_in_json['size_y']
+        if 'use_antialiasing' in node_in_json and hasattr(node, 'use_antialiasing'):
+            node.use_antialiasing = node_in_json['use_antialiasing']
         node.use_feather = node_in_json['use_feather']
         node.use_motion_blur = node_in_json['use_motion_blur']
 
@@ -137,6 +142,14 @@ class NodeCompositorNodeMovieClip(NodeCommon):
 
 
 class NodeCompositorNodeColor(NodeCommon):
+    pass
+
+
+class NodeCompositorNodeRGB(NodeCommon):
+    pass
+
+
+class NodeCompositorNodeValue(NodeCommon):
     pass
 
 
@@ -581,9 +594,8 @@ class NodeCompositorNodeDefocus(NodeCommon):
         node_json['blur_max'] = node.blur_max
         node_json['bokeh'] = node.bokeh
         node_json['f_stop'] = node.f_stop
-        node_json['scene'] = ''
         if node.scene:
-            node_json['scene'] = node.scene.name
+            node_json['scene'] = BLScene.to_json(instance=node.scene)
         node_json['threshold'] = node.threshold
         node_json['use_gamma_correction'] = node.use_gamma_correction
         node_json['use_preview'] = node.use_preview
@@ -596,9 +608,8 @@ class NodeCompositorNodeDefocus(NodeCommon):
         node.blur_max = node_in_json['blur_max']
         node.bokeh = node_in_json['bokeh']
         node.f_stop = node_in_json['f_stop']
-        if node_in_json['scene']:
-            if node_in_json['scene'] in bpy.data.scenes:
-                node.scene = bpy.data.scenes[node_in_json['scene']]
+        if 'scene' in node_in_json and node_in_json['scene']:
+            BLScene.from_json(instance=node, json=node_in_json['scene'])
         node.threshold = node_in_json['threshold']
         node.use_gamma_correction = node_in_json['use_gamma_correction']
         node.use_preview = node_in_json['use_preview']
@@ -890,6 +901,26 @@ class NodeCompositorNodeColorSpill(NodeCommon):
         node.use_unspill = node_in_json['use_unspill']
 
 
+class NodeCompositorNodeCryptomatte(NodeCommon):
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
+        if hasattr(node, 'add'):
+            node_json['add'] = BLColor.to_json(node.add)
+        if hasattr(node, 'matte_id'):
+            node_json['matte_id'] = node.matte_id
+        if hasattr(node, 'remove'):
+            node_json['remove'] = BLColor.to_json(node.remove)
+
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
+        if 'add' in node_in_json and hasattr(node, 'add'):
+            BLColor.from_json(node.add, node_in_json['add'])
+        if 'matte_id' in node_in_json and hasattr(node, 'matte_id'):
+            node.matte_id = node_in_json['matte_id']
+        if 'remove' in node_in_json and hasattr(node, 'remove'):
+            BLColor.from_json(node.remove, node_in_json['remove'])
+
+
 class NodeCompositorNodeDiffMatte(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
@@ -1172,3 +1203,19 @@ class NodeCompositorNodeSwitch(NodeCommon):
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json):
         node.check = node_in_json['check']
+
+
+class NodeCompositorNodeRLayers(NodeCommon):
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
+        if hasattr(node, 'layer'):
+            node_json['layer'] = node.layer
+        if hasattr(node, 'scene') and node.scene:
+            node_json['scene'] = BLScene.to_json(instance=node.scene)
+
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json):
+        if 'layer' in node_in_json and hasattr(node, 'layer'):
+            node.layer = node_in_json['layer']
+        if 'scene' in node_in_json and hasattr(node, 'scene'):
+            BLScene.from_json(instance=node, json=node_in_json['scene'])

@@ -408,3 +408,46 @@ class BLTexture(BLBaseType):
             if instance_field:
                 setattr(instance, instance_field, bpy.data.textures[json['name']])
         return instance
+
+
+class BLParticleSystem(BLBaseType):
+
+    @classmethod
+    def _instance_to_json(cls, instance):
+        # data to json
+        json = {}
+        if instance:
+            json['name'] = instance.name
+        return json
+
+    @classmethod
+    def _json_to_instance(cls, instance, json, instance_field=None):
+        # data from json
+        if hasattr(instance, 'object') and instance.object:
+            if 'name' in json and json['name'] in instance.object.particle_systems:
+                if instance_field:
+                    setattr(instance, instance_field, instance.object.particle_systems[json['name']])
+                else:
+                    instance.particle_system = instance.object.particle_systems[json['name']]
+        return instance
+
+
+class BLScene(BLBaseType):
+
+    @classmethod
+    def _instance_to_json(cls, instance):
+        # data to json
+        json = {}
+        if instance:
+            json['name'] = instance.name
+        return json
+
+    @classmethod
+    def _json_to_instance(cls, instance, json, instance_field=None):
+        # data from json
+        if 'name' in json and json['name'] in bpy.data.scenes:
+            if instance_field:
+                setattr(instance, instance_field, bpy.data.scenes[json['name']])
+            else:
+                instance.scene = bpy.data.scenes[json['name']]
+        return instance

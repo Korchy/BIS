@@ -57,7 +57,7 @@ class BISUpdateNodegroup(Operator):
     def draw(self, context):
         layout = self.layout
         layout.separator()
-        layout.label('Update selected nodegroup in the BIS?')
+        layout.label(text='Update selected nodegroup in the BIS?')
         layout.separator()
 
     def invoke(self, context, event):

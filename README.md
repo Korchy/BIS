@@ -7,7 +7,7 @@ BIS webpage: https://b3d.interplanety.org/en/bis-online-blender-material-storage
 
 BIS website: https://bis.interplanety.org
 
-<img src = "https://b3d.interplanety.org/wp-content/upload_content/2018/05/01_670x335.jpg">
+<img src = "https://b3d.interplanety.org/wp-content/upload_content/2019/01/00-2.jpg">
 
 Current version:
 -
@@ -16,9 +16,7 @@ Current version:
 Supported Blender versions:
 -
 
-**Work In Progress: porting to Blender 2.80**
-
-The BIS repository for Blender 2.79 is here: https://github.com/Korchy/bis_2_7
+2.80
 
 Installation and usage:
 -
@@ -26,7 +24,7 @@ Installation and usage:
 - In Blender: User Preferences — Add-ons — Install From File — specify downloaded archive.
 - Through your favorite browser visit the BIS website and register your account.
 - Add some items to the "Active elements" section
-- In Blender: Node Editor window – T-panel – BIS tab:
+- In Blender: Node Editor window – N-panel – BIS tab:
 - Sign in with the username and password created on the BIS website.
 - To get items from the BIS press "Get active items" and select them from the previews list
 - To save the material into the BIS storage, select the desired node group and click “Add nodegroup to BIS”. Specify description tags in the "Tag" field before saving.
@@ -37,3 +35,5 @@ Installation and usage:
 Version history:
 -
 [version_history](version_history.md)
+
+The BIS repository for Blender 2.79 is here: https://github.com/Korchy/bis_2_7
