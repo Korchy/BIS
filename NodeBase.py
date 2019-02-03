@@ -114,15 +114,17 @@ class TMCommon:
 class IUCommon:
     @classmethod
     def iu_to_json(cls, iu):
-        return {
+        rez = {
             'use_auto_refresh': iu.use_auto_refresh,
             'frame_current': iu.frame_current,
             'use_cyclic': iu.use_cyclic,
             'frame_duration': iu.frame_duration,
             'frame_offset': iu.frame_offset,
-            'frame_start': iu.frame_start,
-            'fields_per_frame': iu.fields_per_frame
+            'frame_start': iu.frame_start
         }
+        if hasattr(iu, 'fields_per_frame'):
+            rez['fields_per_frame'] = iu.fields_per_frame
+        return rez
 
     @classmethod
     def json_to_iu(cls, node, iu_in_json):
@@ -132,7 +134,8 @@ class IUCommon:
         node.image_user.frame_duration = iu_in_json['frame_duration']
         node.image_user.frame_offset = iu_in_json['frame_offset']
         node.image_user.frame_start = iu_in_json['frame_start']
-        node.image_user.fields_per_frame = iu_in_json['fields_per_frame']
+        if 'fields_per_frame' in iu_in_json and hasattr(node.image_user, 'fields_per_frame'):
+            node.image_user.fields_per_frame = iu_in_json['fields_per_frame']
 
 
 # Node ColorMapping

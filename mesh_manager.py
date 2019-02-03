@@ -313,7 +313,7 @@ class MeshManager:
     def _deselect_all(context):
         # deselect all selected meshes
         for mesh in context.selected_objects:
-            mesh.select = False
+            mesh.select_set(state=False)
 
     @staticmethod
     def _set_mesh_origin(context, mesh, to: Vector):
@@ -323,9 +323,9 @@ class MeshManager:
             context.scene.cursor_location = to
             current_selection = context.selected_objects[:]
             __class__._deselect_all(context=context)
-            mesh.select = True
+            mesh.select_set(state=True)
             bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
             __class__._deselect_all(context=context)
             for mesh in current_selection:
-                mesh.select = True
+                mesh.select_set(state=True)
             context.scene.cursor_location = cursor_location

@@ -1,5 +1,8 @@
 Version history:
 -
+1.6.1
+- Fixing bugs
+
 1.6.0
 - Porting to Blender 2.80
 

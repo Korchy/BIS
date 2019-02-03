@@ -57,8 +57,10 @@ class MeshModifierSUBSURF(MeshModifierCommon):
         modifier_json['render_levels'] = modifier.render_levels
         modifier_json['show_only_control_edges'] = modifier.show_only_control_edges
         modifier_json['subdivision_type'] = modifier.subdivision_type
-        modifier_json['use_opensubdiv'] = modifier.use_opensubdiv
-        modifier_json['use_subsurf_uv'] = modifier.use_subsurf_uv
+        if hasattr(modifier, 'use_opensubdiv'):
+            modifier_json['use_opensubdiv'] = modifier.use_opensubdiv
+        if hasattr(modifier, 'use_subsurf_uv'):
+            modifier_json['use_subsurf_uv'] = modifier.use_subsurf_uv
 
     @classmethod
     def _from_json_spec(cls, modifier, modifier_json):
@@ -66,8 +68,10 @@ class MeshModifierSUBSURF(MeshModifierCommon):
         modifier.render_levels = modifier_json['render_levels']
         modifier.show_only_control_edges = modifier_json['show_only_control_edges']
         modifier.subdivision_type = modifier_json['subdivision_type']
-        modifier.use_opensubdiv = modifier_json['use_opensubdiv']
-        modifier.use_subsurf_uv = modifier_json['use_subsurf_uv']
+        if 'use_opensubdiv' in modifier_json and hasattr(modifier, 'use_opensubdiv'):
+            modifier.use_opensubdiv = modifier_json['use_opensubdiv']
+        if 'use_subsurf_uv' in modifier_json and hasattr(modifier, 'use_subsurf_uv'):
+            modifier.use_subsurf_uv = modifier_json['use_subsurf_uv']
 
 
 class MeshModifierDATA_TRANSFER(MeshModifierCommon):
