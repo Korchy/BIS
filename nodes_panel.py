@@ -8,7 +8,7 @@ from bpy.utils import register_class, unregister_class
 
 class BISNodesPanel(Panel):
     bl_idname = 'bis.nodes_panel'
-    bl_label = 'BIS'
+    bl_label = 'BIS - MATERIALS'
     bl_space_type = 'NODE_EDITOR'
     bl_region_type = 'UI'
     bl_category = 'BIS'
@@ -31,6 +31,7 @@ class BISNodesPanel(Panel):
             layout.separator()
             layout.separator()
             layout.prop(context.window_manager.bis_add_nodegroup_to_storage_vars, 'tags')
+            layout.label(text='(comma separated)')
             button = layout.operator('bis.add_nodegroup_to_storage', text='Save')
             button.show_message = True
             button = layout.operator('bis.update_nodegroup_in_storage', text='Update')

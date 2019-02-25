@@ -1,5 +1,8 @@
 Version history:
 -
+1.6.2
+- Some interface changes
+
 1.6.1
 - Fixing bugs
 

@@ -58,7 +58,7 @@ class BISAddMeshToStorageVars(PropertyGroup):
     )
     tags: StringProperty(
         name='Tags',
-        description='Tags',
+        description='Tags (comma separated)',
         default=''
     )
 

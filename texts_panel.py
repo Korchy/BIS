@@ -8,9 +8,10 @@ from . import WebRequests
 
 class BISTextsPanel(Panel):
     bl_idname = 'bis.texts_panel'
-    bl_label = 'BIS'
+    bl_label = 'BIS - TEXTS'
     bl_space_type = 'TEXT_EDITOR'
     bl_region_type = 'UI'
+    bl_category = 'BIS'
 
     def draw(self, context):
         layout = self.layout
@@ -29,6 +30,7 @@ class BISTextsPanel(Panel):
             layout.separator()
             layout.separator()
             layout.prop(context.window_manager.bis_add_text_to_storage_vars, 'tags')
+            layout.label(text='(comma separated)')
             button = layout.operator('bis.add_text_to_storage', text='Save')
             button.show_message = True
             button = layout.operator('bis.update_text_in_storage', text='Update')

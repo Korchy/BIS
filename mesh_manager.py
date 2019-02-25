@@ -149,18 +149,20 @@ class MeshManager:
                                     # add mesh data from json to mesh
                                     for mesh in context.selected_objects:
                                         if '<bis_mesh_uid>' in mesh.name:
-                                            mesh_bis_uid = int(re.search('<bis_mesh_uid>(.*)</bis_mesh_uid>', mesh.name).group(1))
-                                            # origin
-                                            mesh_origin = Vector((0, 0, 0))
-                                            BLVector.from_json(mesh_origin, item_in_json['meshes'][mesh_bis_uid]['origin'])
-                                            __class__._set_mesh_origin(context=context, mesh=mesh, to=mesh_origin)
-                                            # modifiers
-                                            __class__.modifiers_from_json(mesh=mesh, modifiers_in_json=item_in_json['meshes'][mesh_bis_uid]['modifiers'])
-                                            # remove bis_mesh_uid from meshes names
-                                            mesh.name = re.sub('<bis_mesh_uid>.*</bis_mesh_uid>', '', mesh.name)
-                                            # set uid
-                                            mesh['bis_uid'] = bis_item_id
-                                            mesh['bis_uid_name'] = BISItems.get_item_name_by_id(item_id=bis_item_id, storage=__class__.storage_type())
+                                            mesh_bis_uid_txt = re.search('<bis_mesh_uid>(.*)</bis_mesh_uid>', mesh.name).group(1)
+                                            if mesh_bis_uid_txt.isdigit():
+                                                mesh_bis_uid = int(mesh_bis_uid_txt)
+                                                # origin
+                                                mesh_origin = Vector((0, 0, 0))
+                                                BLVector.from_json(mesh_origin, item_in_json['meshes'][mesh_bis_uid]['origin'])
+                                                __class__._set_mesh_origin(context=context, mesh=mesh, to=mesh_origin)
+                                                # modifiers
+                                                __class__.modifiers_from_json(mesh=mesh, modifiers_in_json=item_in_json['meshes'][mesh_bis_uid]['modifiers'])
+                                                # remove bis_mesh_uid from meshes names
+                                                mesh.name = re.sub('<bis_mesh_uid>.*</bis_mesh_uid>', '', mesh.name)
+                                                # set uid
+                                                mesh['bis_uid'] = bis_item_id
+                                                mesh['bis_uid_name'] = BISItems.get_item_name_by_id(item_id=bis_item_id, storage=__class__.storage_type())
                             elif item_in_json['file_attachment']['link_type'] == 'external':
                                 # external links - not supports at present
                                 pass

@@ -8,7 +8,7 @@ from . import WebRequests
 
 class BISMeshPanel(Panel):
     bl_idname = 'bis.mesh_panel'
-    bl_label = 'BIS'
+    bl_label = 'BIS - MESHES'
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = 'BIS'
@@ -32,6 +32,7 @@ class BISMeshPanel(Panel):
             layout.separator()
             layout.prop(context.window_manager.bis_add_mesh_to_storage_vars, 'name')
             layout.prop(context.window_manager.bis_add_mesh_to_storage_vars, 'tags')
+            layout.label(text='(comma separated)')
             button = layout.operator('bis.add_mesh_to_storage', text='Save')
             button.show_message = True
             button = layout.operator('bis.update_mesh_in_storage', text='Update')

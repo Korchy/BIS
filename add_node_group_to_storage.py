@@ -78,7 +78,7 @@ class BISAddNodeToStorage(Operator):
 class BISAddNodeGroupToStorageVars(PropertyGroup):
     tags: bpy.props.StringProperty(
         name='Tags',
-        description='Tags',
+        description='Tags (comma separated)',
         default=''
     )
 
