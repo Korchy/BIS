@@ -34,6 +34,11 @@ class NodeManager:
             request_rez = json.loads(request.text)
             rez = request_rez['stat']
             if request_rez['stat'] == 'OK':
+                if not request_rez['data']['items']:
+                    bpy.ops.message.messagebox('INVOKE_DEFAULT', message='You do not have any active materials.\n \
+                     Please log in your account on the BIS web site,\n \
+                     Add some materials to the active palette,\n \
+                     And press this button again.')
                 preview_to_update = BISItems.update_previews_from_data(data=request_rez['data']['items'], list_name=__class__.storage_type(context))
                 if preview_to_update:
                     request = WebRequest.send_request({

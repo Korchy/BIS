@@ -37,6 +37,11 @@ class MeshManager:
             request_rez = json.loads(request.text)
             rez = request_rez['stat']
             if request_rez['stat'] == 'OK':
+                if not request_rez['data']['items']:
+                    bpy.ops.message.messagebox('INVOKE_DEFAULT', message='You do not have any active meshes.\n \
+                     Please log in your account on the BIS web site,\n \
+                     Add some meshes to the active palette,\n \
+                     And press this button again.')
                 preview_to_update = BISItems.update_previews_from_data(data=request_rez['data']['items'], list_name=__class__.storage_type(context))
                 if preview_to_update:
                     request = WebRequest.send_request({
@@ -321,8 +326,8 @@ class MeshManager:
     def _set_mesh_origin(context, mesh, to: Vector):
         # move "mesh" origin to coordinates "to"
         if mesh:
-            cursor_location = context.scene.cursor_location.copy()
-            context.scene.cursor_location = to
+            cursor_location = context.scene.cursor.location.copy()
+            context.scene.cursor.location = to
             current_selection = context.selected_objects[:]
             __class__._deselect_all(context=context)
             mesh.select_set(state=True)
@@ -330,4 +335,4 @@ class MeshManager:
             __class__._deselect_all(context=context)
             for mesh in current_selection:
                 mesh.select_set(state=True)
-            context.scene.cursor_location = cursor_location
+            context.scene.cursor.location = cursor_location

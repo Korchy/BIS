@@ -23,7 +23,7 @@ class BISNodesPanel(Panel):
                 row.operator('bis.get_nodes_info_from_storage_prev_page', text='Prev')
                 row.operator('bis.get_nodes_info_from_storage_next_page', text='Next')
             else:
-                layout.operator('bis.get_nodes_info_from_storage', icon='FILE_REFRESH', text=' Get active palette')
+                layout.operator('bis.get_nodes_info_from_storage', icon='FILE_REFRESH', text=' Get active materials')
             layout.prop(context.window_manager.bis_get_nodes_info_from_storage_vars, 'updatePreviews')
             layout.separator()
             layout.separator()

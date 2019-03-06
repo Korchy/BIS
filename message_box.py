@@ -26,7 +26,12 @@ class MessageBox(Operator):
 
     def draw(self, context):
         layout = self.layout
-        layout.label(text=self.message)
+        if '\n' in self.message:
+            lines = self.message.split('\n')
+            for line in lines:
+                layout.label(text=line.strip())
+        else:
+            layout.label(text=self.message)
         layout.separator()
 
 

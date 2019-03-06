@@ -23,7 +23,7 @@ class BISTextsPanel(Panel):
                 row.operator('bis.get_texts_info_from_storage_prev_page', text='Prev')
                 row.operator('bis.get_texts_info_from_storage_next_page', text='Next')
             else:
-                layout.operator('bis.get_texts_info_from_storage', icon='FILE_REFRESH', text=' Get active palette')
+                layout.operator('bis.get_texts_info_from_storage', icon='FILE_REFRESH', text=' Get active texts')
             layout.separator()
             layout.separator()
             layout.prop(context.window_manager.bis_get_texts_info_from_storage_vars, 'items')

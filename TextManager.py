@@ -26,6 +26,11 @@ class TextManager:
             request_rez = json.loads(request.text)
             rez = request_rez['stat']
             if request_rez['stat'] == 'OK':
+                if not request_rez['data']['items']:
+                    bpy.ops.message.messagebox('INVOKE_DEFAULT', message='You do not have any active texts.\n \
+                     Please log in your account on the BIS web site,\n \
+                     Add some texts to the active palette,\n \
+                     And press this button again.')
                 BISItems.create_items_list(request_rez['data']['items'], context.area.spaces.active.type, previews=False)
                 context.window_manager.bis_get_texts_info_from_storage_vars.current_page = page
                 context.window_manager.bis_get_texts_info_from_storage_vars.current_page_status = request_rez['data']['status']

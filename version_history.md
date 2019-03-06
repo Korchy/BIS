@@ -1,5 +1,8 @@
 Version history:
 -
+1.6.3
+- Updated according the last Blender API version (2019.03.06)
+
 1.6.2
 - Some interface changes
 

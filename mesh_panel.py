@@ -23,7 +23,7 @@ class BISMeshPanel(Panel):
                 row.operator('bis.get_meshes_info_from_storage_prev_page', text='Prev')
                 row.operator('bis.get_meshes_info_from_storage_next_page', text='Next')
             else:
-                layout.operator('bis.get_meshes_info_from_storage', icon='FILE_REFRESH', text=' Get active palette')
+                layout.operator('bis.get_meshes_info_from_storage', icon='FILE_REFRESH', text=' Get active meshes')
             layout.prop(context.window_manager.bis_get_meshes_info_from_storage_vars, 'update_previews')
             layout.separator()
             layout.separator()
