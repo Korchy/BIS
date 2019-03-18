@@ -17,19 +17,19 @@ class BISAddonPreferences(AddonPreferences):
         update=lambda self, context: self.experimental_mode_change(context)
     )
     # use saved BIS material as material or as node group
-    ues_node_group_as: EnumProperty(
+    use_node_group_as: EnumProperty(
         items=[
-            ('node_group', 'Node Group', 'Node Group', '', 0),
-            ('material', 'Material', 'Material', '', 1)
+            ('NODEGROUP', 'Node Group', 'Node Group', '', 0),
+            ('MATERIAL', 'Material', 'Material', '', 1)
         ],
-        default='material'
+        default='MATERIAL'
     )
 
     def draw(self, context):
         layout = self.layout
         layout.label(text='Use BIS materials as:')
         row = layout.row()
-        row.prop(self, 'ues_node_group_as', expand=True)
+        row.prop(self, 'use_node_group_as', expand=True)
         layout.separator()
         layout.prop(self, 'experimental_mode')
 

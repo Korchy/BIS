@@ -61,6 +61,38 @@ class NodeManager:
         return rez
 
     @staticmethod
+    def to_bis(context, data, data_type, tags=''):
+        # data = material or nodegroup
+        # data_type = 'MATERIAL' or 'NODEGROUP'
+        request_rez = {"stat": "ERR", "data": {"text": "Error to save"}}
+        if data_type == 'MATERIAL':
+            pass
+
+        elif data_type == 'NODEGROUP':
+            if data and data.type == 'GROUP':
+                node_group_in_json = __class__.node_group_to_json(data)
+                if node_group_in_json:
+                    bis_links = list(__class__.get_bis_linked_items('bis_linked_item', node_group_in_json))
+                    request = WebRequest.send_request({
+                        'for': 'add_item',
+                        'item_body': json.dumps(node_group_in_json),
+                        'storage': __class__.storage_type(context=context),
+                        'storage_subtype': __class__.get_subtype(context=context),
+                        'storage_subtype2': __class__.get_subtype2(context=context),
+                        'procedural': 1 if __class__.is_procedural(material=data) else 0,
+                        'engine': context.window.scene.render.engine,
+                        'bis_links': json.dumps(bis_links),
+                        'item_name': node_group_in_json['name'],
+                        'item_tags': tags.strip(),
+                        'addon_version': Addon.current_version()
+                    })
+                    if request:
+                        request_rez = json.loads(request.text)
+        if request_rez['stat'] == 'OK':
+            data['bis_uid'] = request_rez['data']['id']
+        return request_rez
+
+    @staticmethod
     def node_group_to_json(nodegroup):
         # convert node group to json
         group_in_json = None
@@ -100,6 +132,11 @@ class NodeManager:
         return current_node
 
     @staticmethod
+    def storage_type(context):
+        # return context.area.spaces.active.type
+        return 'NODE_EDITOR'
+
+    @staticmethod
     def get_subtype(context):
         # return subtype
         if context.area.spaces.active.type == 'NODE_EDITOR':
@@ -114,6 +151,26 @@ class NodeManager:
             return context.area.spaces.active.shader_type
         else:
             return 'OBJECT'
+
+    @staticmethod
+    def active_node(context):
+        # returns currently active node in NODE_EDITOR window
+        selected_node = None
+        subtype = __class__.get_subtype(context=context)
+        if subtype == 'ShaderNodeTree':
+            subtype2 = __class__.get_subtype2(context=context)
+            if subtype2 == 'OBJECT':
+                if context.active_object and context.active_object.active_material:
+                    selected_node = context.active_object.active_material.node_tree.nodes.active
+            elif subtype2 == 'WORLD':
+                selected_node = context.scene.world.node_tree.nodes.active
+        elif subtype == 'CompositorNodeTree':
+            if context.window.scene.use_nodes:
+                selected_node = context.area.spaces.active.node_tree.nodes.active
+        if selected_node and hasattr(context.space_data, 'path'):
+            for i in range(len(context.space_data.path) - 1):
+                selected_node = selected_node.node_tree.nodes.active
+        return selected_node
 
     @staticmethod
     def is_procedural(material):
@@ -160,8 +217,3 @@ class NodeManager:
                     if isinstance(d, dict):
                         for result in __class__.get_bis_linked_items(key, d):
                             yield result
-
-    @staticmethod
-    def storage_type(context):
-        # return context.area.spaces.active.type
-        return 'NODE_EDITOR'

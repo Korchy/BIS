@@ -5,6 +5,7 @@ import bpy
 from bpy.types import Operator, PropertyGroup, WindowManager
 from bpy.props import PointerProperty, StringProperty
 from bpy.utils import register_class, unregister_class
+from .node_manager import NodeManager
 from .nodes_tools import NodesTools
 
 
@@ -20,7 +21,7 @@ class BISNodesToolsAddNodeGroupIO(Operator):
     )
 
     def execute(self, context):
-        active_node = NodesTools.active_node(context=context)
+        active_node = NodeManager.active_node(context=context)
         if self.in_out == 'IN':
             NodesTools.add_input_to_node(node=active_node,
                                          input_type=context.window_manager.bis_nodes_tools_vars.io_type,
@@ -33,7 +34,7 @@ class BISNodesToolsAddNodeGroupIO(Operator):
 
     @classmethod
     def poll(cls, context):
-        active_node = NodesTools.active_node(context=context)
+        active_node = NodeManager.active_node(context=context)
         if active_node and active_node.select and active_node.type == 'GROUP':
             return True
         return False

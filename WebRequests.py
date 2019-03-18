@@ -163,7 +163,10 @@ class WebRequest:
     @staticmethod
     def send_request(data={}, files={}, host_target='blender_request'):
         session = WebRequestsVars.get_session()
-        request_data = {'requestbase': WebAuthVars.requestBase, 'token': WebAuthVars.token}
+        request_data = {
+            'requestbase': WebAuthVars.requestBase,
+            'token': WebAuthVars.token
+        }
         request_data.update(data)
         request = None
         try:

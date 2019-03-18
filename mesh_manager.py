@@ -131,7 +131,8 @@ class MeshManager:
             request = WebRequest.send_request({
                 'for': 'get_item',
                 'storage': __class__.storage_type(),
-                'id': bis_item_id
+                'id': bis_item_id,
+                'addon_version': Addon.current_version()
             })
             if request:
                 request_rez = json.loads(request.text)

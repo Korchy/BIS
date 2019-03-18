@@ -6,6 +6,7 @@ from bpy.props import IntProperty
 from bpy.utils import register_class, unregister_class
 from bpy.types import Operator
 import json
+from .addon import Addon
 from .WebRequests import WebRequest
 from .node_manager import NodeManager
 
@@ -30,7 +31,8 @@ class GetNodeGroupFromStorage(Operator):
                 'storage': NodeManager.storage_type(context=context),
                 'storage_subtype': subtype,
                 'storage_subtype2': subtype2,
-                'id': self.node_group_id
+                'id': self.node_group_id,
+                'addon_version': Addon.current_version()
             })
             if request:
                 request_rez = json.loads(request.text)
