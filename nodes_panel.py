@@ -1,6 +1,7 @@
 # Nikita Akimov
 # interplanety@interplanety.org
 
+import bpy
 from . import WebRequests
 from bpy.types import Panel
 from bpy.utils import register_class, unregister_class
@@ -36,6 +37,8 @@ class BISNodesPanel(Panel):
             button.show_message = True
             button = layout.operator('bis.update_nodegroup_in_storage', text='Update')
             button.showMessage = True
+            layout.separator()
+            layout.prop(context.preferences.addons[__package__].preferences, 'ues_node_group_as', expand=True)
             layout.separator()
             layout.separator()
             layout.operator('dialog.web_auth', icon='FILE_TICK', text='Sign out')

@@ -11,7 +11,7 @@ BIS website: https://bis.interplanety.org
 
 Current version:
 -
-1.6.3
+1.6.4
 
 Blender 2.80 build 2019-03-06.
 

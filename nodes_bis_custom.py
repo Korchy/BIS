@@ -2,7 +2,7 @@
 # interplanety@interplanety.org
 
 # -------------------------------------------------------------------------------
-# Experimental. For use - enable in cfg.py
+# Experimental. For use - enable in addon preferences
 # -------------------------------------------------------------------------------
 
 import bpy

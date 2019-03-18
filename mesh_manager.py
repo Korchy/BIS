@@ -84,9 +84,10 @@ class MeshManager:
                 # mesh to json
                 mesh_in_json = {
                     'bis_mesh_uid': i,   # uid = number in "meshes" list
-                    'origin': BLVector.to_json(mesh.location),
                     'modifiers': []
                 }
+                # mesh data
+                __class__._data_to_json(mesh_json=mesh_in_json, mesh=mesh)
                 # modifiers stack
                 mesh.name += '<bis_mesh_uid>' + str(i) + '</bis_mesh_uid>'    # add bis_mesh_uid for mesh to connect with saved modifiers stack
                 mesh_in_json['modifiers'] = __class__.modifiers_to_json(mesh)
@@ -160,11 +161,9 @@ class MeshManager:
                                             mesh_bis_uid_txt = re.search('<bis_mesh_uid>(.*)</bis_mesh_uid>', mesh.name).group(1)
                                             if mesh_bis_uid_txt.isdigit():
                                                 mesh_bis_uid = int(mesh_bis_uid_txt)
-                                                # origin
-                                                mesh_origin = Vector((0, 0, 0))
-                                                BLVector.from_json(mesh_origin, item_in_json['meshes'][mesh_bis_uid]['origin'])
-                                                __class__._set_mesh_origin(context=context, mesh=mesh, to=mesh_origin)
-                                                # modifiers
+                                                # mesh data
+                                                __class__._data_from_json(mesh=mesh, mesh_json=item_in_json['meshes'][mesh_bis_uid], context=context)
+                                                # mesh modifiers
                                                 __class__.modifiers_from_json(mesh=mesh, modifiers_in_json=item_in_json['meshes'][mesh_bis_uid]['modifiers'])
                                                 # remove bis_mesh_uid from meshes names
                                                 mesh.name = re.sub('<bis_mesh_uid>.*</bis_mesh_uid>', '', mesh.name)
@@ -195,9 +194,10 @@ class MeshManager:
                     # mesh to json
                     mesh_in_json = {
                         'bis_mesh_uid': i,   # uid = number in "meshes" list
-                        'origin': BLVector.to_json(mesh.location),
                         'modifiers': []
                     }
+                    # mesh data
+                    __class__._data_to_json(mesh_json=mesh_in_json, mesh=mesh)
                     # modifiers stack
                     mesh.name += '<bis_mesh_uid>' + str(i) + '</bis_mesh_uid>'    # add bis_mesh_uid for mesh to connect with saved modifiers stack
                     mesh_in_json['modifiers'] = __class__.modifiers_to_json(mesh)
@@ -318,6 +318,25 @@ class MeshManager:
                     modifier_class = getattr(sys.modules[__package__+'.mesh_modifiers'], 'MeshModifier' + modifier_json['type'])
                 modifier_class.from_json(mesh=mesh, modifier_json=modifier_json)
         return mesh
+
+    @staticmethod
+    def _data_to_json(mesh_json, mesh):
+        # add mesh data to json
+        # origin
+        mesh_json['origin'] = BLVector.to_json(mesh.location)
+        # use auto smooth
+        mesh_json['use_auto_smooth'] = mesh.data.use_auto_smooth
+
+    @staticmethod
+    def _data_from_json(mesh, mesh_json, context):
+        # load mesh data from json
+        # origin
+        mesh_origin = Vector((0, 0, 0))
+        BLVector.from_json(mesh_origin, mesh_json['origin'])
+        __class__._set_mesh_origin(context=context, mesh=mesh, to=mesh_origin)
+        # use auto smooth
+        if 'use_auto_smooth' in mesh_json and hasattr(mesh.data, 'use_auto_smooth'):
+            mesh.data.use_auto_smooth = mesh_json['use_auto_smooth']
 
     @staticmethod
     def _deselect_all(context):

@@ -1,7 +1,8 @@
 # Nikita Akimov
 # interplanety@interplanety.org
 
-from . import cfg
+import bpy
+from . import addon_preferences
 from . import add_node_group_to_storage
 from . import update_node_group
 from . import get_node_group_from_storage
@@ -21,30 +22,30 @@ from . import WebRequests
 from . import message_box
 from . import bis_items
 from . import nodes_tools_ops
-if cfg.experimental_enable_bis_custom_nodes:
-    from . import nodes_bis_custom
+from . import nodes_bis_custom
 
 
 bl_info = {
     'name': 'BIS',
     'category': 'Material',
     'author': 'Nikita Akimov',
-    'version': (1, 6, 3),
+    'version': (1, 6, 4),
     'blender': (2, 80, 0),
     'location': 'N-Panel > BIS',
-    'wiki_url': 'https://b3d.interplanety.org/en/bis-online-blender-material-storage/',
-    'tracker_url': 'https://b3d.interplanety.org/en/bis-online-blender-material-storage/',
+    'wiki_url': 'https://bis.interplanety.org/',
+    'tracker_url': 'https://bis.interplanety.org/',
     'description': 'BIS (Blender Interplanety Storage) - online materials/shaders library'
 }
 
 
 def register():
+    addon_preferences.register()
     add_node_group_to_storage.register()
     update_node_group.register()
     get_node_group_from_storage.register()
     get_nodes_from_storage.register()
     nodes_panel.register()
-    if cfg.experimental_enable_bis_custom_nodes:
+    if bpy.context.preferences.addons[__package__].preferences.experimental_mode:
         nodes_bis_custom.register()
     add_text_to_storage.register()
     update_text.register()
@@ -77,13 +78,14 @@ def unregister():
     get_text_from_storage.unregister()
     update_text.unregister()
     add_text_to_storage.unregister()
-    if cfg.experimental_enable_bis_custom_nodes:
+    if bpy.context.preferences.addons[__package__].preferences.experimental_mode:
         nodes_bis_custom.unregister()
     nodes_panel.unregister()
     get_nodes_from_storage.unregister()
     get_node_group_from_storage.unregister()
     update_node_group.unregister()
     add_node_group_to_storage.unregister()
+    addon_preferences.unregister()
 
 
 if __name__ == "__main__":

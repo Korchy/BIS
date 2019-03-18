@@ -1,5 +1,10 @@
 Version history:
 -
+1.6.4
+- Added option to work with node groups as with materials
+- Uploaded node group adds to the current open node group instead of the node tree root
+- Experimental mode can be enabled/disabled in add-on preferences
+
 1.6.3
 - Updated according the last Blender API version (2019.03.06)
 

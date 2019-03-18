@@ -416,32 +416,66 @@ class MeshModifierBEVEL(MeshModifierCommon):
     @classmethod
     def _to_json_spec(cls, modifier_json, modifier):
         modifier_json['angle_limit'] = modifier.angle_limit
-        modifier_json['edge_weight_method'] = modifier.edge_weight_method
+        if hasattr(modifier, 'edge_weight_method'):
+            modifier_json['edge_weight_method'] = modifier.edge_weight_method
+        if hasattr(modifier, 'face_strength_mode'):
+            modifier_json['face_strength_mode'] = modifier.face_strength_mode
+        if hasattr(modifier, 'harden_normals'):
+            modifier_json['harden_normals'] = modifier.harden_normals
         modifier_json['limit_method'] = modifier.limit_method
         modifier_json['loop_slide'] = modifier.loop_slide
+        if hasattr(modifier, 'mark_seam'):
+            modifier_json['mark_seam'] = modifier.mark_seam
+        if hasattr(modifier, 'mark_sharp'):
+            modifier_json['mark_sharp'] = modifier.mark_sharp
         modifier_json['material'] = modifier.material
+        if hasattr(modifier, 'miter_inner'):
+            modifier_json['miter_inner'] = modifier.miter_inner
+        if hasattr(modifier, 'miter_outer'):
+            modifier_json['miter_outer'] = modifier.miter_outer
         modifier_json['offset_type'] = modifier.offset_type
         modifier_json['profile'] = modifier.profile
         modifier_json['segments'] = modifier.segments
+        if hasattr(modifier, 'spread'):
+            modifier_json['spread'] = modifier.spread
         modifier_json['use_clamp_overlap'] = modifier.use_clamp_overlap
         modifier_json['use_only_vertices'] = modifier.use_only_vertices
         modifier_json['vertex_group'] = modifier.vertex_group
         modifier_json['width'] = modifier.width
+        if hasattr(modifier, 'width_pct'):
+            modifier_json['width_pct'] = modifier.width_pct
 
     @classmethod
     def _from_json_spec(cls, modifier, modifier_json):
         modifier.angle_limit = modifier_json['angle_limit']
-        modifier.edge_weight_method = modifier_json['edge_weight_method']
+        if 'edge_weight_method' in modifier_json and hasattr(modifier, 'edge_weight_method'):
+            modifier.edge_weight_method = modifier_json['edge_weight_method']
+        if 'face_strength_mode' in modifier_json and hasattr(modifier, 'face_strength_mode'):
+            modifier.face_strength_mode = modifier_json['face_strength_mode']
+        if 'harden_normals' in modifier_json and hasattr(modifier, 'harden_normals'):
+            modifier.harden_normals = modifier_json['harden_normals']
         modifier.limit_method = modifier_json['limit_method']
         modifier.loop_slide = modifier_json['loop_slide']
+        if 'mark_seam' in modifier_json and hasattr(modifier, 'mark_seam'):
+            modifier.mark_seam = modifier_json['mark_seam']
+        if 'mark_sharp' in modifier_json and hasattr(modifier, 'mark_sharp'):
+            modifier.mark_sharp = modifier_json['mark_sharp']
         modifier.material = modifier_json['material']
+        if 'miter_inner' in modifier_json and hasattr(modifier, 'miter_inner'):
+            modifier.miter_inner = modifier_json['miter_inner']
+        if 'miter_outer' in modifier_json and hasattr(modifier, 'miter_outer'):
+            modifier.miter_outer = modifier_json['miter_outer']
         modifier.offset_type = modifier_json['offset_type']
         modifier.profile = modifier_json['profile']
         modifier.segments = modifier_json['segments']
+        if 'spread' in modifier_json and hasattr(modifier, 'spread'):
+            modifier.spread = modifier_json['spread']
         modifier.use_clamp_overlap = modifier_json['use_clamp_overlap']
         modifier.use_only_vertices = modifier_json['use_only_vertices']
         modifier.vertex_group = modifier_json['vertex_group']
         modifier.width = modifier_json['width']
+        if 'width_pct' in modifier_json and hasattr(modifier, 'width_pct'):
+            modifier.width_pct = modifier_json['width_pct']
 
 
 class MeshModifierBOOLEAN(MeshModifierCommon):
