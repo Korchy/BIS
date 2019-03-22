@@ -61,14 +61,15 @@ class NodeManager:
         return rez
 
     @staticmethod
-    def to_bis(context, data, data_type, tags=''):
+    def to_bis(context, data, item_type, tags=''):
         # data = material or nodegroup
-        # data_type = 'MATERIAL' or 'NODEGROUP'
+        # item_type = 'MATERIAL' or 'NODEGROUP'
         request_rez = {"stat": "ERR", "data": {"text": "Error to save"}}
-        if data_type == 'MATERIAL':
+        if item_type == 'MATERIAL':
+
             pass
 
-        elif data_type == 'NODEGROUP':
+        elif item_type == 'NODEGROUP':
             if data and data.type == 'GROUP':
                 node_group_in_json = __class__.node_group_to_json(data)
                 if node_group_in_json:
@@ -90,6 +91,47 @@ class NodeManager:
                         request_rez = json.loads(request.text)
         if request_rez['stat'] == 'OK':
             data['bis_uid'] = request_rez['data']['id']
+        return request_rez
+
+    @staticmethod
+    def from_bis(context, bis_item_id, item_type):
+        # item_type = 'MATERIAL' or 'NODEGROUP'
+        request_rez = {"stat": "ERR", "data": {"text": "No Id", "content": None}}
+        if bis_item_id:
+            if item_type == 'MATERIAL':
+
+                pass
+
+            elif item_type == 'NODEGROUP':
+                subtype = __class__.get_subtype(context)
+                request = WebRequest.send_request({
+                    'for': 'get_item',
+                    'storage': __class__.storage_type(context=context),
+                    'storage_subtype': subtype,
+                    'storage_subtype2': __class__.get_subtype2(context),
+                    'id': bis_item_id,
+                    'addon_version': Addon.current_version()
+                })
+                if request:
+                    request_rez = json.loads(request.text)
+                    if request_rez['stat'] == 'OK':
+                        node_in_json = json.loads(request_rez['data']['item'])
+                        if subtype == 'CompositorNodeTree':
+                            if not context.window.scene.use_nodes:
+                                context.window.scene.use_nodes = True
+                        elif subtype == 'ShaderNodeTree':
+                            if context.active_object:
+                                if not context.active_object.active_material:
+                                    context.active_object.active_material = bpy.data.materials.new(name='Material')
+                                    context.active_object.active_material.use_nodes = True
+                                    for current_node in context.active_object.active_material.node_tree.nodes:
+                                        if current_node.bl_idname != 'ShaderNodeOutputMaterial':
+                                            context.active_object.active_material.node_tree.nodes.remove(current_node)
+                        active_node_tree = __class__.active_node_tree(context=context)
+                        if node_in_json and active_node_tree:
+                            nodegroup = __class__.json_to_node_group(active_node_tree, node_in_json)
+                            if nodegroup:
+                                nodegroup['bis_uid'] = bis_item_id
         return request_rez
 
     @staticmethod
@@ -153,24 +195,50 @@ class NodeManager:
             return 'OBJECT'
 
     @staticmethod
-    def active_node(context):
-        # returns currently active node in NODE_EDITOR window
-        selected_node = None
+    def active_node_tree(context):
+        # returns currently opened node tree in NODE_EDITOR window
+        active_node_tree = None
         subtype = __class__.get_subtype(context=context)
         if subtype == 'ShaderNodeTree':
             subtype2 = __class__.get_subtype2(context=context)
             if subtype2 == 'OBJECT':
                 if context.active_object and context.active_object.active_material:
-                    selected_node = context.active_object.active_material.node_tree.nodes.active
+                    active_node_tree = context.active_object.active_material.node_tree
             elif subtype2 == 'WORLD':
-                selected_node = context.scene.world.node_tree.nodes.active
+                active_node_tree = context.scene.world.node_tree
         elif subtype == 'CompositorNodeTree':
             if context.window.scene.use_nodes:
-                selected_node = context.area.spaces.active.node_tree.nodes.active
-        if selected_node and hasattr(context.space_data, 'path'):
+                active_node_tree = context.area.spaces.active.node_tree
+        if active_node_tree and hasattr(context.space_data, 'path'):
             for i in range(len(context.space_data.path) - 1):
-                selected_node = selected_node.node_tree.nodes.active
-        return selected_node
+                active_node_tree = active_node_tree.nodes.active.node_tree
+        return active_node_tree
+
+    @staticmethod
+    def active_node(context):
+        # returns currently active node in NODE_EDITOR window
+        active_node = None
+        active_node_tree = __class__.active_node_tree(context=context)
+        if active_node_tree:
+            active_node = active_node_tree.nodes.active
+        return active_node
+
+        # selected_node = None
+        # subtype = __class__.get_subtype(context=context)
+        # if subtype == 'ShaderNodeTree':
+        #     subtype2 = __class__.get_subtype2(context=context)
+        #     if subtype2 == 'OBJECT':
+        #         if context.active_object and context.active_object.active_material:
+        #             selected_node = context.active_object.active_material.node_tree.nodes.active
+        #     elif subtype2 == 'WORLD':
+        #         selected_node = context.scene.world.node_tree.nodes.active
+        # elif subtype == 'CompositorNodeTree':
+        #     if context.window.scene.use_nodes:
+        #         selected_node = context.area.spaces.active.node_tree.nodes.active
+        # if selected_node and hasattr(context.space_data, 'path'):
+        #     for i in range(len(context.space_data.path) - 1):
+        #         selected_node = selected_node.node_tree.nodes.active
+        # return selected_node
 
     @staticmethod
     def is_procedural(material):
