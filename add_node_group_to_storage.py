@@ -2,15 +2,12 @@
 # interplanety@interplanety.org
 
 import bpy
-import json
 from . import cfg
 from .node_manager import NodeManager
-from .WebRequests import WebRequest
 from bpy.utils import register_class, unregister_class
 from bpy.props import PointerProperty, BoolProperty
 from bpy.types import Operator, PropertyGroup, WindowManager
 from bpy import app
-from .addon import Addon
 
 
 class BISAddNodeToStorage(Operator):
@@ -53,7 +50,7 @@ class BISAddNodeToStorage(Operator):
                 tags += (';' if tags else '') + context.window_manager.bis_add_nodegroup_to_storage_vars.tags
             rez = NodeManager.to_bis(context=context,
                                      data=data_to_save,
-                                     data_type=context.preferences.addons[__package__].preferences.use_node_group_as,
+                                     item_type=context.preferences.addons[__package__].preferences.use_node_group_as,
                                      tags=tags
                                      )
         if rez['stat'] == 'OK':

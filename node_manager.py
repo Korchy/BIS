@@ -135,6 +135,45 @@ class NodeManager:
         return request_rez
 
     @staticmethod
+    def update_in_bis(context, item, item_type):
+        # item_type = 'MATERIAL' or 'NODEGROUP'
+        request_rez = {"stat": "ERR", "data": {"text": "Error to update"}}
+        if item:
+            if 'bis_uid' in item:
+                if item_type == 'MATERIAL':
+
+                    pass
+
+                elif item_type == 'NODEGROUP':
+                    if item.type == 'GROUP':
+                        node_group_in_json = __class__.node_group_to_json(item)
+                        if node_group_in_json:
+                            bis_links = list(__class__.get_bis_linked_items('bis_linked_item', node_group_in_json))
+                            request = WebRequest.send_request({
+                                'for': 'update_item',
+                                'item_body': json.dumps(node_group_in_json),
+                                'storage': __class__.storage_type(context=context),
+                                'storage_subtype': __class__.get_subtype(context),
+                                'storage_subtype2': __class__.get_subtype2(context),
+                                'bis_links': json.dumps(bis_links),
+                                'item_id': item['bis_uid'],
+                                'item_name': node_group_in_json['name'],
+                                'addon_version': Addon.current_version()
+                            })
+                            if request:
+                                request_rez = json.loads(request.text)
+                                if request_rez['stat'] != 'OK':
+                                    if cfg.show_debug_err:
+                                        print(request_rez)
+                    else:
+                        request_rez['data']['text'] = 'No selected Node Group'
+            else:
+                request_rez['data']['text'] = 'First save this Material to the BIS!'
+        else:
+            request_rez['data']['text'] = 'Undefined material item to update'
+        return request_rez
+
+    @staticmethod
     def node_group_to_json(nodegroup):
         # convert node group to json
         group_in_json = None
@@ -222,23 +261,6 @@ class NodeManager:
         if active_node_tree:
             active_node = active_node_tree.nodes.active
         return active_node
-
-        # selected_node = None
-        # subtype = __class__.get_subtype(context=context)
-        # if subtype == 'ShaderNodeTree':
-        #     subtype2 = __class__.get_subtype2(context=context)
-        #     if subtype2 == 'OBJECT':
-        #         if context.active_object and context.active_object.active_material:
-        #             selected_node = context.active_object.active_material.node_tree.nodes.active
-        #     elif subtype2 == 'WORLD':
-        #         selected_node = context.scene.world.node_tree.nodes.active
-        # elif subtype == 'CompositorNodeTree':
-        #     if context.window.scene.use_nodes:
-        #         selected_node = context.area.spaces.active.node_tree.nodes.active
-        # if selected_node and hasattr(context.space_data, 'path'):
-        #     for i in range(len(context.space_data.path) - 1):
-        #         selected_node = selected_node.node_tree.nodes.active
-        # return selected_node
 
     @staticmethod
     def is_procedural(material):

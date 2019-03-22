@@ -5,9 +5,6 @@ import bpy
 from bpy.props import IntProperty
 from bpy.utils import register_class, unregister_class
 from bpy.types import Operator
-import json
-from .addon import Addon
-from .WebRequests import WebRequest
 from .node_manager import NodeManager
 
 

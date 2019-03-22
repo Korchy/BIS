@@ -5,10 +5,7 @@ import bpy
 from bpy.props import BoolProperty
 from bpy.types import Operator
 from bpy.utils import register_class, unregister_class
-import json
 from .node_manager import NodeManager
-from .WebRequests import WebRequest
-from .addon import Addon
 
 
 class BISUpdateNodegroup(Operator):
@@ -22,36 +19,23 @@ class BISUpdateNodegroup(Operator):
     )
 
     def execute(self, context):
-        if context.active_node and context.active_node.type == 'GROUP':
-            active_node = context.active_node
-            if context.area.spaces.active.tree_type == 'ShaderNodeTree':
-                if context.space_data.shader_type == 'WORLD':
-                    active_node = context.scene.world.node_tree.nodes.active
-                elif context.space_data.shader_type == 'OBJECT':
-                    active_node = context.active_object.active_material.node_tree.nodes.active
-            if 'bis_uid' in active_node:
-                node_group_in_json = NodeManager.node_group_to_json(active_node)
-                if node_group_in_json:
-                    bis_links = list(NodeManager.get_bis_linked_items('bis_linked_item', node_group_in_json))
-                    request = WebRequest.send_request({
-                        'for': 'update_item',
-                        'item_body': json.dumps(node_group_in_json),
-                        'storage': context.area.spaces.active.type,
-                        'storage_subtype': NodeManager.get_subtype(context),
-                        'storage_subtype2': NodeManager.get_subtype2(context),
-                        'bis_links': json.dumps(bis_links),
-                        'item_id': active_node['bis_uid'],
-                        'item_name': node_group_in_json['name'],
-                        'addon_version': Addon.current_version()
-                    })
-                    if request:
-                        request_rez = json.loads(request.text)
-                        if self.showMessage:
-                            bpy.ops.message.messagebox('INVOKE_DEFAULT', message=request_rez['stat'] + ': ' + request_rez['data']['text'])
-            else:
-                bpy.ops.message.messagebox('INVOKE_DEFAULT', message='ERR: First save this Nodegroup to the BIS!')
+        request_rez = {"stat": "ERR", "data": {"text": "Undefined material item to update"}}
+        item_to_update = None
+        if context.preferences.addons[__package__].preferences.use_node_group_as == 'NODEGROUP':
+            item_to_update = NodeManager.active_node(context=context)
+        elif context.preferences.addons[__package__].preferences.use_node_group_as == 'MATERIAL':
+
+            pass
+        if item_to_update:
+            request_rez = NodeManager.update_in_bis(context=context,
+                                                    item=item_to_update,
+                                                    item_type=context.preferences.addons[__package__].preferences.use_node_group_as
+                                                    )
+        if request_rez['stat'] == 'OK':
+            if self.show_message:
+                bpy.ops.message.messagebox('INVOKE_DEFAULT', message=request_rez['stat'] + ': ' + request_rez['data']['text'])
         else:
-            bpy.ops.message.messagebox('INVOKE_DEFAULT', message='No NodeGroup selected')
+            bpy.ops.message.messagebox('INVOKE_DEFAULT', message=request_rez['stat'] + ': ' + request_rez['data']['text'])
         return {'FINISHED'}
 
     def draw(self, context):
