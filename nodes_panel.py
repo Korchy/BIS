@@ -8,7 +8,7 @@ from bpy.utils import register_class, unregister_class
 
 
 class BISNodesPanel(Panel):
-    bl_idname = 'bis.nodes_panel'
+    bl_idname = 'BIS_PT_nodes_panel'
     bl_label = 'BIS - MATERIALS'
     bl_space_type = 'NODE_EDITOR'
     bl_region_type = 'UI'
@@ -36,7 +36,7 @@ class BISNodesPanel(Panel):
             button = layout.operator('bis.add_nodegroup_to_storage', text='Save')
             button.show_message = True
             button = layout.operator('bis.update_nodegroup_in_storage', text='Update')
-            button.showMessage = True
+            button.show_message = True
             layout.separator()
             layout.prop(context.preferences.addons[__package__].preferences, 'use_node_group_as', expand=True)
             layout.separator()
@@ -47,7 +47,7 @@ class BISNodesPanel(Panel):
 
 
 class BISNodesToolsPanel(Panel):
-    bl_idname = 'bis.nodes_tools_panel'
+    bl_idname = 'BIS_PT_nodes_tools_panel'
     bl_label = 'Tools'
     bl_space_type = 'NODE_EDITOR'
     bl_region_type = 'UI'

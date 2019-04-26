@@ -17,39 +17,43 @@ class BISAddNodeToStorage(Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     show_message: BoolProperty(
-        default=False
+        default=True
     )
 
     def execute(self, context):
+        rez = {"stat": "ERR", "data": {"text": "Undefined material item to save"}}
         data_to_save = None
         tags = ''
-        rez = {"stat": "ERR", "data": {"text": "Undefined material item to save"}}
+        if NodeManager.get_subtype(context) == 'ShaderNodeTree':
+            if NodeManager.get_subtype2(context=context) == 'WORLD':
+                tags = 'world'
+            elif NodeManager.get_subtype2(context=context) == 'OBJECT':
+                tags = 'shader'
+        elif NodeManager.get_subtype(context) == 'CompositorNodeTree':
+            tags = 'compositing'
+        # Save Node Group
         if context.preferences.addons[__package__].preferences.use_node_group_as == 'NODEGROUP':
             active_node = NodeManager.active_node(context=context)
             if active_node and active_node.type == 'GROUP':
-                data_to_save = active_node  # save active node
-                if NodeManager.get_subtype(context) == 'ShaderNodeTree':
-                    if NodeManager.get_subtype2(context=context) == 'WORLD':
-                        tags = 'world'
-                    elif NodeManager.get_subtype2(context=context) == 'OBJECT':
-                        tags = 'shader'
-                elif NodeManager.get_subtype(context) == 'CompositorNodeTree':
-                    tags = 'compositing'
-                if NodeManager.is_procedural(active_node):
-                    tags += (';' if tags else '') + 'procedural'
-                tags += (';' if tags else '') + context.window.scene.render.engine
-                tags += (';' if tags else '') + '{0[0]}.{0[1]}'.format(app.version)
+                data_to_save = active_node  # save active node group
             else:
                 rez['data']['text'] = 'No selected Node Group'
+        # Save Material
         elif context.preferences.addons[__package__].preferences.use_node_group_as == 'MATERIAL':
-
-            pass
-
+            active_material = NodeManager.active_material(context=context)
+            if active_material:
+                data_to_save = active_material  # save active material
+            else:
+                rez['data']['text'] = 'No material to save'
         if data_to_save:
+            if NodeManager.is_procedural(data_to_save):
+                tags += (';' if tags else '') + 'procedural'
+            tags += (';' if tags else '') + context.window.scene.render.engine
+            tags += (';' if tags else '') + '{0[0]}.{0[1]}'.format(app.version)
             if context.window_manager.bis_add_nodegroup_to_storage_vars.tags != '':
                 tags += (';' if tags else '') + context.window_manager.bis_add_nodegroup_to_storage_vars.tags
             rez = NodeManager.to_bis(context=context,
-                                     data=data_to_save,
+                                     item=data_to_save,
                                      item_type=context.preferences.addons[__package__].preferences.use_node_group_as,
                                      tags=tags
                                      )

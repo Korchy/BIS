@@ -7,7 +7,7 @@ from . import WebRequests
 
 
 class BISMeshPanel(Panel):
-    bl_idname = 'bis.mesh_panel'
+    bl_idname = 'BIS_PT_mesh_panel'
     bl_label = 'BIS - MESHES'
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'

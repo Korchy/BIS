@@ -8,6 +8,7 @@ import json
 from . import cfg
 from .NodeNodeGroup import *
 from .node_node_group import *
+from .material import Material
 from .addon import Addon
 from .WebRequests import WebRequest, WebAuthVars
 from .bis_items import BISItems
@@ -61,65 +62,32 @@ class NodeManager:
         return rez
 
     @staticmethod
-    def to_bis(context, data, item_type, tags=''):
-        # data = material or nodegroup
-        # item_type = 'MATERIAL' or 'NODEGROUP'
-        request_rez = {"stat": "ERR", "data": {"text": "Error to save"}}
-        if item_type == 'MATERIAL':
-
-            pass
-
-        elif item_type == 'NODEGROUP':
-            if data and data.type == 'GROUP':
-                node_group_in_json = __class__.node_group_to_json(data)
-                if node_group_in_json:
-                    bis_links = list(__class__.get_bis_linked_items('bis_linked_item', node_group_in_json))
-                    request = WebRequest.send_request({
-                        'for': 'add_item',
-                        'item_body': json.dumps(node_group_in_json),
-                        'storage': __class__.storage_type(context=context),
-                        'storage_subtype': __class__.get_subtype(context=context),
-                        'storage_subtype2': __class__.get_subtype2(context=context),
-                        'procedural': 1 if __class__.is_procedural(material=data) else 0,
-                        'engine': context.window.scene.render.engine,
-                        'bis_links': json.dumps(bis_links),
-                        'item_name': node_group_in_json['name'],
-                        'item_tags': tags.strip(),
-                        'addon_version': Addon.current_version()
-                    })
-                    if request:
-                        request_rez = json.loads(request.text)
-        if request_rez['stat'] == 'OK':
-            data['bis_uid'] = request_rez['data']['id']
-        return request_rez
-
-    @staticmethod
     def from_bis(context, bis_item_id, item_type):
         # item_type = 'MATERIAL' or 'NODEGROUP'
         request_rez = {"stat": "ERR", "data": {"text": "No Id", "content": None}}
         if bis_item_id:
-            if item_type == 'MATERIAL':
+            subtype = __class__.get_subtype(context)
+            request = WebRequest.send_request({
+                'for': 'get_item',
+                'storage': __class__.storage_type(context=context),
+                'storage_subtype': subtype,
+                'storage_subtype2': __class__.get_subtype2(context),
+                'id': bis_item_id,
+                'addon_version': Addon.current_version()
+            })
+            if request:
+                request_rez = json.loads(request.text)
+                if request_rez['stat'] == 'OK':
+                    node_in_json = json.loads(request_rez['data']['item'])
+                    if subtype == 'CompositorNodeTree' and not context.window.scene.use_nodes:
+                        context.window.scene.use_nodes = True
+                    if item_type == 'MATERIAL':
+                        active_node_tree = __class__.active_node_tree(context=context)
 
-                pass
+                        pass
 
-            elif item_type == 'NODEGROUP':
-                subtype = __class__.get_subtype(context)
-                request = WebRequest.send_request({
-                    'for': 'get_item',
-                    'storage': __class__.storage_type(context=context),
-                    'storage_subtype': subtype,
-                    'storage_subtype2': __class__.get_subtype2(context),
-                    'id': bis_item_id,
-                    'addon_version': Addon.current_version()
-                })
-                if request:
-                    request_rez = json.loads(request.text)
-                    if request_rez['stat'] == 'OK':
-                        node_in_json = json.loads(request_rez['data']['item'])
-                        if subtype == 'CompositorNodeTree':
-                            if not context.window.scene.use_nodes:
-                                context.window.scene.use_nodes = True
-                        elif subtype == 'ShaderNodeTree':
+                    elif item_type == 'NODEGROUP':
+                        if subtype == 'ShaderNodeTree':
                             if context.active_object:
                                 if not context.active_object.active_material:
                                     context.active_object.active_material = bpy.data.materials.new(name='Material')
@@ -132,45 +100,83 @@ class NodeManager:
                             nodegroup = __class__.json_to_node_group(active_node_tree, node_in_json)
                             if nodegroup:
                                 nodegroup['bis_uid'] = bis_item_id
+            else:
+                request_rez['data']['text'] = 'BIS server not request'
+        return request_rez
+
+    @staticmethod
+    def to_bis(context, item, item_type, tags=''):
+        # item = material or nodegroup
+        # item_type = 'MATERIAL' or 'NODEGROUP'
+        request_rez = {"stat": "ERR", "data": {"text": "Error to save"}}
+        item_json = None
+        if item:
+            if item_type == 'MATERIAL':
+                item_json = Material.to_json(context=context, material=item)
+            elif item_type == 'NODEGROUP' and item.type == 'GROUP':
+                    item_json = __class__.node_group_to_json(nodegroup=item)
+        if cfg.to_server_to_file:
+            with open(os.path.join(os.path.dirname(bpy.data.filepath), 'send_to_server.json'), 'w') as currentFile:
+                json.dump(item_json, currentFile, indent=4)
+        # send to server
+        if item_json and not cfg.no_sending_to_server:
+            bis_links = list(__class__.get_bis_linked_items('bis_linked_item', item_json))
+            request = WebRequest.send_request({
+                'for': 'add_item',
+                'item_body': json.dumps(item_json),
+                'storage': __class__.storage_type(context=context),
+                'storage_subtype': __class__.get_subtype(context=context),
+                'storage_subtype2': __class__.get_subtype2(context=context),
+                'procedural': 1 if __class__.is_procedural(material=item) else 0,
+                'engine': context.window.scene.render.engine,
+                'bis_links': json.dumps(bis_links),
+                'item_name': item_json['name'],
+                'item_tags': tags.strip(),
+                'addon_version': Addon.current_version()
+            })
+            if request:
+                request_rez = json.loads(request.text)
+        if request_rez['stat'] == 'OK':
+            item['bis_uid'] = request_rez['data']['id']
         return request_rez
 
     @staticmethod
     def update_in_bis(context, item, item_type):
+        # item = material or nodegroup
         # item_type = 'MATERIAL' or 'NODEGROUP'
         request_rez = {"stat": "ERR", "data": {"text": "Error to update"}}
+        item_json = None
         if item:
             if 'bis_uid' in item:
                 if item_type == 'MATERIAL':
-
-                    pass
-
-                elif item_type == 'NODEGROUP':
-                    if item.type == 'GROUP':
-                        node_group_in_json = __class__.node_group_to_json(item)
-                        if node_group_in_json:
-                            bis_links = list(__class__.get_bis_linked_items('bis_linked_item', node_group_in_json))
-                            request = WebRequest.send_request({
-                                'for': 'update_item',
-                                'item_body': json.dumps(node_group_in_json),
-                                'storage': __class__.storage_type(context=context),
-                                'storage_subtype': __class__.get_subtype(context),
-                                'storage_subtype2': __class__.get_subtype2(context),
-                                'bis_links': json.dumps(bis_links),
-                                'item_id': item['bis_uid'],
-                                'item_name': node_group_in_json['name'],
-                                'addon_version': Addon.current_version()
-                            })
-                            if request:
-                                request_rez = json.loads(request.text)
-                                if request_rez['stat'] != 'OK':
-                                    if cfg.show_debug_err:
-                                        print(request_rez)
-                    else:
-                        request_rez['data']['text'] = 'No selected Node Group'
+                    item_json = Material.to_json(context=context, material=item)
+                elif item_type == 'NODEGROUP' and item.type == 'GROUP':
+                    item_json = __class__.node_group_to_json(item)
             else:
-                request_rez['data']['text'] = 'First save this Material to the BIS!'
+                request_rez['data']['text'] = 'Save this Material item to the BIS first!'
         else:
             request_rez['data']['text'] = 'Undefined material item to update'
+        if cfg.to_server_to_file:
+            with open(os.path.join(os.path.dirname(bpy.data.filepath), 'send_to_server.json'), 'w') as currentFile:
+                json.dump(item_json, currentFile, indent=4)
+        # send to server
+        if item_json and not cfg.no_sending_to_server:
+            bis_links = list(__class__.get_bis_linked_items('bis_linked_item', item_json))
+            request = WebRequest.send_request(data={
+                'for': 'update_item',
+                'item_body': json.dumps(item_json),
+                'storage': __class__.storage_type(context=context),
+                'storage_subtype': __class__.get_subtype(context=context),
+                'storage_subtype2': __class__.get_subtype2(context=context),
+                'procedural': 1 if __class__.is_procedural(material=item) else 0,
+                'engine': context.window.scene.render.engine,
+                'bis_links': json.dumps(bis_links),
+                'item_id': item['bis_uid'],
+                'item_name': item_json['name'],
+                'addon_version': Addon.current_version()
+            })
+            if request:
+                request_rez = json.loads(request.text)
         return request_rez
 
     @staticmethod
@@ -181,11 +187,6 @@ class NodeManager:
             nodegroup_class = 'Node' + nodegroup.bl_idname
             if hasattr(sys.modules[__name__], nodegroup_class):
                 group_in_json = getattr(sys.modules[__name__], nodegroup_class).node_to_json(nodegroup)
-                if cfg.to_server_to_file:
-                    with open(os.path.join(os.path.dirname(bpy.data.filepath), 'send_to_server.json'), 'w') as currentFile:
-                        json.dump(group_in_json, currentFile, indent=4)
-                if cfg.no_sending_to_server:
-                    return None
         return group_in_json
 
     @staticmethod
@@ -261,6 +262,14 @@ class NodeManager:
         if active_node_tree:
             active_node = active_node_tree.nodes.active
         return active_node
+
+    @staticmethod
+    def active_material(context):
+        # returns currently active material in NODE_EDITOR window
+        active_material = None
+        if context.active_object and context.active_object.active_material:
+            active_material = context.active_object.active_material
+        return active_material
 
     @staticmethod
     def is_procedural(material):

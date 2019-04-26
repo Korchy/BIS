@@ -7,7 +7,7 @@ from . import WebRequests
 
 
 class BISTextsPanel(Panel):
-    bl_idname = 'bis.texts_panel'
+    bl_idname = 'BIS_PT_texts_panel'
     bl_label = 'BIS - TEXTS'
     bl_space_type = 'TEXT_EDITOR'
     bl_region_type = 'UI'
