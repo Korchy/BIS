@@ -37,8 +37,9 @@ class BISNodesPanel(Panel):
             button.show_message = True
             button = layout.operator('bis.update_nodegroup_in_storage', text='Update')
             button.show_message = True
-            layout.separator()
-            layout.prop(context.preferences.addons[__package__].preferences, 'use_node_group_as', expand=True)
+            if context.area.spaces.active.tree_type != 'CompositorNodeTree':
+                layout.separator()
+                layout.prop(context.preferences.addons[__package__].preferences, 'use_node_group_as', expand=True)
             layout.separator()
             layout.separator()
             layout.operator('dialog.web_auth', icon='FILE_TICK', text='Sign out')

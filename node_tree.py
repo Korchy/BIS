@@ -110,6 +110,13 @@ class NodeTree:
                     c_node.location += parent_node.location
 
     @staticmethod
+    def clear(node_tree):
+        # clear node_tree except Output node
+        for node in node_tree.nodes:
+            if node.bl_idname not in ['ShaderNodeOutputMaterial', 'CompositorNodeComposite']:
+                node_tree.nodes.remove(node)
+
+    @staticmethod
     def _enumerate(node_tree, start=0):
         # enumerates all nodes in node_tree
         for node in node_tree.nodes:

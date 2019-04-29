@@ -4,6 +4,7 @@
 import bpy
 from . import cfg
 from .node_manager import NodeManager
+from .material import Material
 from bpy.utils import register_class, unregister_class
 from bpy.props import PointerProperty, BoolProperty
 from bpy.types import Operator, PropertyGroup, WindowManager
@@ -24,15 +25,17 @@ class BISAddNodeToStorage(Operator):
         rez = {"stat": "ERR", "data": {"text": "Undefined material item to save"}}
         data_to_save = None
         tags = ''
-        if NodeManager.get_subtype(context) == 'ShaderNodeTree':
-            if NodeManager.get_subtype2(context=context) == 'WORLD':
+        subtype = Material.get_subtype(context=context)
+        subtype2 = Material.get_subtype2(context=context)
+        if subtype == 'ShaderNodeTree':
+            if subtype2 == 'WORLD':
                 tags = 'world'
-            elif NodeManager.get_subtype2(context=context) == 'OBJECT':
+            elif subtype2 == 'OBJECT':
                 tags = 'shader'
-        elif NodeManager.get_subtype(context) == 'CompositorNodeTree':
+        elif subtype == 'CompositorNodeTree':
             tags = 'compositing'
-        # Save Node Group
-        if context.preferences.addons[__package__].preferences.use_node_group_as == 'NODEGROUP':
+        # Save Node Group (in Compositor work only with Node Groups)
+        if context.preferences.addons[__package__].preferences.use_node_group_as == 'NODEGROUP' or subtype == 'CompositorNodeTree':
             active_node = NodeManager.active_node(context=context)
             if active_node and active_node.type == 'GROUP':
                 data_to_save = active_node  # save active node group

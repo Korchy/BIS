@@ -20,8 +20,8 @@ class NodeManager:
     def items_from_bis(context, search_filter, page, update_preview=False):
         # get page of items list from BIS
         rez = None
-        storage_subtype = __class__.get_subtype(context)
-        storage_subtype2 = __class__.get_subtype2(context)
+        storage_subtype = Material.get_subtype(context)
+        storage_subtype2 = Material.get_subtype2(context)
         request = WebRequest.send_request({
             'for': 'get_items',
             'search_filter': search_filter,
@@ -66,40 +66,57 @@ class NodeManager:
         # item_type = 'MATERIAL' or 'NODEGROUP'
         request_rez = {"stat": "ERR", "data": {"text": "No Id", "content": None}}
         if bis_item_id:
-            subtype = __class__.get_subtype(context)
+            subtype = Material.get_subtype(context)
             request = WebRequest.send_request({
                 'for': 'get_item',
                 'storage': __class__.storage_type(context=context),
                 'storage_subtype': subtype,
-                'storage_subtype2': __class__.get_subtype2(context),
+                'storage_subtype2': Material.get_subtype2(context),
                 'id': bis_item_id,
                 'addon_version': Addon.current_version()
             })
             if request:
                 request_rez = json.loads(request.text)
                 if request_rez['stat'] == 'OK':
-                    node_in_json = json.loads(request_rez['data']['item'])
-                    if subtype == 'CompositorNodeTree' and not context.window.scene.use_nodes:
-                        context.window.scene.use_nodes = True
-                    if item_type == 'MATERIAL':
-                        active_node_tree = __class__.active_node_tree(context=context)
+                    item_in_json = json.loads(request_rez['data']['item'])
+                    if cfg.from_server_to_file:
+                        with open(os.path.join(os.path.dirname(bpy.data.filepath), 'received_from_server.json'), 'w') as currentFile:
+                            json.dump(item_in_json, currentFile, indent=4)
+                    item_version = item_in_json['BIS_addon_version'] if 'BIS_addon_version' in item_in_json else Addon.node_group_first_version
+                    if Addon.node_group_version_higher(item_version, Addon.current_version()):
+                        bpy.ops.message.messagebox('INVOKE_DEFAULT', message='This material item was saved in higher BIS version and may not load correctly.\
+                         Please download the last BIS add-on version!')
+                    if item_in_json['type'] == 'Material':
+                        # got Material (can be only object material)
+                        if item_type == 'MATERIAL':
+                            # use as Material
 
-                        pass
+                            pass
 
-                    elif item_type == 'NODEGROUP':
-                        if subtype == 'ShaderNodeTree':
-                            if context.active_object:
-                                if not context.active_object.active_material:
-                                    context.active_object.active_material = bpy.data.materials.new(name='Material')
-                                    context.active_object.active_material.use_nodes = True
-                                    for current_node in context.active_object.active_material.node_tree.nodes:
-                                        if current_node.bl_idname != 'ShaderNodeOutputMaterial':
-                                            context.active_object.active_material.node_tree.nodes.remove(current_node)
-                        active_node_tree = __class__.active_node_tree(context=context)
-                        if node_in_json and active_node_tree:
-                            nodegroup = __class__.json_to_node_group(active_node_tree, node_in_json)
-                            if nodegroup:
-                                nodegroup['bis_uid'] = bis_item_id
+                        elif item_type == 'NODEGROUP':
+                            # use as Node Group
+
+                            pass
+
+                    elif item_in_json['type'] == 'GROUP':
+                        # got Node Group (can be object node group or compositor node group)
+                        if item_type == 'NODEGROUP' or subtype == 'CompositorNodeTree':
+                            # use as Node Group (for object material and compositor material)
+                            if subtype == 'CompositorNodeTree' and not context.window.scene.use_nodes:
+                                context.window.scene.use_nodes = True
+                            if subtype == 'ShaderNodeTree':
+                                if context.active_object and not context.active_object.active_material:
+                                    Material.new(context=context)
+                            active_node_tree = __class__.active_node_tree(context=context)
+                            if item_in_json and active_node_tree:
+                                nodegroup = __class__.json_to_node_group(active_node_tree, item_in_json)
+                                if nodegroup:
+                                    nodegroup['bis_uid'] = bis_item_id
+                        elif item_type == 'MATERIAL':
+                            # use as Material (only for object material)
+                            material = Material.from_json(context=context, material_json=item_in_json)
+                            if material:
+                                material['bis_uid'] = bis_item_id
             else:
                 request_rez['data']['text'] = 'BIS server not request'
         return request_rez
@@ -125,8 +142,8 @@ class NodeManager:
                 'for': 'add_item',
                 'item_body': json.dumps(item_json),
                 'storage': __class__.storage_type(context=context),
-                'storage_subtype': __class__.get_subtype(context=context),
-                'storage_subtype2': __class__.get_subtype2(context=context),
+                'storage_subtype': Material.get_subtype(context=context),
+                'storage_subtype2': Material.get_subtype2(context=context),
                 'procedural': 1 if __class__.is_procedural(material=item) else 0,
                 'engine': context.window.scene.render.engine,
                 'bis_links': json.dumps(bis_links),
@@ -166,8 +183,8 @@ class NodeManager:
                 'for': 'update_item',
                 'item_body': json.dumps(item_json),
                 'storage': __class__.storage_type(context=context),
-                'storage_subtype': __class__.get_subtype(context=context),
-                'storage_subtype2': __class__.get_subtype2(context=context),
+                'storage_subtype': Material.get_subtype(context=context),
+                'storage_subtype2': Material.get_subtype2(context=context),
                 'procedural': 1 if __class__.is_procedural(material=item) else 0,
                 'engine': context.window.scene.render.engine,
                 'bis_links': json.dumps(bis_links),
@@ -192,17 +209,11 @@ class NodeManager:
     @staticmethod
     def json_to_node_group(dest_nodetree, node_in_json):
         # recreate node group from json
-        if cfg.from_server_to_file:
-            with open(os.path.join(os.path.dirname(bpy.data.filepath), 'received_from_server.json'), 'w') as currentFile:
-                json.dump(node_in_json, currentFile, indent=4)
         current_node = None
         if dest_nodetree:
             # for older compatibility (v 1.4.1)
             # if all node groups becomes 1.4.2. and later - remove all "else" condition
             node_group_version = node_in_json['BIS_addon_version'] if 'BIS_addon_version' in node_in_json else Addon.node_group_first_version
-            if Addon.node_group_version_higher(node_group_version, Addon.current_version()):
-                bpy.ops.message.messagebox('INVOKE_DEFAULT', message='This node group was saved in higher BIS version and may not load correctly.\
-                 Please download the last BIS add-on version!')
             if Addon.node_group_version_higher(node_group_version, Addon.node_group_first_version):
                 # 1.4.2
                 node_class = getattr(sys.modules[__name__], 'Node' + node_in_json['bl_idname'])
@@ -219,28 +230,12 @@ class NodeManager:
         return 'NODE_EDITOR'
 
     @staticmethod
-    def get_subtype(context):
-        # return subtype
-        if context.area.spaces.active.type == 'NODE_EDITOR':
-            return context.area.spaces.active.tree_type
-        else:
-            return 'ShaderNodeTree'
-
-    @staticmethod
-    def get_subtype2(context):
-        # return subtype2
-        if context.area.spaces.active.type == 'NODE_EDITOR':
-            return context.area.spaces.active.shader_type
-        else:
-            return 'OBJECT'
-
-    @staticmethod
     def active_node_tree(context):
         # returns currently opened node tree in NODE_EDITOR window
         active_node_tree = None
-        subtype = __class__.get_subtype(context=context)
+        subtype = Material.get_subtype(context=context)
         if subtype == 'ShaderNodeTree':
-            subtype2 = __class__.get_subtype2(context=context)
+            subtype2 = Material.get_subtype2(context=context)
             if subtype2 == 'OBJECT':
                 if context.active_object and context.active_object.active_material:
                     active_node_tree = context.active_object.active_material.node_tree
