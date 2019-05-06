@@ -32,15 +32,21 @@ class Material:
         pass
 
     @classmethod
-    def from_json(cls, context, material_json):
-        material = __class__.new(context=context)
+    def from_json(cls, context,  material_json, material=None):
+        if not material:
+            material = __class__.new(context=context)
+            __class__.clear(material=material)
         if material:
             # fill with data
-            BLbpy_prop_array.from_json(material.diffuse_color, material_json['diffuse_color'])
-            material.metallic = material_json['metallic']
-            material.roughness = material_json['roughness']
-            material['bis_uid'] = material_json['bis_uid'] if 'bis_uid' in material_json else None
+            material.name = material_json['name']
+            if 'diffuse_color' in material_json and hasattr(material, 'diffuse_color'):
+                BLbpy_prop_array.from_json(material.diffuse_color, material_json['diffuse_color'])
+            if 'metallic' in material_json and hasattr(material, 'metallic'):
+                material.metallic = material_json['metallic']
+            if 'roughness' in material_json and hasattr(material, 'roughness'):
+                material.roughness = material_json['roughness']
             NodeTree.from_json(node_tree_parent=material, node_tree_json=material_json['node_tree'])
+            material['bis_uid'] = material_json['bis_uid'] if 'bis_uid' in material_json else None
             # for current material specification
             cls._from_json_spec(material, material_json)
         return material
@@ -59,12 +65,16 @@ class Material:
             if context.active_object:
                 material = bpy.data.materials.new(name='Material')
                 material.use_nodes = True
-                NodeTree.clear(material.node_tree)
                 context.active_object.active_material = material
         elif subtype == 'CompositorNodeTree':
             if not context.window.scene.use_nodes:
                 context.window.scene.use_nodes = True
         return material
+
+    @staticmethod
+    def clear(material,  exclude_output_nodes=False):
+        # clear material node tree
+        NodeTree.clear(material.node_tree, exclude_output_nodes=exclude_output_nodes)
 
     @staticmethod
     def get_subtype(context):

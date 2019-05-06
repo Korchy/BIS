@@ -5,6 +5,9 @@
 import sys
 from .node_io import *
 from .node_common import NodeCommon
+from .node_shader_cycles import *
+from .node_compositor import *
+from .node_node_group import *
 
 
 class NodeTree:
@@ -110,10 +113,10 @@ class NodeTree:
                     c_node.location += parent_node.location
 
     @staticmethod
-    def clear(node_tree):
+    def clear(node_tree, exclude_output_nodes=False):
         # clear node_tree except Output node
         for node in node_tree.nodes:
-            if node.bl_idname not in ['ShaderNodeOutputMaterial', 'CompositorNodeComposite']:
+            if not (exclude_output_nodes and node.bl_idname in ['ShaderNodeOutputMaterial', 'CompositorNodeComposite']):
                 node_tree.nodes.remove(node)
 
     @staticmethod

@@ -6,8 +6,7 @@ import bpy
 import os
 import json
 from . import cfg
-from .NodeNodeGroup import *
-from .node_node_group import *
+from .node_node_group import NodeGroup
 from .material import Material
 from .addon import Addon
 from .WebRequests import WebRequest, WebAuthVars
@@ -90,9 +89,7 @@ class NodeManager:
                         # got Material (can be only object material)
                         if item_type == 'MATERIAL':
                             # use as Material
-
-                            pass
-
+                            Material.from_json(context=context, material_json=item_in_json)
                         elif item_type == 'NODEGROUP':
                             # use as Node Group
 
@@ -109,14 +106,54 @@ class NodeManager:
                                     Material.new(context=context)
                             active_node_tree = __class__.active_node_tree(context=context)
                             if item_in_json and active_node_tree:
-                                nodegroup = __class__.json_to_node_group(active_node_tree, item_in_json)
+                                nodegroup = NodeGroup.from_json(node_group_json=item_in_json, parent_node_tree=active_node_tree)
                                 if nodegroup:
                                     nodegroup['bis_uid'] = bis_item_id
                         elif item_type == 'MATERIAL':
                             # use as Material (only for object material)
-                            material = Material.from_json(context=context, material_json=item_in_json)
+                            material = Material.new(context=context)
                             if material:
-                                material['bis_uid'] = bis_item_id
+                                material.name = item_in_json['name']
+                                Material.clear(material=material, exclude_output_nodes=True)
+                                active_node_tree = __class__.active_node_tree(context=context)
+                                nodegroup = NodeGroup.from_json(node_group_json=item_in_json, parent_node_tree=active_node_tree)
+                                if nodegroup:
+                                    nodegroup['bis_uid'] = bis_item_id
+                                    # additional nodes and links
+                                    # node group output
+                                    shader_output = [i for i in nodegroup.outputs if i.type == 'SHADER' and 'volume' not in i.name.lower()]
+                                    color_output = [i for i in nodegroup.outputs if i.type == 'RGBA']
+                                    factor_output = [i for i in nodegroup.outputs if i.type == 'VALUE' and 'displacement' not in i.name.lower()]
+                                    volume_output = [i for i in nodegroup.outputs if i.type == 'SHADER' and 'volume' in i.name.lower()]
+                                    displacement_output = [i for i in nodegroup.outputs if i.type in ['VECTOR'] and i.name.lower() in ['displace', 'displacement', 'смещение']]
+                                    normal_output = [i for i in nodegroup.outputs if i.type == 'VECTOR' and i.name.lower() not in ['displace', 'displacement', 'смещение']]
+                                    # connect outputs
+                                    if shader_output:
+                                        active_node_tree.links.new(shader_output[0], active_node_tree.nodes['Material Output'].inputs['Surface'])
+                                    elif color_output:
+                                        diffuse_node = active_node_tree.nodes.new(type='ShaderNodeBsdfDiffuse')
+                                        diffuse_node.location = (500.0, 0.0)
+                                        active_node_tree.links.new(color_output[0], diffuse_node.inputs['Color'])
+                                        active_node_tree.links.new(diffuse_node.outputs['BSDF'], active_node_tree.nodes['Material Output'].inputs['Surface'])
+                                        if normal_output:
+                                            active_node_tree.links.new(normal_output[0], diffuse_node.inputs['Normal'])
+                                    elif factor_output:
+                                        diffuse_node = active_node_tree.nodes.new(type='ShaderNodeBsdfDiffuse')
+                                        diffuse_node.location = (500.0, 0.0)
+                                        active_node_tree.links.new(factor_output[0], diffuse_node.inputs['Color'])
+                                        active_node_tree.links.new(diffuse_node.outputs['BSDF'], active_node_tree.nodes['Material Output'].inputs['Surface'])
+                                        if normal_output:
+                                            active_node_tree.links.new(normal_output[0], diffuse_node.inputs['Normal'])
+                                    if volume_output:
+                                        active_node_tree.links.new(volume_output[0], active_node_tree.nodes['Material Output'].inputs['Volume'])
+                                    if displacement_output:
+                                        active_node_tree.links.new(displacement_output[0], active_node_tree.nodes['Material Output'].inputs['Displacement'])
+                                    # connect inputs
+                                    vector_input = [i for i in nodegroup.inputs if i.type == 'VECTOR' and i.name.lower() in ['vector']]
+                                    if vector_input:
+                                        texture_coordinates_node = active_node_tree.nodes.new(type='ShaderNodeTexCoord')
+                                        texture_coordinates_node.location = (-200.0, 0.0)
+                                        active_node_tree.links.new(texture_coordinates_node.outputs['UV'], vector_input[0])
             else:
                 request_rez['data']['text'] = 'BIS server not request'
         return request_rez
@@ -131,7 +168,7 @@ class NodeManager:
             if item_type == 'MATERIAL':
                 item_json = Material.to_json(context=context, material=item)
             elif item_type == 'NODEGROUP' and item.type == 'GROUP':
-                    item_json = __class__.node_group_to_json(nodegroup=item)
+                item_json = __class__.node_group_to_json(nodegroup=item)
         if cfg.to_server_to_file:
             with open(os.path.join(os.path.dirname(bpy.data.filepath), 'send_to_server.json'), 'w') as currentFile:
                 json.dump(item_json, currentFile, indent=4)
@@ -205,24 +242,6 @@ class NodeManager:
             if hasattr(sys.modules[__name__], nodegroup_class):
                 group_in_json = getattr(sys.modules[__name__], nodegroup_class).node_to_json(nodegroup)
         return group_in_json
-
-    @staticmethod
-    def json_to_node_group(dest_nodetree, node_in_json):
-        # recreate node group from json
-        current_node = None
-        if dest_nodetree:
-            # for older compatibility (v 1.4.1)
-            # if all node groups becomes 1.4.2. and later - remove all "else" condition
-            node_group_version = node_in_json['BIS_addon_version'] if 'BIS_addon_version' in node_in_json else Addon.node_group_first_version
-            if Addon.node_group_version_higher(node_group_version, Addon.node_group_first_version):
-                # 1.4.2
-                node_class = getattr(sys.modules[__name__], 'Node' + node_in_json['bl_idname'])
-            else:
-                # 1.4.1
-                node_class = getattr(sys.modules[__name__], 'NodeBase' + node_in_json['bl_type'])
-            current_node = node_class.json_to_node(node_tree=dest_nodetree, node_json=node_in_json)
-            current_node.location = (0, 0)
-        return current_node
 
     @staticmethod
     def storage_type(context):

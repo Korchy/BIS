@@ -4,9 +4,30 @@
 import bpy
 import sys
 from .addon import Addon
+from .NodeNodeGroup import *    # 1.4.1
 from .node_common import NodeCommon
 from .node_shader_cycles import *
 from .node_compositor import *
+
+
+class NodeGroup:
+
+    @classmethod
+    def from_json(cls, node_group_json, parent_node_tree):
+        node_group = None
+        if parent_node_tree:
+            # for older compatibility (v 1.4.1)
+            # if all node groups becomes 1.4.2. and later - remove all "else" condition
+            node_group_version = node_group_json['BIS_addon_version'] if 'BIS_addon_version' in node_group_json else Addon.node_group_first_version
+            if Addon.node_group_version_higher(node_group_version, Addon.node_group_first_version):
+                # 1.4.2 and later
+                node_class = getattr(sys.modules[__name__], 'Node' + node_group_json['bl_idname'])
+            else:
+                # 1.4.1
+                node_class = getattr(sys.modules[__name__], 'NodeBase' + node_group_json['bl_type'])
+            node_group = node_class.json_to_node(node_tree=parent_node_tree, node_json=node_group_json)
+            node_group.location = (0, 0)
+        return node_group
 
 
 class NodeShaderNodeGroup(NodeCommon):
