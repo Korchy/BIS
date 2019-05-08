@@ -65,7 +65,7 @@ class NodeManager:
         # item_type = 'MATERIAL' or 'NODEGROUP'
         request_rez = {"stat": "ERR", "data": {"text": "No Id", "content": None}}
         if bis_item_id:
-            subtype = Material.get_subtype(context)
+            subtype = Material.get_subtype(context=context)
             request = WebRequest.send_request({
                 'for': 'get_item',
                 'storage': __class__.storage_type(context=context),
@@ -164,11 +164,12 @@ class NodeManager:
         # item_type = 'MATERIAL' or 'NODEGROUP'
         request_rez = {"stat": "ERR", "data": {"text": "Error to save"}}
         item_json = None
+        subtype = Material.get_subtype(context=context)
         if item:
-            if item_type == 'MATERIAL':
+            if item_type == 'NODEGROUP' or subtype == 'CompositorNodeTree':
+                item_json = NodeGroup.to_json(nodegroup=item)
+            elif item_type == 'MATERIAL':
                 item_json = Material.to_json(context=context, material=item)
-            elif item_type == 'NODEGROUP' and item.type == 'GROUP':
-                item_json = __class__.node_group_to_json(nodegroup=item)
         if cfg.to_server_to_file:
             with open(os.path.join(os.path.dirname(bpy.data.filepath), 'send_to_server.json'), 'w') as currentFile:
                 json.dump(item_json, currentFile, indent=4)
@@ -179,7 +180,7 @@ class NodeManager:
                 'for': 'add_item',
                 'item_body': json.dumps(item_json),
                 'storage': __class__.storage_type(context=context),
-                'storage_subtype': Material.get_subtype(context=context),
+                'storage_subtype': subtype,
                 'storage_subtype2': Material.get_subtype2(context=context),
                 'procedural': 1 if __class__.is_procedural(material=item) else 0,
                 'engine': context.window.scene.render.engine,
@@ -200,12 +201,13 @@ class NodeManager:
         # item_type = 'MATERIAL' or 'NODEGROUP'
         request_rez = {"stat": "ERR", "data": {"text": "Error to update"}}
         item_json = None
+        subtype = Material.get_subtype(context=context)
         if item:
             if 'bis_uid' in item:
-                if item_type == 'MATERIAL':
+                if item_type == 'NODEGROUP' or subtype == 'CompositorNodeTree':
+                    item_json = NodeGroup.to_json(nodegroup=item)
+                elif item_type == 'MATERIAL':
                     item_json = Material.to_json(context=context, material=item)
-                elif item_type == 'NODEGROUP' and item.type == 'GROUP':
-                    item_json = __class__.node_group_to_json(item)
             else:
                 request_rez['data']['text'] = 'Save this Material item to the BIS first!'
         else:
@@ -220,7 +222,7 @@ class NodeManager:
                 'for': 'update_item',
                 'item_body': json.dumps(item_json),
                 'storage': __class__.storage_type(context=context),
-                'storage_subtype': Material.get_subtype(context=context),
+                'storage_subtype': subtype,
                 'storage_subtype2': Material.get_subtype2(context=context),
                 'procedural': 1 if __class__.is_procedural(material=item) else 0,
                 'engine': context.window.scene.render.engine,
@@ -232,16 +234,6 @@ class NodeManager:
             if request:
                 request_rez = json.loads(request.text)
         return request_rez
-
-    @staticmethod
-    def node_group_to_json(nodegroup):
-        # convert node group to json
-        group_in_json = None
-        if nodegroup.type == 'GROUP':
-            nodegroup_class = 'Node' + nodegroup.bl_idname
-            if hasattr(sys.modules[__name__], nodegroup_class):
-                group_in_json = getattr(sys.modules[__name__], nodegroup_class).node_to_json(nodegroup)
-        return group_in_json
 
     @staticmethod
     def storage_type(context):

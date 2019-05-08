@@ -13,6 +13,15 @@ from .node_compositor import *
 class NodeGroup:
 
     @classmethod
+    def to_json(cls, nodegroup):
+        group_in_json = None
+        if nodegroup.type == 'GROUP':
+            nodegroup_class = 'Node' + nodegroup.bl_idname
+            if hasattr(sys.modules[__name__], nodegroup_class):
+                group_in_json = getattr(sys.modules[__name__], nodegroup_class).node_to_json(nodegroup)
+        return group_in_json
+
+    @classmethod
     def from_json(cls, node_group_json, parent_node_tree):
         node_group = None
         if parent_node_tree:
