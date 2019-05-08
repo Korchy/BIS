@@ -63,7 +63,7 @@ class NodeManager:
     @staticmethod
     def from_bis(context, bis_item_id, item_type):
         # item_type = 'MATERIAL' or 'NODEGROUP'
-        request_rez = {"stat": "ERR", "data": {"text": "No Id", "content": None}}
+        request_rez = {'stat': 'ERR', 'data': {'text': 'No Id', 'content': None}}
         if bis_item_id:
             subtype = Material.get_subtype(context=context)
             request = WebRequest.send_request({
@@ -92,9 +92,109 @@ class NodeManager:
                             Material.from_json(context=context, material_json=item_in_json)
                         elif item_type == 'NODEGROUP':
                             # use as Node Group
-
-                            pass
-
+                            active_node_tree = __class__.active_node_tree(context=context)
+                            # NodeGroup.new(parent_node_tree=active_node_tree, name=item_in_json['name'])
+                            node_group_json = {
+                                'type': 'GROUP',
+                                'bl_idname': 'ShaderNodeGroup' if active_node_tree.bl_idname == 'ShaderNodeTree' else 'CompositorNodeGroup',
+                                'name': item_in_json['name'],
+                                'label': '',
+                                'hide': False,
+                                'location': [0.0, 0.0],
+                                'width': 300,
+                                'height': 200,
+                                'use_custom_color': False,
+                                'color': [1.0, 1.0, 1.0],
+                                'parent': '',
+                                'inputs': [],
+                                'outputs': [
+                                    {
+                                        'type': 'SHADER',
+                                        'bl_idname': 'NodeSocketShader',
+                                        'name': 'Surface'
+                                    },
+                                    {
+                                        'type': 'SHADER',
+                                        'bl_idname': 'NodeSocketShader',
+                                        'name': 'Volume'
+                                    },
+                                    {
+                                        'type': 'VECTOR',
+                                        'bl_idname': 'NodeSocketVector',
+                                        'name': 'Displacement',
+                                        'default_value': [0.0, 0.0, 0.0]
+                                    }
+                                ],
+                                'nodes': item_in_json['node_tree']['nodes'],
+                                'links': item_in_json['node_tree']['links'],
+                                'BIS_addon_version': Addon.current_version(),
+                                'BIS_node_id': None
+                            }
+                            output_node = {
+                                'type': 'GROUP_OUTPUT',
+                                'bl_idname': 'NodeGroupOutput',
+                                'name': 'Group Output',
+                                'label': '',
+                                'hide': False,
+                                'location': [300.0, 0.0],
+                                'width': 140.0,
+                                'height': 100.0,
+                                'use_custom_color': False,
+                                'color': [1.0, 1.0, 1.0],
+                                'parent': '',
+                                'inputs': [
+                                    {
+                                        'type': 'SHADER',
+                                        'bl_idname': 'NodeSocketShader',
+                                        'name': 'Surface'
+                                    },
+                                    {
+                                        'type': 'SHADER',
+                                        'bl_idname': 'NodeSocketShader',
+                                        'name': 'Volume'
+                                    },
+                                    {
+                                        'type': 'VECTOR',
+                                        'bl_idname': 'NodeSocketVector',
+                                        'name': 'Displacement',
+                                        'default_value': [0.0, 0.0, 0.0]
+                                    }
+                                ],
+                                'outputs': [],
+                                'is_active_output': True
+                            }
+                            node_group_json['nodes'].append(output_node)
+                            input_node = {
+                                'type': 'GROUP_INPUT',
+                                'bl_idname': 'NodeGroupInput',
+                                'name': 'Group Input',
+                                'label': '',
+                                'hide': False,
+                                'location': [-300.0, 0.0],
+                                'width': 140.0,
+                                'height': 100.0,
+                                'use_custom_color': False,
+                                'color': [1.0, 1.0, 1.0],
+                                'parent': '',
+                                'inputs': [],
+                                'outputs': []
+                            }
+                            node_group_json['nodes'].append(input_node)
+                            node_group = NodeGroup.from_json(node_group_json=node_group_json, parent_node_tree=active_node_tree)
+                            # create links from material output nodes to group output node
+                            node_group_output_node = [node for node in node_group.node_tree.nodes if node.type == 'GROUP_OUTPUT'][0]
+                            for link in node_group.node_tree.links:
+                                if link.to_node.type == 'OUTPUT_MATERIAL':
+                                    if link.to_socket.name == 'Surface':
+                                        node_group.node_tree.links.new(link.from_socket, node_group_output_node.inputs['Surface'])
+                                    elif link.to_socket.name == 'Volume':
+                                        node_group.node_tree.links.new(link.from_socket, node_group_output_node.inputs['Volume'])
+                                    elif link.to_socket.name == 'Displacement':
+                                        node_group.node_tree.links.new(link.from_socket, node_group_output_node.inputs['Displacement'])
+                            # remove material output nodes in node_group
+                            for node in node_group.node_tree.nodes:
+                                if node.type == 'OUTPUT_MATERIAL':
+                                    node_group.node_tree.nodes.remove(node)
                     elif item_in_json['type'] == 'GROUP':
                         # got Node Group (can be object node group or compositor node group)
                         if item_type == 'NODEGROUP' or subtype == 'CompositorNodeTree':
@@ -162,7 +262,7 @@ class NodeManager:
     def to_bis(context, item, item_type, tags=''):
         # item = material or nodegroup
         # item_type = 'MATERIAL' or 'NODEGROUP'
-        request_rez = {"stat": "ERR", "data": {"text": "Error to save"}}
+        request_rez = {'stat': 'ERR', 'data': {'text': 'Error to save'}}
         item_json = None
         subtype = Material.get_subtype(context=context)
         if item:
@@ -199,7 +299,7 @@ class NodeManager:
     def update_in_bis(context, item, item_type):
         # item = material or nodegroup
         # item_type = 'MATERIAL' or 'NODEGROUP'
-        request_rez = {"stat": "ERR", "data": {"text": "Error to update"}}
+        request_rez = {'stat': 'ERR', 'data': {'text': 'Error to update'}}
         item_json = None
         subtype = Material.get_subtype(context=context)
         if item:
