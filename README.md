@@ -13,7 +13,7 @@ Current version:
 -
 1.6.4
 
-Blender 2.80 build 2019-03-18.
+Blender 2.80 build 2019-05-13.
 
 Supported Blender versions:
 -
