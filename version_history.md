@@ -1,7 +1,7 @@
 Version history:
 -
 1.6.4
-- Added option to work with node groups as with materials
+- Added option to work separalety with materials or node groups
 - Uploaded node group adds to the current open node group instead of the node tree root
 - Experimental mode can be enabled/disabled in add-on preferences
 

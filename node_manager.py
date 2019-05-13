@@ -8,6 +8,7 @@ import json
 from . import cfg
 from .node_node_group import NodeGroup
 from .material import Material
+from .node_tree import NodeTree
 from .addon import Addon
 from .WebRequests import WebRequest, WebAuthVars
 from .bis_items import BISItems
@@ -355,7 +356,7 @@ class NodeManager:
         elif subtype == 'CompositorNodeTree':
             if context.window.scene.use_nodes:
                 active_node_tree = context.area.spaces.active.node_tree
-        if active_node_tree and hasattr(context.space_data, 'path'):
+        if active_node_tree and NodeTree.has_node_groups(active_node_tree) and hasattr(context.space_data, 'path'):
             for i in range(len(context.space_data.path) - 1):
                 active_node_tree = active_node_tree.nodes.active.node_tree
         return active_node_tree

@@ -120,6 +120,11 @@ class NodeTree:
                 node_tree.nodes.remove(node)
 
     @staticmethod
+    def has_node_groups(node_tree):
+        # return True if node_tree has NodeGroup nodes
+        return any(node.type == 'GROUP' for node in node_tree.nodes)
+
+    @staticmethod
     def _enumerate(node_tree, start=0):
         # enumerates all nodes in node_tree
         for node in node_tree.nodes:
