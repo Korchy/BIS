@@ -33,7 +33,7 @@ class BISNodesPanel(Panel):
             layout.separator()
             layout.prop(context.window_manager.bis_add_nodegroup_to_storage_vars, 'tags')
             layout.label(text='(comma separated)')
-            button = layout.operator('bis.add_nodegroup_to_storage', text='Save')
+            button = layout.operator('bis.add_nodegroup_to_storage', text='Save as New')
             button.show_message = True
             button = layout.operator('bis.update_nodegroup_in_storage', text='Update')
             button.show_message = True

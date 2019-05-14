@@ -33,7 +33,7 @@ class BISMeshPanel(Panel):
             layout.prop(context.window_manager.bis_add_mesh_to_storage_vars, 'name')
             layout.prop(context.window_manager.bis_add_mesh_to_storage_vars, 'tags')
             layout.label(text='(comma separated)')
-            button = layout.operator('bis.add_mesh_to_storage', text='Save')
+            button = layout.operator('bis.add_mesh_to_storage', text='Save as New')
             button.show_message = True
             button = layout.operator('bis.update_mesh_in_storage', text='Update')
             button.show_message = True
