@@ -1,5 +1,8 @@
 Version history:
 -
+1.6.5
+- Added "Help" button with simple tips.
+
 1.6.4
 - Added option to work separalety with materials or node groups
 - Uploaded node group adds to the current open node group instead of the node tree root

@@ -17,6 +17,14 @@ class BISNodesPanel(Panel):
     def draw(self, context):
         layout = self.layout
         if WebRequests.WebAuthVars.logged:
+            row = layout.row(align=True)
+            row.label(text='')
+            help_button = row.operator('message.messagebox', icon='HELP')
+            help_button.width = 600
+            help_button.message = '- Why I can not get any materials?\n' \
+                                  'At first you need to add some public materials to the active section in your account on the BIS web site.\n\n' \
+                                  '- How to get material from BIS as node group?\n' \
+                                  'Switch mode to "NodeGroup" in the switcher below.'
             if WebRequests.WebAuthVars.userProStatus:
                 layout.prop(context.window_manager.bis_get_nodes_info_from_storage_vars, 'searchFilter')
                 layout.operator('bis.get_nodes_info_from_storage', icon='VIEWZOOM', text=' Search')

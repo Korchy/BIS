@@ -16,6 +16,12 @@ class BISMeshPanel(Panel):
     def draw(self, context):
         layout = self.layout
         if WebRequests.WebAuthVars.logged:
+            row = layout.row(align=True)
+            row.label(text='')
+            help_button = row.operator('message.messagebox', icon='HELP')
+            help_button.width = 600
+            help_button.message = '- Why I can not get materials?\n' \
+                                  'This panel is for MESHES! Switch to the Shader Editor window to get materials.\n'
             if WebRequests.WebAuthVars.userProStatus:
                 layout.prop(context.window_manager.bis_get_meshes_info_from_storage_vars, 'search_filter')
                 layout.operator('bis.get_meshes_info_from_storage', icon='VIEWZOOM', text=' Search')
