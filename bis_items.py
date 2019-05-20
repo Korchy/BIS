@@ -34,9 +34,9 @@ class BISItems:
             if previews:
                 path = __class__.get_preview_path(item_id=int(item_info['id']), list_name=list_name)
                 thumb = __class__.items_lists[list_name].load(path, path, 'IMAGE')
-                __class__.items_lists[list_name].items.append((item_info['id'], item_info['name'], '', thumb.icon_id, int(item_info['id'])))
+                __class__.items_lists[list_name].items.append((item_info['id'], item_info['name'], item_info['name'], thumb.icon_id, int(item_info['id'])))
             else:
-                __class__.items_lists[list_name].items.append((item_info['id'], item_info['name'], '', '', int(item_info['id'])))
+                __class__.items_lists[list_name].items.append((item_info['id'], item_info['name'], item_info['name'], '', int(item_info['id'])))
 
     @staticmethod
     def get_previews(self, storage_type):
