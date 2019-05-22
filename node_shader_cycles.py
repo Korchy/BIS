@@ -134,8 +134,10 @@ class NodeShaderNodeTexEnvironment(NodeCommon):
         node_json['image_source'] = ''
         if node.image:
             node_json['image'] = os.path.normpath(os.path.join(os.path.dirname(bpy.data.filepath), node.image.filepath.replace('//', '')))
+            node_json['image_name'] = node.image.name
             node_json['image_source'] = node.image.source
-        node_json['color_space'] = node.color_space
+        if hasattr(node, 'color_space'):
+            node_json['color_space'] = node.color_space
         node_json['projection'] = node.projection
         node_json['interpolation'] = node.interpolation
         node_json['texture_mapping'] = TMCommon.tm_to_json(node.texture_mapping)
@@ -153,7 +155,8 @@ class NodeShaderNodeTexEnvironment(NodeCommon):
             if os.path.basename(node_in_json['image']) in bpy.data.images:
                 node.image = bpy.data.images[os.path.basename(node_in_json['image'])]
                 node.image.source = node_in_json['image_source']
-        node.color_space = node_in_json['color_space']
+        if 'color_space' in node_in_json and hasattr(node, 'color_space'):
+            node.color_space = node_in_json['color_space']
         node.projection = node_in_json['projection']
         node.interpolation = node_in_json['interpolation']
         TMCommon.json_to_tm(node, node_in_json['texture_mapping'])
@@ -164,11 +167,13 @@ class NodeShaderNodeTexEnvironment(NodeCommon):
 class NodeShaderNodeTexImage(NodeShaderNodeTexEnvironment):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
+        super()._node_to_json_spec(node_json=node_json, node=node)
         node_json['projection_blend'] = node.projection_blend
         node_json['extension'] = node.extension
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json):
+        super()._json_to_node_spec(node=node, node_in_json=node_in_json)
         node.projection_blend = node_in_json['projection_blend']
         node.extension = node_in_json['extension']
 
@@ -188,6 +193,7 @@ class NodeShaderNodeTexChecker(NodeCommon):
 class NodeShaderNodeTexBrick(NodeShaderNodeTexChecker):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
+        super()._node_to_json_spec(node_json=node_json, node=node)
         node_json['offset_frequency'] = node.offset_frequency
         node_json['squash_frequency'] = node.squash_frequency
         node_json['offset'] = node.offset
@@ -195,6 +201,7 @@ class NodeShaderNodeTexBrick(NodeShaderNodeTexChecker):
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json):
+        super()._json_to_node_spec(node=node, node_in_json=node_in_json)
         node.offset_frequency = node_in_json['offset_frequency']
         node.squash_frequency = node_in_json['squash_frequency']
         node.offset = node_in_json['offset']
@@ -204,36 +211,43 @@ class NodeShaderNodeTexBrick(NodeShaderNodeTexChecker):
 class NodeShaderNodeTexGradient(NodeShaderNodeTexChecker):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
+        super()._node_to_json_spec(node_json=node_json, node=node)
         node_json['gradient_type'] = node.gradient_type
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json):
+        super()._json_to_node_spec(node=node, node_in_json=node_in_json)
         node.gradient_type = node_in_json['gradient_type']
 
 
 class NodeShaderNodeTexMagic(NodeShaderNodeTexChecker):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
+        super()._node_to_json_spec(node_json=node_json, node=node)
         node_json['turbulence_depth'] = node.turbulence_depth
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json):
+        super()._json_to_node_spec(node=node, node_in_json=node_in_json)
         node.turbulence_depth = node_in_json['turbulence_depth']
 
 
 class NodeShaderNodeTexMusgrave(NodeShaderNodeTexChecker):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
+        super()._node_to_json_spec(node_json=node_json, node=node)
         node_json['musgrave_type'] = node.musgrave_type
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json):
+        super()._json_to_node_spec(node=node, node_in_json=node_in_json)
         node.musgrave_type = node_in_json['musgrave_type']
 
 
 class NodeShaderNodeTexVoronoi(NodeShaderNodeTexChecker):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
+        super()._node_to_json_spec(node_json=node_json, node=node)
         node_json['coloring'] = node.coloring
         if hasattr(node, 'distance'):
             node_json['distance'] = node.distance
@@ -242,6 +256,7 @@ class NodeShaderNodeTexVoronoi(NodeShaderNodeTexChecker):
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json):
+        super()._json_to_node_spec(node=node, node_in_json=node_in_json)
         node.coloring = node_in_json['coloring']
         if 'distance' in node_in_json and hasattr(node, 'distance'):
             node.distance = node_in_json['distance']
@@ -252,11 +267,13 @@ class NodeShaderNodeTexVoronoi(NodeShaderNodeTexChecker):
 class NodeShaderNodeTexWave(NodeShaderNodeTexChecker):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
+        super()._node_to_json_spec(node_json=node_json, node=node)
         node_json['wave_profile'] = node.wave_profile
         node_json['wave_type'] = node.wave_type
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json):
+        super()._json_to_node_spec(node=node, node_in_json=node_in_json)
         node.wave_profile = node_in_json['wave_profile']
         node.wave_type = node_in_json['wave_type']
 
@@ -264,6 +281,7 @@ class NodeShaderNodeTexWave(NodeShaderNodeTexChecker):
 class NodeShaderNodeTexSky(NodeShaderNodeTexChecker):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
+        super()._node_to_json_spec(node_json=node_json, node=node)
         node_json['sky_type'] = node.sky_type
         node_json['sun_direction'] = JsonEx.vector3_to_json(node.sun_direction)
         node_json['turbidity'] = node.turbidity
@@ -271,6 +289,7 @@ class NodeShaderNodeTexSky(NodeShaderNodeTexChecker):
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json):
+        super()._json_to_node_spec(node=node, node_in_json=node_in_json)
         node.sky_type = node_in_json['sky_type']
         JsonEx.vector3_from_json(node.sun_direction, node_in_json['sun_direction'])
         node.turbidity = node_in_json['turbidity']

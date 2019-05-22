@@ -154,6 +154,8 @@ class MeshManager:
                                     if cfg.from_server_to_file:
                                         from shutil import copyfile
                                         copyfile(zip_file_path, os.path.join(os.path.dirname(bpy.data.filepath), zip_file_name))
+                                        with open(os.path.join(os.path.dirname(bpy.data.filepath), 'received_from_server.json'), 'w') as currentFile:
+                                            json.dump(item_in_json, currentFile, indent=4)
                                     __class__._deselect_all(context)
                                     __class__.import_from_obj(context, zip_file_path, obj_file_name=item_in_json['obj_file_name'])
                                     # add mesh data from json to mesh

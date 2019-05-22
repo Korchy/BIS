@@ -16,6 +16,8 @@ from .bis_items import BISItems
 
 class NodeManager:
 
+    _material_limit_file_size = 26214400    # max zipped file with textures size (25 Mb)
+
     @staticmethod
     def items_from_bis(context, search_filter, page, update_preview=False):
         # get page of items list from BIS
@@ -265,19 +267,27 @@ class NodeManager:
         # item_type = 'MATERIAL' or 'NODEGROUP'
         request_rez = {'stat': 'ERR', 'data': {'text': 'Error to save'}}
         item_json = None
+        item_attachment = {}
         subtype = Material.get_subtype(context=context)
         if item:
             if item_type == 'NODEGROUP' or subtype == 'CompositorNodeTree':
                 item_json = NodeGroup.to_json(nodegroup=item)
             elif item_type == 'MATERIAL':
                 item_json = Material.to_json(context=context, material=item)
+        if item_json and not __class__.is_procedural(material=item):
+            # attachment file external items (textures,... etc)
+            file_attachment = NodeTree.external_items(node_tree=item.node_tree)
+            print(file_attachment)
+            # if file_attachment:
+            #     item_attachment['file_attachment'] = file_attachment
         if cfg.to_server_to_file:
             with open(os.path.join(os.path.dirname(bpy.data.filepath), 'send_to_server.json'), 'w') as currentFile:
                 json.dump(item_json, currentFile, indent=4)
         # send to server
         if item_json and not cfg.no_sending_to_server:
             bis_links = list(__class__.get_bis_linked_items('bis_linked_item', item_json))
-            request = WebRequest.send_request({
+            request = WebRequest.send_request(
+                data={
                 'for': 'add_item',
                 'item_body': json.dumps(item_json),
                 'storage': __class__.storage_type(context=context),
@@ -289,7 +299,9 @@ class NodeManager:
                 'item_name': item_json['name'],
                 'item_tags': tags.strip(),
                 'addon_version': Addon.current_version()
-            })
+                },
+                files=item_attachment,
+            )
             if request:
                 request_rez = json.loads(request.text)
         if request_rez['stat'] == 'OK':

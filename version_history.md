@@ -1,5 +1,8 @@
 Version history:
 -
+1.7.0
+- Enabled storing textures with materials
+
 1.6.5
 - Added "Help" button with simple tips.
 

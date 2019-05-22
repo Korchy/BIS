@@ -3,6 +3,7 @@
 
 # node_tree class
 import sys
+from .file_manager import FileManager
 from .node_io import *
 from .node_common import NodeCommon
 from .node_shader_cycles import *
@@ -158,4 +159,22 @@ class NodeTree:
             output_with_identifier = [node_output for node_output in node.outputs[:] if node_output.identifier == identifier]
             if output_with_identifier:
                 rez = output_with_identifier[0]
+        return rez
+
+    @staticmethod
+    def external_items(node_tree):
+        # returns external items (textures,... etc) list
+        rez = []
+        for node in node_tree.nodes:
+            if node.type == 'GROUP':
+                rez.extend(__class__.external_items(node_tree=node.node_tree))
+            elif node.type == 'TEX_IMAGE':
+                rez.append({
+                    'path': FileManager.abs_path(node.image.filepath),
+                    'name': node.image.name
+                })
+            elif node.type == 'SCRIPT' and node.mode == 'EXTERNAL':
+                rez.append({
+                    'path': FileManager.abs_path(node.filepath)
+                })
         return rez

@@ -21,7 +21,9 @@ class BISMeshPanel(Panel):
             help_button = row.operator('message.messagebox', icon='HELP')
             help_button.width = 600
             help_button.message = '- Why I can not get materials?\n' \
-                                  'This panel is for MESHES! Switch to the Shader Editor window to get materials.\n'
+                                  'This panel is for MESHES! Switch to the Shader Editor window to get materials.\n\n' \
+                                  '- Please do not save Plane with material / Cube with material / Sphere with material to save your materials.\n' \
+                                  ' This saves only meshes. To save your materials switch to the Shader Editor window.'
             if WebRequests.WebAuthVars.userProStatus:
                 layout.prop(context.window_manager.bis_get_meshes_info_from_storage_vars, 'search_filter')
                 layout.operator('bis.get_meshes_info_from_storage', icon='VIEWZOOM', text=' Search')

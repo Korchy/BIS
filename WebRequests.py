@@ -161,7 +161,9 @@ class WebRequestsVars:
 
 class WebRequest:
     @staticmethod
-    def send_request(data={}, files={}, host_target='blender_request'):
+    def send_request(data=None, files=None, host_target='blender_request'):
+        data = data if data else {}
+        files = files if files else {}
         session = WebRequestsVars.get_session()
         request_data = {
             'requestbase': WebAuthVars.requestBase,
