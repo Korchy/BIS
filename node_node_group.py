@@ -90,17 +90,18 @@ class NodeShaderNodeGroup(NodeCommon):
         for link_json in node_json['links']:
             from_node = __class__._node_by_bis_id(node.node_tree, link_json[0])
             to_node = __class__._node_by_bis_id(node.node_tree, link_json[2])
-            # for group nodes and group inputs/output nodes - by number, for other nodes - by identifier
-            if isinstance(link_json[1], str):
-                from_output = __class__.output_by_identifier(from_node, link_json[1])
-            else:
-                from_output = from_node.outputs[link_json[1]]
-            if isinstance(link_json[3], str):
-                to_input = __class__.input_by_identifier(to_node, link_json[3])
-            else:
-                to_input = to_node.inputs[link_json[3]]
-            if from_output and to_input:
-                node.node_tree.links.new(from_output, to_input)
+            if from_node and to_node:
+                # for group nodes and group inputs/output nodes - by number, for other nodes - by identifier
+                if isinstance(link_json[1], str):
+                    from_output = __class__.output_by_identifier(from_node, link_json[1])
+                else:
+                    from_output = from_node.outputs[link_json[1]]
+                if isinstance(link_json[3], str):
+                    to_input = __class__.input_by_identifier(to_node, link_json[3])
+                else:
+                    to_input = to_node.inputs[link_json[3]]
+                if from_output and to_input:
+                    node.node_tree.links.new(from_output, to_input)
         # Frames
         for c_node in node.node_tree.nodes:
             if c_node['parent_str']:
