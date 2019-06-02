@@ -9,7 +9,7 @@ import tempfile
 import bpy
 import zipfile
 from mathutils import Vector
-from .WebRequests import WebRequest, WebAuthVars
+from .WebRequests import WebRequest
 from .bis_items import BISItems
 from .addon import Addon
 from .mesh_modifiers import MeshModifierCommon
@@ -26,19 +26,22 @@ class MeshManager:
     def items_from_bis(context, search_filter, page, update_preview):
         # get page of items list from BIS
         rez = None
-        request = WebRequest.send_request({
-            'for': 'get_items',
-            'search_filter': search_filter,
-            'page': page,
-            'storage': __class__.storage_type(context),
-            'update_preview': update_preview
-        })
+        request = WebRequest.send_request(
+            context=context,
+            data={
+                'for': 'get_items',
+                'search_filter': search_filter,
+                'page': page,
+                'storage': __class__.storage_type(context),
+                'update_preview': update_preview
+            }
+        )
         if request:
             request_rez = json.loads(request.text)
             rez = request_rez['stat']
             if request_rez['stat'] == 'OK':
                 if not request_rez['data']['items']:
-                    if WebAuthVars.userProStatus:
+                    if getattr(context.window_manager, __package__.lower()+'_web_auth_vars').userProStatus:
                         bpy.ops.message.messagebox('INVOKE_DEFAULT', message='Nothing found')
                     else:
                         bpy.ops.message.messagebox('INVOKE_DEFAULT', message='You do not have any active meshes.\n \
@@ -47,11 +50,14 @@ class MeshManager:
                          And press this button again.')
                 preview_to_update = BISItems.update_previews_from_data(data=request_rez['data']['items'], list_name=__class__.storage_type(context))
                 if preview_to_update:
-                    request = WebRequest.send_request({
-                        'for': 'update_previews',
-                        'preview_list': preview_to_update,
-                        'storage': __class__.storage_type(context)
-                    })
+                    request = WebRequest.send_request(
+                        context=context,
+                        data={
+                            'for': 'update_previews',
+                            'preview_list': preview_to_update,
+                            'storage': __class__.storage_type(context)
+                        }
+                    )
                     if request:
                         previews_update_rez = json.loads(request.text)
                         if previews_update_rez['stat'] == 'OK':
@@ -69,7 +75,7 @@ class MeshManager:
             return 'VIEW_3D'
 
     @staticmethod
-    def to_bis(mesh_list=[], name='', tags=''):
+    def to_bis(context, mesh_list=[], name='', tags=''):
         rez = {"stat": "ERR", "data": {"text": "Error to save"}}
         if mesh_list:
             if not name:
@@ -96,16 +102,20 @@ class MeshManager:
                 mesh_obj_path = __class__.export_to_obj(mesh_list=mesh_list, name=name, export_to=temp_dir)
                 if mesh_obj_path and os.path.exists(mesh_obj_path):
                     tags += (';' if tags else '') + '{0[0]}.{0[1]}'.format(bpy.app.version)
-                    request = WebRequest.send_request(data={
-                        'for': 'add_item',
-                        'storage': __class__.storage_type(),
-                        'item_body': json.dumps(meshes_in_json),
-                        'item_name': name,
-                        'item_tags': tags,
-                        'addon_version': Addon.current_version()
-                    }, files={
-                        'mesh_file': open(mesh_obj_path, 'rb')
-                    })
+                    request = WebRequest.send_request(
+                        context=context,
+                        data={
+                            'for': 'add_item',
+                            'storage': __class__.storage_type(),
+                            'item_body': json.dumps(meshes_in_json),
+                            'item_name': name,
+                            'item_tags': tags,
+                            'addon_version': Addon.current_version()
+                        },
+                        files={
+                            'mesh_file': open(mesh_obj_path, 'rb')
+                        }
+                    )
                     if request:
                         rez = json.loads(request.text)
                         if rez['stat'] == 'OK':
@@ -128,12 +138,15 @@ class MeshManager:
     def from_bis(context, bis_item_id):
         rez = {"stat": "ERR", "data": {"text": "No Id", "content": None}}
         if bis_item_id:
-            request = WebRequest.send_request({
-                'for': 'get_item',
-                'storage': __class__.storage_type(),
-                'id': bis_item_id,
-                'addon_version': Addon.current_version()
-            })
+            request = WebRequest.send_request(
+                context=context,
+                data={
+                    'for': 'get_item',
+                    'storage': __class__.storage_type(),
+                    'id': bis_item_id,
+                    'addon_version': Addon.current_version()
+                }
+            )
             if request:
                 request_rez = json.loads(request.text)
                 if request_rez['stat'] == 'OK':
@@ -141,11 +154,14 @@ class MeshManager:
                     if 'file_attachment' in item_in_json and 'link_type' in item_in_json['file_attachment']:
                         with tempfile.TemporaryDirectory() as temp_dir:
                             if item_in_json['file_attachment']['link_type'] == 'internal':
-                                request_file = WebRequest.send_request({
-                                    'for': 'get_item_file_attachment',
-                                    'storage': __class__.storage_type(),
-                                    'id': bis_item_id
-                                })
+                                request_file = WebRequest.send_request(
+                                    context=context,
+                                    data={
+                                        'for': 'get_item_file_attachment',
+                                        'storage': __class__.storage_type(),
+                                        'id': bis_item_id
+                                    }
+                                )
                                 if request_file:
                                     zip_file_name = str(bis_item_id) + '.zip'
                                     zip_file_path = os.path.join(temp_dir, zip_file_name)
@@ -181,7 +197,7 @@ class MeshManager:
         return rez
 
     @staticmethod
-    def update_in_bis(bis_uid, mesh_list=[], name=''):
+    def update_in_bis(context, bis_uid, mesh_list=[], name=''):
         rez = {"stat": "ERR", "data": {"text": "Error to update"}}
         if mesh_list:
             if bis_uid:
@@ -208,16 +224,20 @@ class MeshManager:
                 with tempfile.TemporaryDirectory() as temp_dir:
                     mesh_obj_path = __class__.export_to_obj(mesh_list=mesh_list, name=name, export_to=temp_dir)
                     if mesh_obj_path and os.path.exists(mesh_obj_path):
-                        request = WebRequest.send_request(data={
-                            'for': 'update_item',
-                            'storage': __class__.storage_type(),
-                            'item_body': json.dumps(meshes_in_json),
-                            'item_name': name,
-                            'item_id': bis_uid,
-                            'addon_version': Addon.current_version()
-                        }, files={
-                            'mesh_file': open(mesh_obj_path, 'rb')
-                        })
+                        request = WebRequest.send_request(
+                            context=context,
+                            data={
+                                'for': 'update_item',
+                                'storage': __class__.storage_type(),
+                                'item_body': json.dumps(meshes_in_json),
+                                'item_name': name,
+                                'item_id': bis_uid,
+                                'addon_version': Addon.current_version()
+                            },
+                            files={
+                                'mesh_file': open(mesh_obj_path, 'rb')
+                            }
+                        )
                         if request:
                             rez = json.loads(request.text)
                             if rez['stat'] == 'OK':

@@ -25,7 +25,7 @@ class GetMeshFromStorage(Operator):
 
     def execute(self, context):
         if self.mesh_id:
-            request_rez = MeshManager.from_bis(context, self.mesh_id)
+            request_rez = MeshManager.from_bis(context=context, bis_item_id=self.mesh_id)
             if request_rez['stat'] == 'OK':
                 if self.show_message:
                     bpy.ops.message.messagebox('INVOKE_DEFAULT', message=request_rez['stat'] + ': ' + request_rez['data']['text'])

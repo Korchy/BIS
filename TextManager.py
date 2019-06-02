@@ -5,7 +5,7 @@ import json
 import sys
 import bpy
 import base64
-from .WebRequests import WebRequest, WebAuthVars
+from .WebRequests import WebRequest
 from .bis_items import BISItems
 from .addon import Addon
 
@@ -16,18 +16,21 @@ class TextManager:
     def items_from_bis(context, search_filter, page):
         # get page of items list from BIS
         rez = None
-        request = WebRequest.send_request({
-            'for': 'get_items',
-            'storage': __class__.storage_type(),
-            'search_filter': search_filter,
-            'page': page,
-        })
+        request = WebRequest.send_request(
+            context=context,
+            data={
+                'for': 'get_items',
+                'storage': __class__.storage_type(),
+                'search_filter': search_filter,
+                'page': page,
+            }
+        )
         if request:
             request_rez = json.loads(request.text)
             rez = request_rez['stat']
             if request_rez['stat'] == 'OK':
                 if not request_rez['data']['items']:
-                    if WebAuthVars.userProStatus:
+                    if getattr(context.window_manager, __package__.lower()+'_web_auth_vars').userProStatus:
                         bpy.ops.message.messagebox('INVOKE_DEFAULT', message='Nothing found')
                     else:
                         bpy.ops.message.messagebox('INVOKE_DEFAULT', message='You do not have any active texts.\n \
@@ -62,19 +65,22 @@ class TextManager:
         return text_obj
 
     @staticmethod
-    def to_bis(text, tags=''):
+    def to_bis(context, text, tags=''):
         rez = {"stat": "ERR", "data": {"text": "Error to save"}}
         if text.as_string():
             text_in_json = __class__.text_to_json(text)
             tags += (';' if tags else '') + '{0[0]}.{0[1]}'.format(bpy.app.version)
-            request = WebRequest.send_request({
-                'for': 'add_item',
-                'storage': __class__.storage_type(),
-                'item_body': json.dumps(text_in_json),
-                'item_name': text_in_json['name'],
-                'item_tags': tags,
-                'addon_version': Addon.current_version()
-            })
+            request = WebRequest.send_request(
+                context=context,
+                data={
+                    'for': 'add_item',
+                    'storage': __class__.storage_type(),
+                    'item_body': json.dumps(text_in_json),
+                    'item_name': text_in_json['name'],
+                    'item_tags': tags,
+                    'addon_version': Addon.current_version()
+                }
+            )
             if request:
                 rez = json.loads(request.text)
                 if rez['stat'] == 'OK':
@@ -86,14 +92,17 @@ class TextManager:
         return rez
 
     @staticmethod
-    def from_bis(bis_text_id):
+    def from_bis(context, bis_text_id):
         rez = {"stat": "ERR", "data": {"text": "No Id", "content": None}}
         if bis_text_id:
-            request = WebRequest.send_request({
-                'for': 'get_item',
-                'storage': __class__.storage_type(),
-                'id': bis_text_id
-            })
+            request = WebRequest.send_request(
+                context=context,
+                data={
+                    'for': 'get_item',
+                    'storage': __class__.storage_type(),
+                    'id': bis_text_id
+                }
+            )
             if request:
                 rez = json.loads(request.text)
         if rez['stat'] == 'OK':
@@ -105,17 +114,20 @@ class TextManager:
         return rez
 
     @staticmethod
-    def update_in_bis(bis_uid, text):
+    def update_in_bis(context, bis_uid, text):
         rez = {"stat": "ERR", "data": {"text": "Error to update"}}
         if text.as_string():
             text_in_json = __class__.text_to_json(text)
-            request = WebRequest.send_request({
-                'for': 'update_item',
-                'storage': __class__.storage_type(),
-                'item_body': json.dumps(text_in_json),
-                'item_name': text_in_json['name'],
-                'item_id': bis_uid
-            })
+            request = WebRequest.send_request(
+                context=context,
+                data={
+                    'for': 'update_item',
+                    'storage': __class__.storage_type(),
+                    'item_body': json.dumps(text_in_json),
+                    'item_name': text_in_json['name'],
+                    'item_id': bis_uid
+                }
+            )
             if request:
                 rez = json.loads(request.text)
                 if rez['stat'] != 'OK':

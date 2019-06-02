@@ -2,7 +2,6 @@
 # interplanety@interplanety.org
 
 import bpy
-from . import WebRequests
 from bpy.types import Panel
 from bpy.utils import register_class, unregister_class
 
@@ -16,7 +15,7 @@ class BISNodesPanel(Panel):
 
     def draw(self, context):
         layout = self.layout
-        if WebRequests.WebAuthVars.logged:
+        if getattr(context.window_manager, __package__.lower()+'_web_auth_vars').logged:
             row = layout.row(align=True)
             row.label(text='')
             help_button = row.operator('message.messagebox', icon='HELP')
@@ -25,7 +24,7 @@ class BISNodesPanel(Panel):
                                   'At first you need to add some public materials to the active section in your account on the BIS web site.\n\n' \
                                   '- How to get material from BIS as node group?\n' \
                                   'Switch mode to "NodeGroup" in the switcher below.'
-            if WebRequests.WebAuthVars.userProStatus:
+            if getattr(context.window_manager, __package__.lower()+'_web_auth_vars').userProStatus:
                 layout.prop(context.window_manager.bis_get_nodes_info_from_storage_vars, 'searchFilter')
                 layout.operator('bis.get_nodes_info_from_storage', icon='VIEWZOOM', text=' Search')
                 row = layout.row()
@@ -50,9 +49,9 @@ class BISNodesPanel(Panel):
                 layout.prop(context.preferences.addons[__package__].preferences, 'use_node_group_as', expand=True)
             layout.separator()
             layout.separator()
-            layout.operator('dialog.web_auth', icon='FILE_TICK', text='Sign out')
+            layout.operator('bis.web_auth', icon='FILE_TICK', text='Sign out')
         else:
-            layout.operator('dialog.web_auth', icon='WORLD', text='Sign in')
+            layout.operator('bis.web_auth', icon='WORLD', text='Sign in')
 
 
 class BISNodesToolsPanel(Panel):

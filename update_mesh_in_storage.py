@@ -23,6 +23,7 @@ class BISUpdateMeshInStorage(Operator):
         bis_uid_mesh = self.get_bis_uid(context)
         if bis_uid_mesh:
             request_rez = MeshManager.update_in_bis(
+                context=context,
                 bis_uid=bis_uid_mesh['bis_uid'],
                 mesh_list=context.selected_objects[:],
                 name=(context.window_manager.bis_add_mesh_to_storage_vars.name if context.window_manager.bis_add_mesh_to_storage_vars.name else bis_uid_mesh['bis_uid_name'])

@@ -3,7 +3,6 @@
 
 from bpy.types import Panel
 from bpy.utils import register_class, unregister_class
-from . import WebRequests
 
 
 class BISTextsPanel(Panel):
@@ -15,14 +14,14 @@ class BISTextsPanel(Panel):
 
     def draw(self, context):
         layout = self.layout
-        if WebRequests.WebAuthVars.logged:
+        if getattr(context.window_manager, __package__.lower()+'_web_auth_vars').logged:
             row = layout.row(align=True)
             row.label(text='')
             help_button = row.operator('message.messagebox', icon='HELP')
             help_button.width = 600
             help_button.message = '- Why I can not get materials?\n' \
                                   'This panel is for TEXTS! Switch to the Shader Editor window to get materials.\n'
-            if WebRequests.WebAuthVars.userProStatus:
+            if getattr(context.window_manager, __package__.lower()+'_web_auth_vars').userProStatus:
                 layout.prop(context.window_manager.bis_get_texts_info_from_storage_vars, 'search_filter')
                 layout.operator('bis.get_texts_info_from_storage', icon='VIEWZOOM', text=' Search')
                 row = layout.row()
@@ -43,9 +42,9 @@ class BISTextsPanel(Panel):
             button.show_message = True
             layout.separator()
             layout.separator()
-            layout.operator('dialog.web_auth', icon='FILE_TICK', text='Sign out')
+            layout.operator('bis.web_auth', icon='FILE_TICK', text='Sign out')
         else:
-            layout.operator('dialog.web_auth', icon='WORLD', text='Sign in')
+            layout.operator('bis.web_auth', icon='WORLD', text='Sign in')
 
 
 def register():

@@ -30,7 +30,8 @@ class BISAddMeshToStorage(Operator):
         else:
             mesh_list = context.selected_objects[:]
         if mesh_list:
-            request_rez = MeshManager.to_bis(mesh_list=mesh_list,
+            request_rez = MeshManager.to_bis(context=context,
+                                             mesh_list=mesh_list,
                                              name=context.window_manager.bis_add_mesh_to_storage_vars.name,
                                              tags=context.window_manager.bis_add_mesh_to_storage_vars.tags)
             if request_rez['stat'] == 'OK':

@@ -21,7 +21,7 @@ class BISUpdateText(Operator):
     def execute(self, context):
         current_text = context.area.spaces.active.text
         if 'bis_uid' in current_text:
-            rez = TextManager.update_in_bis(current_text['bis_uid'], current_text)
+            rez = TextManager.update_in_bis(context=context, bis_uid=current_text['bis_uid'], text=current_text)
             if rez['stat'] == 'OK':
                 if self.show_message:
                     bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['stat'] + ': ' + rez['data']['text'])

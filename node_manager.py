@@ -10,7 +10,7 @@ from .node_node_group import NodeGroup
 from .material import Material
 from .node_tree import NodeTree
 from .addon import Addon
-from .WebRequests import WebRequest, WebAuthVars
+from .WebRequests import WebRequest
 from .bis_items import BISItems
 
 
@@ -24,21 +24,24 @@ class NodeManager:
         rez = None
         storage_subtype = Material.get_subtype(context)
         storage_subtype2 = Material.get_subtype2(context)
-        request = WebRequest.send_request({
-            'for': 'get_items',
-            'search_filter': search_filter,
-            'page': page,
-            'storage': __class__.storage_type(context),
-            'storage_subtype': storage_subtype,
-            'storage_subtype2': storage_subtype2,
-            'update_preview': update_preview
-        })
+        request = WebRequest.send_request(
+            context=context,
+            data={
+                'for': 'get_items',
+                'search_filter': search_filter,
+                'page': page,
+                'storage': __class__.storage_type(context),
+                'storage_subtype': storage_subtype,
+                'storage_subtype2': storage_subtype2,
+                'update_preview': update_preview
+                }
+        )
         if request:
             request_rez = json.loads(request.text)
             rez = request_rez['stat']
             if request_rez['stat'] == 'OK':
                 if not request_rez['data']['items']:
-                    if WebAuthVars.userProStatus:
+                    if getattr(context.window_manager, __package__.lower()+'_web_auth_vars').userProStatus:
                         bpy.ops.message.messagebox('INVOKE_DEFAULT', message='Nothing found')
                     else:
                         bpy.ops.message.messagebox('INVOKE_DEFAULT', message='You do not have any active materials.\n \
@@ -47,13 +50,16 @@ class NodeManager:
                          And press this button again.')
                 preview_to_update = BISItems.update_previews_from_data(data=request_rez['data']['items'], list_name=__class__.storage_type(context))
                 if preview_to_update:
-                    request = WebRequest.send_request({
-                        'for': 'update_previews',
-                        'preview_list': preview_to_update,
-                        'storage': __class__.storage_type(context),
-                        'storage_subtype': storage_subtype,
-                        'storage_subtype2': storage_subtype2
-                    })
+                    request = WebRequest.send_request(
+                        context=context,
+                        data={
+                            'for': 'update_previews',
+                            'preview_list': preview_to_update,
+                            'storage': __class__.storage_type(context),
+                            'storage_subtype': storage_subtype,
+                            'storage_subtype2': storage_subtype2
+                        }
+                    )
                     if request:
                         previews_update_rez = json.loads(request.text)
                         if previews_update_rez['stat'] == 'OK':
@@ -69,14 +75,17 @@ class NodeManager:
         request_rez = {'stat': 'ERR', 'data': {'text': 'No Id', 'content': None}}
         if bis_item_id:
             subtype = Material.get_subtype(context=context)
-            request = WebRequest.send_request({
-                'for': 'get_item',
-                'storage': __class__.storage_type(context=context),
-                'storage_subtype': subtype,
-                'storage_subtype2': Material.get_subtype2(context),
-                'id': bis_item_id,
-                'addon_version': Addon.current_version()
-            })
+            request = WebRequest.send_request(
+                context=context,
+                data={
+                    'for': 'get_item',
+                    'storage': __class__.storage_type(context=context),
+                    'storage_subtype': subtype,
+                    'storage_subtype2': Material.get_subtype2(context),
+                    'id': bis_item_id,
+                    'addon_version': Addon.current_version()
+                }
+            )
             if request:
                 request_rez = json.loads(request.text)
                 if request_rez['stat'] == 'OK':
@@ -287,18 +296,19 @@ class NodeManager:
         if item_json and not cfg.no_sending_to_server:
             bis_links = list(__class__.get_bis_linked_items('bis_linked_item', item_json))
             request = WebRequest.send_request(
+                context=context,
                 data={
-                'for': 'add_item',
-                'item_body': json.dumps(item_json),
-                'storage': __class__.storage_type(context=context),
-                'storage_subtype': subtype,
-                'storage_subtype2': Material.get_subtype2(context=context),
-                'procedural': 1 if __class__.is_procedural(material=item) else 0,
-                'engine': context.window.scene.render.engine,
-                'bis_links': json.dumps(bis_links),
-                'item_name': item_json['name'],
-                'item_tags': tags.strip(),
-                'addon_version': Addon.current_version()
+                    'for': 'add_item',
+                    'item_body': json.dumps(item_json),
+                    'storage': __class__.storage_type(context=context),
+                    'storage_subtype': subtype,
+                    'storage_subtype2': Material.get_subtype2(context=context),
+                    'procedural': 1 if __class__.is_procedural(material=item) else 0,
+                    'engine': context.window.scene.render.engine,
+                    'bis_links': json.dumps(bis_links),
+                    'item_name': item_json['name'],
+                    'item_tags': tags.strip(),
+                    'addon_version': Addon.current_version()
                 },
                 files=item_attachment,
             )
@@ -331,19 +341,22 @@ class NodeManager:
         # send to server
         if item_json and not cfg.no_sending_to_server:
             bis_links = list(__class__.get_bis_linked_items('bis_linked_item', item_json))
-            request = WebRequest.send_request(data={
-                'for': 'update_item',
-                'item_body': json.dumps(item_json),
-                'storage': __class__.storage_type(context=context),
-                'storage_subtype': subtype,
-                'storage_subtype2': Material.get_subtype2(context=context),
-                'procedural': 1 if __class__.is_procedural(material=item) else 0,
-                'engine': context.window.scene.render.engine,
-                'bis_links': json.dumps(bis_links),
-                'item_id': item['bis_uid'],
-                'item_name': item_json['name'],
-                'addon_version': Addon.current_version()
-            })
+            request = WebRequest.send_request(
+                context=context,
+                data={
+                    'for': 'update_item',
+                    'item_body': json.dumps(item_json),
+                    'storage': __class__.storage_type(context=context),
+                    'storage_subtype': subtype,
+                    'storage_subtype2': Material.get_subtype2(context=context),
+                    'procedural': 1 if __class__.is_procedural(material=item) else 0,
+                    'engine': context.window.scene.render.engine,
+                    'bis_links': json.dumps(bis_links),
+                    'item_id': item['bis_uid'],
+                    'item_name': item_json['name'],
+                    'addon_version': Addon.current_version()
+                }
+            )
             if request:
                 request_rez = json.loads(request.text)
         return request_rez
