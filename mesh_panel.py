@@ -3,6 +3,7 @@
 
 from bpy.types import Panel
 from bpy.utils import register_class, unregister_class
+from .WebRequests import WebAuthVars
 
 
 class BISMeshPanel(Panel):
@@ -14,7 +15,7 @@ class BISMeshPanel(Panel):
 
     def draw(self, context):
         layout = self.layout
-        if getattr(context.window_manager, __package__.lower()+'_web_auth_vars').logged:
+        if WebAuthVars.logged:
             row = layout.row(align=True)
             row.label(text='')
             help_button = row.operator('message.messagebox', icon='HELP')
@@ -23,7 +24,7 @@ class BISMeshPanel(Panel):
                                   'This panel is for MESHES! Switch to the Shader Editor window to get materials.\n\n' \
                                   '- Please do not save Plane with material / Cube with material / Sphere with material to save your materials.\n' \
                                   ' This saves only meshes. To save your materials switch to the Shader Editor window.'
-            if getattr(context.window_manager, __package__.lower()+'_web_auth_vars').userProStatus:
+            if WebAuthVars.userProStatus:
                 layout.prop(context.window_manager.bis_get_meshes_info_from_storage_vars, 'search_filter')
                 layout.operator('bis.get_meshes_info_from_storage', icon='VIEWZOOM', text=' Search')
                 row = layout.row()

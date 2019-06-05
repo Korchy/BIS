@@ -10,28 +10,15 @@ import os
 import requests
 
 
-class WebAuthVars(PropertyGroup):
-    logged: BoolProperty(
-        default=False
-    )
-    host: StringProperty(
-        default=''
-    )
-    userLogin: StringProperty(
-        default=''
-    )
-    userStayLogged: BoolProperty(
-        default=False
-    )
-    userProStatus: BoolProperty(
-        default=False
-    )
-    token: StringProperty(
-        default=''
-    )
-    requestBase: StringProperty(
-        default=''
-    )
+class WebAuthVars:
+    
+    logged = False
+    host = ''
+    userLogin = ''
+    userStayLogged = False
+    userProStatus = False
+    token = ''
+    requestBase = ''
 
 
 class WebAuth(Operator):
@@ -56,7 +43,7 @@ class WebAuth(Operator):
     )
 
     def execute(self, context):
-        if getattr(context.window_manager, __package__.lower()+'_web_auth_vars').logged:
+        if WebAuthVars.logged:
             __class__.log_off(context=context)
         else:
             self.log_in(context=context)
@@ -65,41 +52,41 @@ class WebAuth(Operator):
         return {'FINISHED'}
 
     def invoke(self, context, event):
-        if getattr(context.window_manager, __package__.lower()+'_web_auth_vars').logged:
+        if WebAuthVars.logged:
             return self.execute(context)
         else:
-            if getattr(context.window_manager, __package__.lower()+'_web_auth_vars').userLogin:
-                self.userLogin = getattr(context.window_manager, __package__.lower()+'_web_auth_vars').userLogin
+            if WebAuthVars.userLogin:
+                self.userLogin = WebAuthVars.userLogin
             return context.window_manager.invoke_props_dialog(self)
 
     @classmethod
     def get_init_data(cls, context):
-        getattr(context.window_manager, __package__.lower()+'_web_auth_vars').logged = False
-        getattr(context.window_manager, __package__.lower()+'_web_auth_vars').userStayLogged = False
+        WebAuthVars.logged = False
+        WebAuthVars.userStayLogged = False
         with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json')) as currentFile:
             json_data = json.load(currentFile)
-            getattr(context.window_manager, __package__.lower()+'_web_auth_vars').host = json_data['host']
-            getattr(context.window_manager, __package__.lower()+'_web_auth_vars').requestBase = json_data['requestbase']
+            WebAuthVars.host = json_data['host']
+            WebAuthVars.requestBase = json_data['requestbase']
             if 'userLogin' in json_data:
-                getattr(context.window_manager, __package__.lower()+'_web_auth_vars').userLogin = json_data['userLogin']
+                WebAuthVars.userLogin = json_data['userLogin']
             else:
-                getattr(context.window_manager, __package__.lower()+'_web_auth_vars').userLogin = ''
+                WebAuthVars.userLogin = ''
             if 'token' in json_data:
-                getattr(context.window_manager, __package__.lower()+'_web_auth_vars').token = json_data['token']
+                WebAuthVars.token = json_data['token']
             else:
-                getattr(context.window_manager, __package__.lower()+'_web_auth_vars').token = ''
+                WebAuthVars.token = ''
             currentFile.close()
-        if getattr(context.window_manager, __package__.lower()+'_web_auth_vars').token:
+        if WebAuthVars.token:
             cls.log_in(cls, context=context)
 
     def log_in(self, context):
-        if getattr(context.window_manager, __package__.lower()+'_web_auth_vars').token:
+        if WebAuthVars.token:
             if __class__.check_token_valid(
                     context=context,
-                    user_login=getattr(context.window_manager, __package__.lower()+'_web_auth_vars').userLogin,
-                    token=getattr(context.window_manager, __package__.lower()+'_web_auth_vars').token
+                    user_login=WebAuthVars.userLogin,
+                    token=WebAuthVars.token
             ):
-                getattr(context.window_manager, __package__.lower()+'_web_auth_vars').logged = True
+                WebAuthVars.logged = True
             else:
                 __class__.log_off(context=context)
         else:
@@ -108,22 +95,22 @@ class WebAuth(Operator):
             if request:
                 request_rez = json.loads(request.text)
                 if request_rez['stat'] == 'OK':
-                    getattr(context.window_manager, __package__.lower()+'_web_auth_vars').logged = True
-                    getattr(context.window_manager, __package__.lower()+'_web_auth_vars').token = request_rez['data']['token']
-                    getattr(context.window_manager, __package__.lower()+'_web_auth_vars').userLogin = self.userLogin
-                    getattr(context.window_manager, __package__.lower()+'_web_auth_vars').userProStatus = request_rez['data']['prostatus']
-                    __class__.save_config(user_login=getattr(context.window_manager, __package__.lower()+'_web_auth_vars').userLogin,
-                                          token=getattr(context.window_manager, __package__.lower()+'_web_auth_vars').token if self.userStayLogged else '')
+                    WebAuthVars.logged = True
+                    WebAuthVars.token = request_rez['data']['token']
+                    WebAuthVars.userLogin = self.userLogin
+                    WebAuthVars.userProStatus = request_rez['data']['prostatus']
+                    __class__.save_config(user_login=WebAuthVars.userLogin,
+                                          token=WebAuthVars.token if self.userStayLogged else '')
                 else:
                     bpy.ops.message.messagebox('INVOKE_DEFAULT', message=request_rez['data']['text'])
                     __class__.log_off(context=context)
 
     @staticmethod
     def log_off(context):
-        getattr(context.window_manager, __package__.lower()+'_web_auth_vars').token = ''
-        getattr(context.window_manager, __package__.lower()+'_web_auth_vars').logged = False
+        WebAuthVars.token = ''
+        WebAuthVars.logged = False
         WebRequestsVars.close_session()
-        __class__.save_config(user_login=getattr(context.window_manager, __package__.lower()+'_web_auth_vars').userLogin)
+        __class__.save_config(user_login=WebAuthVars.userLogin)
 
     @staticmethod
     def check_token_valid(context, user_login='', token=''):
@@ -131,7 +118,7 @@ class WebAuth(Operator):
         if request:
             request_rez = json.loads(request.text)
             if request_rez['stat'] == 'OK':
-                getattr(context.window_manager, __package__.lower()+'_web_auth_vars').userProStatus = request_rez['data']['prostatus']
+                WebAuthVars.userProStatus = request_rez['data']['prostatus']
                 return True
         return False
 
@@ -170,13 +157,13 @@ class WebRequest:
         files = files if files else {}
         session = WebRequestsVars.get_session()
         request_data = {
-            'requestbase': getattr(context.window_manager, __package__.lower()+'_web_auth_vars').requestBase,
-            'token': getattr(context.window_manager, __package__.lower()+'_web_auth_vars').token
+            'requestbase': WebAuthVars.requestBase,
+            'token': WebAuthVars.token
         }
         request_data.update(data)
         request = None
         try:
-            request = session.post(getattr(context.window_manager, __package__.lower()+'_web_auth_vars').host + '/' + host_target, data=request_data, files=files)
+            request = session.post(WebAuthVars.host + '/' + host_target, data=request_data, files=files)
         except requests.exceptions.RequestException as error:
             print('ERR: No internet connection to BIS ', error)
         if request:
@@ -194,16 +181,12 @@ class WebRequest:
 
 
 def register():
-    register_class(WebAuthVars)
-    setattr(WindowManager, __package__.lower()+'_web_auth_vars', PointerProperty(type=WebAuthVars))
     register_class(WebAuth)
     WebAuth.get_init_data(context=bpy.context)
 
 
 def unregister():
     unregister_class(WebAuth)
-    delattr(WindowManager, __package__.lower() + '_web_auth_vars')
-    unregister_class(WebAuthVars)
     WebRequestsVars.close_session()
 
 

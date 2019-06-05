@@ -3,6 +3,7 @@
 
 from bpy.types import Panel
 from bpy.utils import register_class, unregister_class
+from .WebRequests import WebAuthVars
 
 
 class BISTextsPanel(Panel):
@@ -14,14 +15,14 @@ class BISTextsPanel(Panel):
 
     def draw(self, context):
         layout = self.layout
-        if getattr(context.window_manager, __package__.lower()+'_web_auth_vars').logged:
+        if WebAuthVars.logged:
             row = layout.row(align=True)
             row.label(text='')
             help_button = row.operator('message.messagebox', icon='HELP')
             help_button.width = 600
             help_button.message = '- Why I can not get materials?\n' \
                                   'This panel is for TEXTS! Switch to the Shader Editor window to get materials.\n'
-            if getattr(context.window_manager, __package__.lower()+'_web_auth_vars').userProStatus:
+            if WebAuthVars.userProStatus:
                 layout.prop(context.window_manager.bis_get_texts_info_from_storage_vars, 'search_filter')
                 layout.operator('bis.get_texts_info_from_storage', icon='VIEWZOOM', text=' Search')
                 row = layout.row()

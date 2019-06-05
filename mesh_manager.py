@@ -9,7 +9,7 @@ import tempfile
 import bpy
 import zipfile
 from mathutils import Vector
-from .WebRequests import WebRequest
+from .WebRequests import WebRequest, WebAuthVars
 from .bis_items import BISItems
 from .addon import Addon
 from .mesh_modifiers import MeshModifierCommon
@@ -41,7 +41,7 @@ class MeshManager:
             rez = request_rez['stat']
             if request_rez['stat'] == 'OK':
                 if not request_rez['data']['items']:
-                    if getattr(context.window_manager, __package__.lower()+'_web_auth_vars').userProStatus:
+                    if WebAuthVars.userProStatus:
                         bpy.ops.message.messagebox('INVOKE_DEFAULT', message='Nothing found')
                     else:
                         bpy.ops.message.messagebox('INVOKE_DEFAULT', message='You do not have any active meshes.\n \

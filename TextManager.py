@@ -5,7 +5,7 @@ import json
 import sys
 import bpy
 import base64
-from .WebRequests import WebRequest
+from .WebRequests import WebRequest, WebAuthVars
 from .bis_items import BISItems
 from .addon import Addon
 
@@ -30,7 +30,7 @@ class TextManager:
             rez = request_rez['stat']
             if request_rez['stat'] == 'OK':
                 if not request_rez['data']['items']:
-                    if getattr(context.window_manager, __package__.lower()+'_web_auth_vars').userProStatus:
+                    if WebAuthVars.userProStatus:
                         bpy.ops.message.messagebox('INVOKE_DEFAULT', message='Nothing found')
                     else:
                         bpy.ops.message.messagebox('INVOKE_DEFAULT', message='You do not have any active texts.\n \

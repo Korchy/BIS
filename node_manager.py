@@ -10,7 +10,7 @@ from .node_node_group import NodeGroup
 from .material import Material
 from .node_tree import NodeTree
 from .addon import Addon
-from .WebRequests import WebRequest
+from .WebRequests import WebRequest, WebAuthVars
 from .bis_items import BISItems
 
 
@@ -41,7 +41,7 @@ class NodeManager:
             rez = request_rez['stat']
             if request_rez['stat'] == 'OK':
                 if not request_rez['data']['items']:
-                    if getattr(context.window_manager, __package__.lower()+'_web_auth_vars').userProStatus:
+                    if WebAuthVars.userProStatus:
                         bpy.ops.message.messagebox('INVOKE_DEFAULT', message='Nothing found')
                     else:
                         bpy.ops.message.messagebox('INVOKE_DEFAULT', message='You do not have any active materials.\n \
