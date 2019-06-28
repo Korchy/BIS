@@ -55,7 +55,7 @@ class NodeCommon:
         pass
 
     @classmethod
-    def json_to_node(cls, node_tree, node_json):
+    def json_to_node(cls, node_tree, node_json, attachments_path):
         current_node = None
         try:
             # current node type may not exists - if node saved from future version of Blender
@@ -117,11 +117,11 @@ class NodeCommon:
                         io_class = getattr(sys.modules[__name__], 'NodeIO' + output_json['bl_idname'])
                     io_class.json_to_o(node_output=current_output, output_json=output_json)
             # for current node specification
-            cls._json_to_node_spec(current_node, node_json)
+            cls._json_to_node_spec(current_node, node_json, attachments_path)
         return current_node
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_json):
+    def _json_to_node_spec(cls, node, node_json, attachments_path):
         # extend to current node data
         pass
 

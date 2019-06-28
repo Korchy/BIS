@@ -3,8 +3,8 @@
 
 import bpy
 from bpy.utils import register_class, unregister_class
-from bpy.props import StringProperty, BoolProperty, PointerProperty
-from bpy.types import Operator, PropertyGroup, WindowManager
+from bpy.props import StringProperty, BoolProperty
+from bpy.types import Operator
 import json
 import os
 import requests
@@ -167,7 +167,7 @@ class WebRequest:
         except requests.exceptions.RequestException as error:
             print('ERR: No internet connection to BIS ', error)
         if request:
-            if 'text-html' in request.headers['Content-Type']:
+            if 'text/html' in request.headers['Content-Type']:
                 request_rez = None
                 try:
                     request_rez = json.loads(request.text)

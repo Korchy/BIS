@@ -45,7 +45,7 @@ class NodeBase:
         pass
 
     @classmethod
-    def json_to_node(cls, node_tree, node_json):
+    def json_to_node(cls, node_tree, node_json, attachments_path):
         current_node = None
         try:
             # current node type may not exists - if node saved from future version of Blender
@@ -66,11 +66,11 @@ class NodeBase:
             current_node['parent_str'] = node_json['parent'] if 'parent' in node_json else ''
             current_node['BIS_node_id'] = node_json['BIS_node_id'] if 'BIS_node_id' in node_json else None
             # for current node specification
-            cls._json_to_node_spec(current_node, node_json)
+            cls._json_to_node_spec(current_node, node_json, attachments_path)
         return current_node
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_json):
+    def _json_to_node_spec(cls, node, node_json, attachments_path):
         # extend to current node data
         pass
 

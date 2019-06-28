@@ -62,7 +62,7 @@ class NodeTree:
         return node_tree_json
 
     @classmethod
-    def from_json(cls, node_tree_parent, node_tree_json):
+    def from_json(cls, node_tree_parent, node_tree_json, attachments_path):
         if node_tree_parent and node_tree_json:
             node_tree = node_tree_parent.node_tree
             # node_tree inputs
@@ -90,7 +90,7 @@ class NodeTree:
                 node_class = NodeCommon
                 if hasattr(sys.modules[__name__], 'Node' + current_node_in_json['bl_idname']):
                     node_class = getattr(sys.modules[__name__], 'Node' + current_node_in_json['bl_idname'])
-                node_class.json_to_node(node_tree=node_tree, node_json=current_node_in_json)
+                node_class.json_to_node(node_tree=node_tree, node_json=current_node_in_json, attachments_path=attachments_path)
             # links
             for link_json in node_tree_json['links']:
                 from_node = __class__._node_by_bis_id(node_tree=node_tree, bis_node_id=link_json[0])

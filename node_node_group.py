@@ -22,7 +22,7 @@ class NodeGroup:
         return group_in_json
 
     @classmethod
-    def from_json(cls, node_group_json, parent_node_tree):
+    def from_json(cls, node_group_json, parent_node_tree, attachments_path):
         node_group = None
         if parent_node_tree:
             # for older compatibility (v 1.4.1)
@@ -34,7 +34,7 @@ class NodeGroup:
             else:
                 # 1.4.1
                 node_class = getattr(sys.modules[__name__], 'NodeBase' + node_group_json['bl_type'])
-            node_group = node_class.json_to_node(node_tree=parent_node_tree, node_json=node_group_json)
+            node_group = node_class.json_to_node(node_tree=parent_node_tree, node_json=node_group_json, attachments_path=attachments_path)
             node_group.location = (0, 0)
         return node_group
 
@@ -78,14 +78,14 @@ class NodeShaderNodeGroup(NodeCommon):
         return node_json
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_json):
+    def _json_to_node_spec(cls, node, node_json, attachments_path):
         node['BIS_addon_version'] = node_json['BIS_addon_version'] if 'BIS_addon_version' in node_json else Addon.node_group_first_version
         # Nodes
         for current_node_in_json in node_json['nodes']:
             node_class = NodeCommon
             if hasattr(sys.modules[__name__], 'Node' + current_node_in_json['bl_idname']):
                 node_class = getattr(sys.modules[__name__], 'Node' + current_node_in_json['bl_idname'])
-            node_class.json_to_node(node_tree=node.node_tree, node_json=current_node_in_json)
+            node_class.json_to_node(node_tree=node.node_tree, node_json=current_node_in_json, attachments_path=attachments_path)
         # links
         for link_json in node_json['links']:
             from_node = __class__._node_by_bis_id(node.node_tree, link_json[0])

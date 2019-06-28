@@ -32,7 +32,7 @@ class Material:
         pass
 
     @classmethod
-    def from_json(cls, context,  material_json, material=None):
+    def from_json(cls, context,  material_json, material=None, attachments_path=''):
         if not material:
             material = __class__.new(context=context)
             __class__.clear(material=material)
@@ -45,14 +45,14 @@ class Material:
                 material.metallic = material_json['metallic']
             if 'roughness' in material_json and hasattr(material, 'roughness'):
                 material.roughness = material_json['roughness']
-            NodeTree.from_json(node_tree_parent=material, node_tree_json=material_json['node_tree'])
+            NodeTree.from_json(node_tree_parent=material, node_tree_json=material_json['node_tree'], attachments_path=attachments_path)
             material['bis_uid'] = material_json['bis_uid'] if 'bis_uid' in material_json else None
             # for current material specification
-            cls._from_json_spec(material, material_json)
+            cls._from_json_spec(material=material, material_json=material_json, attachments_path=attachments_path)
         return material
 
     @classmethod
-    def _from_json_spec(cls, material, material_json):
+    def _from_json_spec(cls, material, material_json, attachments_path):
         # extend to current material (different engines)
         pass
 
@@ -79,7 +79,7 @@ class Material:
     @staticmethod
     def get_subtype(context):
         # return subtype
-        if context.area.spaces.active.type == 'NODE_EDITOR':
+        if context.area and context.area.spaces.active.type == 'NODE_EDITOR':
             return context.area.spaces.active.tree_type
         else:
             return 'ShaderNodeTree'
@@ -87,7 +87,7 @@ class Material:
     @staticmethod
     def get_subtype2(context):
         # return subtype2
-        if context.area.spaces.active.type == 'NODE_EDITOR':
+        if context.area and context.area.spaces.active.type == 'NODE_EDITOR':
             return context.area.spaces.active.shader_type
         else:
             return 'OBJECT'

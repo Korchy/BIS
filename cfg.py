@@ -9,7 +9,7 @@
 show_debug_err = False
 
 # no sending content to server (False - send to server, True - not send)
-no_sending_to_server = True
+no_sending_to_server = False
 
 # write storing to server content to file
 to_server_to_file = True

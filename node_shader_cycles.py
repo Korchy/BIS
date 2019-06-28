@@ -15,7 +15,7 @@ class NodeShaderNodeBsdfGlossy(NodeCommon):
         node_json['distribution'] = node.distribution
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         node.distribution = node_in_json['distribution']
 
 
@@ -37,7 +37,7 @@ class NodeShaderNodeAttribute(NodeCommon):
         node_json['attribute_name'] = node.attribute_name
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         node.attribute_name = node_in_json['attribute_name']
 
 
@@ -49,7 +49,7 @@ class NodeShaderNodeTangent(NodeCommon):
         node_json['uv_map'] = node.uv_map
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         node.direction_type = node_in_json['direction_type']
         node.axis = node_in_json['axis']
         node.uv_map = node_in_json['uv_map']
@@ -65,7 +65,7 @@ class NodeShaderNodeUVMap(NodeCommon):
             node_json['from_instancer'] = node.from_instancer
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         node.uv_map = node_in_json['uv_map']
         if 'from_dupli' in node_in_json and hasattr(node, 'from_dupli'):
             node.from_dupli = node_in_json['from_dupli']
@@ -85,7 +85,7 @@ class NodeShaderNodeTexCoord(NodeCommon):
             node_json['from_instancer'] = node.from_instancer
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         if node_in_json['object']:
             if node_in_json['object'] in bpy.data.objects:
                 node.object = bpy.data.objects[node_in_json['object']]
@@ -112,7 +112,7 @@ class NodeShaderNodeTexPointDensity(NodeCommon):
         node_json['vertex_attribute_name'] = node.vertex_attribute_name
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         if 'object' in node_in_json and node_in_json['object']:
             BLObject.from_json(instance=node, json=node_in_json['object'])
             if 'particle_system' in node_in_json and node_in_json['particle_system']:
@@ -145,7 +145,7 @@ class NodeShaderNodeTexEnvironment(NodeCommon):
         node_json['color_mapping'] = CMCommon.cm_to_json(node.color_mapping)
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         if node_in_json['image']:
             if os.path.exists(node_in_json['image']) and os.path.isfile(node_in_json['image']):
                 if os.path.basename(node_in_json['image']) in bpy.data.images:
@@ -172,8 +172,8 @@ class NodeShaderNodeTexImage(NodeShaderNodeTexEnvironment):
         node_json['extension'] = node.extension
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
-        super()._json_to_node_spec(node=node, node_in_json=node_in_json)
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
+        super()._json_to_node_spec(node=node, node_in_json=node_in_json, attachments_path=attachments_path)
         node.projection_blend = node_in_json['projection_blend']
         node.extension = node_in_json['extension']
 
@@ -181,13 +181,17 @@ class NodeShaderNodeTexImage(NodeShaderNodeTexEnvironment):
 class NodeShaderNodeTexChecker(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
-        node_json['texture_mapping'] = TMCommon.tm_to_json(node.texture_mapping)
-        node_json['color_mapping'] = CMCommon.cm_to_json(node.color_mapping)
+        if hasattr(node, 'texture_mapping'):
+            node_json['texture_mapping'] = TMCommon.tm_to_json(node.texture_mapping)
+        if hasattr(node, 'color_mapping'):
+            node_json['color_mapping'] = CMCommon.cm_to_json(node.color_mapping)
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
-        TMCommon.json_to_tm(node, node_in_json['texture_mapping'])
-        CMCommon.json_to_cm(node, node_in_json['color_mapping'])
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
+        if 'texture_mapping' in node_in_json and hasattr(node, 'texture_mapping'):
+            TMCommon.json_to_tm(node, node_in_json['texture_mapping'])
+        if 'color_mapping' in node_in_json and hasattr(node, 'color_mapping'):
+            CMCommon.json_to_cm(node, node_in_json['color_mapping'])
 
 
 class NodeShaderNodeTexBrick(NodeShaderNodeTexChecker):
@@ -200,8 +204,8 @@ class NodeShaderNodeTexBrick(NodeShaderNodeTexChecker):
         node_json['squash'] = node.squash
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
-        super()._json_to_node_spec(node=node, node_in_json=node_in_json)
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
+        super()._json_to_node_spec(node=node, node_in_json=node_in_json, attachments_path=attachments_path)
         node.offset_frequency = node_in_json['offset_frequency']
         node.squash_frequency = node_in_json['squash_frequency']
         node.offset = node_in_json['offset']
@@ -215,8 +219,8 @@ class NodeShaderNodeTexGradient(NodeShaderNodeTexChecker):
         node_json['gradient_type'] = node.gradient_type
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
-        super()._json_to_node_spec(node=node, node_in_json=node_in_json)
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
+        super()._json_to_node_spec(node=node, node_in_json=node_in_json, attachments_path=attachments_path)
         node.gradient_type = node_in_json['gradient_type']
 
 
@@ -227,8 +231,8 @@ class NodeShaderNodeTexMagic(NodeShaderNodeTexChecker):
         node_json['turbulence_depth'] = node.turbulence_depth
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
-        super()._json_to_node_spec(node=node, node_in_json=node_in_json)
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
+        super()._json_to_node_spec(node=node, node_in_json=node_in_json, attachments_path=attachments_path)
         node.turbulence_depth = node_in_json['turbulence_depth']
 
 
@@ -239,8 +243,8 @@ class NodeShaderNodeTexMusgrave(NodeShaderNodeTexChecker):
         node_json['musgrave_type'] = node.musgrave_type
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
-        super()._json_to_node_spec(node=node, node_in_json=node_in_json)
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
+        super()._json_to_node_spec(node=node, node_in_json=node_in_json, attachments_path=attachments_path)
         node.musgrave_type = node_in_json['musgrave_type']
 
 
@@ -255,8 +259,8 @@ class NodeShaderNodeTexVoronoi(NodeShaderNodeTexChecker):
             node_json['feature'] = node.feature
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
-        super()._json_to_node_spec(node=node, node_in_json=node_in_json)
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
+        super()._json_to_node_spec(node=node, node_in_json=node_in_json, attachments_path=attachments_path)
         node.coloring = node_in_json['coloring']
         if 'distance' in node_in_json and hasattr(node, 'distance'):
             node.distance = node_in_json['distance']
@@ -272,8 +276,8 @@ class NodeShaderNodeTexWave(NodeShaderNodeTexChecker):
         node_json['wave_type'] = node.wave_type
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
-        super()._json_to_node_spec(node=node, node_in_json=node_in_json)
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
+        super()._json_to_node_spec(node=node, node_in_json=node_in_json, attachments_path=attachments_path)
         node.wave_profile = node_in_json['wave_profile']
         node.wave_type = node_in_json['wave_type']
 
@@ -288,8 +292,8 @@ class NodeShaderNodeTexSky(NodeShaderNodeTexChecker):
         node_json['ground_albedo'] = node.ground_albedo
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
-        super()._json_to_node_spec(node=node, node_in_json=node_in_json)
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
+        super()._json_to_node_spec(node=node, node_in_json=node_in_json, attachments_path=attachments_path)
         node.sky_type = node_in_json['sky_type']
         JsonEx.vector3_from_json(node.sun_direction, node_in_json['sun_direction'])
         node.turbidity = node_in_json['turbidity']
@@ -306,7 +310,7 @@ class NodeShaderNodeWireframe(NodeCommon):
         node_json['use_pixel_size'] = node.use_pixel_size
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         node.use_pixel_size = node_in_json['use_pixel_size']
 
 
@@ -316,7 +320,7 @@ class NodeShaderNodeBsdfHair(NodeCommon):
         node_json['component'] = node.component
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         node.component = node_in_json['component']
 
 
@@ -330,7 +334,7 @@ class NodeShaderNodeSubsurfaceScattering(NodeCommon):
         node_json['falloff'] = node.falloff
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         node.falloff = node_in_json['falloff']
 
 
@@ -342,7 +346,7 @@ class NodeShaderNodeMixRGB(NodeCommon):
         node_json['use_clamp'] = node.use_clamp
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         node.blend_type = node_in_json['blend_type']
         node.use_alpha = node_in_json['use_alpha']
         node.use_clamp = node_in_json['use_clamp']
@@ -410,7 +414,7 @@ class NodeShaderNodeRGBCurve(NodeCommon):
         node_json['mapping'] = CurveMapping.cum_to_json(node.mapping)
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         CurveMapping.json_to_cum(node.mapping, node_in_json['mapping'])
 
 
@@ -424,7 +428,7 @@ class NodeShaderNodeBump(NodeCommon):
         node_json['invert'] = node.invert
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         node.invert = node_in_json['invert']
 
 
@@ -436,7 +440,7 @@ class NodeShaderNodeVectorTransform(NodeCommon):
         node_json['convert_to'] = node.convert_to
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         node.vector_type = node_in_json['vector_type']
         node.convert_from = node_in_json['convert_from']
         node.convert_to = node_in_json['convert_to']
@@ -448,7 +452,7 @@ class NodeShaderNodeValToRGB(NodeCommon):
         node_json['color_ramp'] = NodeColorRamp.cr_to_json(node.color_ramp)
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         NodeColorRamp.json_to_cr(node.color_ramp, node_in_json['color_ramp'])
 
 
@@ -465,7 +469,7 @@ class NodeShaderNodeMapping(NodeCommon):
         node_json['use_max'] = node.use_max
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         node.vector_type = node_in_json['vector_type']
         JsonEx.vector3_from_json(node.translation, node_in_json['translation'])
         JsonEx.vector3_from_json(node.rotation, node_in_json['rotation'])
@@ -489,7 +493,7 @@ class NodeShaderNodeNormalMap(NodeCommon):
             node_json['uv_map'] = node.uv_map
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         if 'space' in node_in_json and hasattr(node, 'space'):
             node.space = node_in_json['space']
         if 'uv_map' in node_in_json and hasattr(node, 'uv_map'):
@@ -503,7 +507,7 @@ class NodeShaderNodeMath(NodeCommon):
         node_json['use_clamp'] = node.use_clamp
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         node.operation = node_in_json['operation']
         node.use_clamp = node_in_json['use_clamp']
 
@@ -514,7 +518,7 @@ class NodeShaderNodeVectorMath(NodeCommon):
         node_json['operation'] = node.operation
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         node.operation = node_in_json['operation']
 
 
@@ -526,7 +530,7 @@ class NodeShaderNodeScript(NodeCommon):
         if node.mode == 'INTERNAL':
             if node.script:
                 node_json['script'] = node.script.name
-                rez = TextManager.to_bis(bpy.data.texts[node.script.name])
+                rez = TextManager.to_bis(context=bpy.context, text=bpy.data.texts[node.script.name])
                 if rez['stat'] == 'OK':
                     bis_linked_item = {
                         'storage': TextManager.storage_type(),
@@ -543,11 +547,11 @@ class NodeShaderNodeScript(NodeCommon):
         node_json['use_auto_update'] = node.use_auto_update
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         node.mode = node_in_json['mode']
         if node.mode == 'INTERNAL':
             if node_in_json['bis_linked_item']:
-                TextManager.from_bis(node_in_json['bis_linked_item']['id'])
+                TextManager.from_bis(context=bpy.context, bis_text_id=node_in_json['bis_linked_item']['id'])
             if node_in_json['script']:
                 if node_in_json['script'] in bpy.data.texts:
                     node.script = bpy.data.texts[node_in_json['script']]
@@ -573,7 +577,7 @@ class NodeNodeGroupOutput(NodeCommon):
         node_json['is_active_output'] = node.is_active_output
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         if 'is_active_output' in node_in_json:
             node.is_active_output = node_in_json['is_active_output']
 
@@ -589,7 +593,7 @@ class NodeShaderNodeAmbientOcclusion(NodeCommon):
             node_json['samples'] = node.samples
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         if 'inside' in node_in_json and hasattr(node, 'inside'):
             node.inside = node_in_json['inside']
         if 'only_local' in node_in_json and hasattr(node, 'only_local'):
@@ -605,7 +609,7 @@ class NodeShaderNodeBevel(NodeCommon):
             node_json['samples'] = node.samples
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         if 'samples' in node_in_json and hasattr(node, 'samples'):
             node.samples = node_in_json['samples']
 
@@ -659,7 +663,7 @@ class NodeShaderNodeOutputMaterial(NodeCommon):
             node_json['target'] = node.target
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         if 'is_active_output' in node_in_json and hasattr(node, 'is_active_output'):
             node.is_active_output = node_in_json['is_active_output']
         if 'target' in node_in_json and hasattr(node, 'target'):
@@ -699,7 +703,7 @@ class NodeShaderNodeBsdfPrincipled(NodeCommon):
             node_json['subsurface_method'] = node.subsurface_method
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         if 'distribution' in node_in_json and hasattr(node, 'distribution'):
             node.distribution = node_in_json['distribution']
         if 'subsurface_method' in node_in_json and hasattr(node, 'subsurface_method'):
@@ -713,7 +717,7 @@ class NodeShaderNodeBsdfHairPrincipled(NodeCommon):
             node_json['parametrization'] = node.parametrization
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         if 'parametrization' in node_in_json and hasattr(node, 'parametrization'):
             node.parametrization = node_in_json['parametrization']
 
@@ -750,7 +754,7 @@ class NodeShaderNodeTexIES(NodeCommon):
         if node.mode == 'INTERNAL':
             if node.ies:
                 node_json['ies'] = node.ies.name
-                rez = TextManager.to_bis(bpy.data.texts[node.ies.name])
+                rez = TextManager.to_bis(context=bpy.context, text=bpy.data.texts[node.ies.name])
                 if rez['stat'] == 'OK':
                     bis_linked_item = {
                         'storage': TextManager.storage_type(),
@@ -766,11 +770,11 @@ class NodeShaderNodeTexIES(NodeCommon):
                     node_json['filepath'] = os.path.abspath(node.filepath)
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         node.mode = node_in_json['mode']
         if node.mode == 'INTERNAL':
             if 'bis_linked_item' in node_in_json and node_in_json['bis_linked_item']:
-                TextManager.from_bis(node_in_json['bis_linked_item']['id'])
+                TextManager.from_bis(context=bpy.context, bis_text_id=node_in_json['bis_linked_item']['id'])
             if node_in_json['ies']:
                 if node_in_json['ies'] in bpy.data.texts:
                     node.ies = bpy.data.texts[node_in_json['ies']]
@@ -788,7 +792,7 @@ class NodeShaderNodeDisplacement(NodeCommon):
             node_json['space'] = node.space
 
     @classmethod
-    def _json_to_node_spec(cls, node, node_in_json):
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         if 'space' in node_in_json and hasattr(node, 'space'):
             node.space = node_in_json['space']
 

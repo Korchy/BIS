@@ -294,9 +294,9 @@ class MeshManager:
                         if os.stat(zip_file_path).st_size < __class__._mesh_limit_file_size:
                             rez = zip_file_path
                         else:
-                            bpy.ops.message.messagebox('INVOKE_DEFAULT', message='ERR: Saving meshes must be less 3 Mb after zip export')
+                            bpy.ops.message.messagebox('INVOKE_DEFAULT', message='ERR: Saving meshes must be less ' + str(round(__class__._mesh_limit_file_size/1024/1024)) + ' Mb after zip export')
             else:
-                bpy.ops.message.messagebox('INVOKE_DEFAULT', message='ERR: Saving meshes must be less 50 000 vertices at all')
+                bpy.ops.message.messagebox('INVOKE_DEFAULT', message='ERR: Saving meshes must be less ' + str(__class__._mesh_limit_vert_count) + ' vertices at all')
         else:
             bpy.ops.message.messagebox('INVOKE_DEFAULT', message='ERR: No meshes to save')
         return rez

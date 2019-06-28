@@ -1,10 +1,12 @@
 # Nikita Akimov
 # interplanety@interplanety.org
 
-import sys
 import bpy
-import os
 import json
+import os
+from shutil import copyfile
+import tempfile
+from .file_manager import FileManager
 from . import cfg
 from .node_node_group import NodeGroup
 from .material import Material
@@ -89,9 +91,32 @@ class NodeManager:
             if request:
                 request_rez = json.loads(request.text)
                 if request_rez['stat'] == 'OK':
+                    # attachment
+                    attachments_path = ''
+                    if request_rez['data']['file_attachment']:
+                        with tempfile.TemporaryDirectory() as temp_dir:
+                            request_file = WebRequest.send_request(
+                                context=context,
+                                data={
+                                    'for': 'get_item_file_attachment',
+                                    'storage': __class__.storage_type(context=context),
+                                    'id': bis_item_id
+                                }
+                            )
+                            if request_file:
+                                zip_file_name = str(bis_item_id) + '.zip'
+                                zip_file_path = os.path.join(temp_dir, zip_file_name)
+                                with open(zip_file_path, 'wb') as temp_item_file_attachment:
+                                    temp_item_file_attachment.write(request_file.content)
+                                if cfg.from_server_to_file:
+                                    copyfile(zip_file_path, os.path.join(FileManager.project_dir(), zip_file_name))
+                                # unzip to project directory
+                                attachments_path = os.path.join(FileManager.project_dir(), str(bis_item_id))
+                                FileManager.unzip_files(source_zip_path=zip_file_path, dest_dir=attachments_path)
+                    # item body
                     item_in_json = json.loads(request_rez['data']['item'])
                     if cfg.from_server_to_file:
-                        with open(os.path.join(os.path.dirname(bpy.data.filepath), 'received_from_server.json'), 'w') as currentFile:
+                        with open(os.path.join(FileManager.project_dir(), 'received_from_server.json'), 'w') as currentFile:
                             json.dump(item_in_json, currentFile, indent=4)
                     item_version = item_in_json['BIS_addon_version'] if 'BIS_addon_version' in item_in_json else Addon.node_group_first_version
                     if Addon.node_group_version_higher(item_version, Addon.current_version()):
@@ -101,7 +126,7 @@ class NodeManager:
                         # got Material (can be only object material)
                         if item_type == 'MATERIAL':
                             # use as Material
-                            Material.from_json(context=context, material_json=item_in_json)
+                            Material.from_json(context=context, material_json=item_in_json, attachments_path=attachments_path)
                         elif item_type == 'NODEGROUP':
                             # use as Node Group
                             active_node_tree = __class__.active_node_tree(context=context)
@@ -192,7 +217,7 @@ class NodeManager:
                                 'outputs': []
                             }
                             node_group_json['nodes'].append(input_node)
-                            node_group = NodeGroup.from_json(node_group_json=node_group_json, parent_node_tree=active_node_tree)
+                            node_group = NodeGroup.from_json(node_group_json=node_group_json, parent_node_tree=active_node_tree, attachments_path=attachments_path)
                             # create links from material output nodes to group output node
                             node_group_output_node = [node for node in node_group.node_tree.nodes if node.type == 'GROUP_OUTPUT'][0]
                             for link in node_group.node_tree.links:
@@ -218,7 +243,7 @@ class NodeManager:
                                     Material.new(context=context)
                             active_node_tree = __class__.active_node_tree(context=context)
                             if item_in_json and active_node_tree:
-                                nodegroup = NodeGroup.from_json(node_group_json=item_in_json, parent_node_tree=active_node_tree)
+                                nodegroup = NodeGroup.from_json(node_group_json=item_in_json, parent_node_tree=active_node_tree, attachments_path=attachments_path)
                                 if nodegroup:
                                     nodegroup['bis_uid'] = bis_item_id
                         elif item_type == 'MATERIAL':
@@ -228,7 +253,7 @@ class NodeManager:
                                 material.name = item_in_json['name']
                                 Material.clear(material=material, exclude_output_nodes=True)
                                 active_node_tree = __class__.active_node_tree(context=context)
-                                nodegroup = NodeGroup.from_json(node_group_json=item_in_json, parent_node_tree=active_node_tree)
+                                nodegroup = NodeGroup.from_json(node_group_json=item_in_json, parent_node_tree=active_node_tree, attachments_path=attachments_path)
                                 if nodegroup:
                                     nodegroup['bis_uid'] = bis_item_id
                                     # additional nodes and links
@@ -283,37 +308,72 @@ class NodeManager:
                 item_json = NodeGroup.to_json(nodegroup=item)
             elif item_type == 'MATERIAL':
                 item_json = Material.to_json(context=context, material=item)
-        if item_json and not __class__.is_procedural(material=item):
-            # attachment file external items (textures,... etc)
-            file_attachment = NodeTree.external_items(node_tree=item.node_tree)
-            print(file_attachment)
-            # if file_attachment:
-            #     item_attachment['file_attachment'] = file_attachment
-        if cfg.to_server_to_file:
-            with open(os.path.join(os.path.dirname(bpy.data.filepath), 'send_to_server.json'), 'w') as currentFile:
-                json.dump(item_json, currentFile, indent=4)
-        # send to server
-        if item_json and not cfg.no_sending_to_server:
-            bis_links = list(__class__.get_bis_linked_items('bis_linked_item', item_json))
-            request = WebRequest.send_request(
-                context=context,
-                data={
-                    'for': 'add_item',
-                    'item_body': json.dumps(item_json),
-                    'storage': __class__.storage_type(context=context),
-                    'storage_subtype': subtype,
-                    'storage_subtype2': Material.get_subtype2(context=context),
-                    'procedural': 1 if __class__.is_procedural(material=item) else 0,
-                    'engine': context.window.scene.render.engine,
-                    'bis_links': json.dumps(bis_links),
-                    'item_name': item_json['name'],
-                    'item_tags': tags.strip(),
-                    'addon_version': Addon.current_version()
-                },
-                files=item_attachment,
-            )
-            if request:
-                request_rez = json.loads(request.text)
+        if item_json:
+            if cfg.to_server_to_file:
+                with open(os.path.join(FileManager.project_dir(), 'send_to_server.json'), 'w') as currentFile:
+                    json.dump(item_json, currentFile, indent=4)
+            if __class__.is_procedural(material=item):
+                # send to server
+                if not cfg.no_sending_to_server:
+                    bis_links = list(__class__.get_bis_linked_items('bis_linked_item', item_json))
+                    request = WebRequest.send_request(
+                        context=context,
+                        data={
+                            'for': 'add_item',
+                            'item_body': json.dumps(item_json),
+                            'storage': __class__.storage_type(context=context),
+                            'storage_subtype': subtype,
+                            'storage_subtype2': Material.get_subtype2(context=context),
+                            'procedural': 1 if __class__.is_procedural(material=item) else 0,
+                            'engine': context.window.scene.render.engine,
+                            'bis_links': json.dumps(bis_links),
+                            'item_name': item_json['name'],
+                            'item_tags': tags.strip(),
+                            'addon_version': Addon.current_version()
+                        }
+                    )
+                    if request:
+                        request_rez = json.loads(request.text)
+            else:
+                # attach file with external items (textures,... etc)
+                file_attachment = NodeTree.external_items(node_tree=item.node_tree)
+                if file_attachment:
+                    with tempfile.TemporaryDirectory() as temp_dir:
+                        zip_file = FileManager.zip_files(
+                            source_files_list=file_attachment,
+                            temp_dir=temp_dir,
+                            zip_name=item_json['name']
+                        )
+                        if zip_file and os.path.exists(zip_file):
+                            if cfg.to_server_to_file:
+                                copyfile(zip_file, os.path.join(FileManager.project_dir(), item_json['name']+'.zip'))
+                            if os.stat(zip_file).st_size < __class__._material_limit_file_size:
+                                # send to server
+                                if not cfg.no_sending_to_server:
+                                    bis_links = list(__class__.get_bis_linked_items('bis_linked_item', item_json))
+                                    request = WebRequest.send_request(
+                                        context=context,
+                                        data={
+                                            'for': 'add_item',
+                                            'item_body': json.dumps(item_json),
+                                            'storage': __class__.storage_type(context=context),
+                                            'storage_subtype': subtype,
+                                            'storage_subtype2': Material.get_subtype2(context=context),
+                                            'procedural': 1 if __class__.is_procedural(material=item) else 0,
+                                            'engine': context.window.scene.render.engine,
+                                            'bis_links': json.dumps(bis_links),
+                                            'item_name': item_json['name'],
+                                            'item_tags': tags.strip(),
+                                            'addon_version': Addon.current_version()
+                                        },
+                                        files={
+                                            'attachment_file': open(zip_file, 'rb')
+                                        }
+                                    )
+                                    if request:
+                                        request_rez = json.loads(request.text)
+                            else:
+                                request_rez['data']['text'] = 'Saving material must be less ' + str(round(__class__._material_limit_file_size/1024/1024)) + ' Mb with textures after zip export!'
         if request_rez['stat'] == 'OK':
             item['bis_uid'] = request_rez['data']['id']
         return request_rez
@@ -335,30 +395,73 @@ class NodeManager:
                 request_rez['data']['text'] = 'Save this Material item to the BIS first!'
         else:
             request_rez['data']['text'] = 'Undefined material item to update'
-        if cfg.to_server_to_file:
-            with open(os.path.join(os.path.dirname(bpy.data.filepath), 'send_to_server.json'), 'w') as currentFile:
-                json.dump(item_json, currentFile, indent=4)
         # send to server
-        if item_json and not cfg.no_sending_to_server:
-            bis_links = list(__class__.get_bis_linked_items('bis_linked_item', item_json))
-            request = WebRequest.send_request(
-                context=context,
-                data={
-                    'for': 'update_item',
-                    'item_body': json.dumps(item_json),
-                    'storage': __class__.storage_type(context=context),
-                    'storage_subtype': subtype,
-                    'storage_subtype2': Material.get_subtype2(context=context),
-                    'procedural': 1 if __class__.is_procedural(material=item) else 0,
-                    'engine': context.window.scene.render.engine,
-                    'bis_links': json.dumps(bis_links),
-                    'item_id': item['bis_uid'],
-                    'item_name': item_json['name'],
-                    'addon_version': Addon.current_version()
-                }
-            )
-            if request:
-                request_rez = json.loads(request.text)
+        if item_json:
+            if cfg.to_server_to_file:
+                with open(os.path.join(FileManager.project_dir(), 'send_to_server.json'), 'w') as currentFile:
+                    json.dump(item_json, currentFile, indent=4)
+            if __class__.is_procedural(material=item):
+                # send to server
+                if not cfg.no_sending_to_server:
+                    bis_links = list(__class__.get_bis_linked_items('bis_linked_item', item_json))
+                    request = WebRequest.send_request(
+                        context=context,
+                        data={
+                            'for': 'update_item',
+                            'item_body': json.dumps(item_json),
+                            'storage': __class__.storage_type(context=context),
+                            'storage_subtype': subtype,
+                            'storage_subtype2': Material.get_subtype2(context=context),
+                            'procedural': 1 if __class__.is_procedural(material=item) else 0,
+                            'engine': context.window.scene.render.engine,
+                            'bis_links': json.dumps(bis_links),
+                            'item_id': item['bis_uid'],
+                            'item_name': item_json['name'],
+                            'addon_version': Addon.current_version()
+                        }
+                    )
+                    if request:
+                        request_rez = json.loads(request.text)
+            else:
+                # attach file with external items (textures,... etc)
+                file_attachment = NodeTree.external_items(node_tree=item.node_tree)
+                if file_attachment:
+                    with tempfile.TemporaryDirectory() as temp_dir:
+                        zip_file = FileManager.zip_files(
+                            source_files_list=file_attachment,
+                            temp_dir=temp_dir,
+                            zip_name=item_json['name']
+                        )
+                        if zip_file and os.path.exists(zip_file):
+                            if cfg.to_server_to_file:
+                                copyfile(zip_file, os.path.join(FileManager.project_dir(), item_json['name']+'.zip'))
+                            if os.stat(zip_file).st_size < __class__._material_limit_file_size:
+                                # send to server
+                                if not cfg.no_sending_to_server:
+                                    bis_links = list(__class__.get_bis_linked_items('bis_linked_item', item_json))
+                                    request = WebRequest.send_request(
+                                        context=context,
+                                        data={
+                                            'for': 'update_item',
+                                            'item_body': json.dumps(item_json),
+                                            'storage': __class__.storage_type(context=context),
+                                            'storage_subtype': subtype,
+                                            'storage_subtype2': Material.get_subtype2(context=context),
+                                            'procedural': 1 if __class__.is_procedural(material=item) else 0,
+                                            'engine': context.window.scene.render.engine,
+                                            'bis_links': json.dumps(bis_links),
+                                            'item_id': item['bis_uid'],
+                                            'item_name': item_json['name'],
+                                            'addon_version': Addon.current_version()
+                                        },
+                                        files={
+                                            'attachment_file': open(zip_file, 'rb')
+                                        }
+                                    )
+                                    if request:
+                                        request_rez = json.loads(request.text)
+                            else:
+                                request_rez['data']['text'] = 'Saving material must be less ' + str(round(__class__._material_limit_file_size/1024/1024)) + ' Mb with textures after zip export!'
         return request_rez
 
     @staticmethod

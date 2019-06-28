@@ -96,8 +96,8 @@ class NodeBaseShaderNodeGroup(NodeBase):
         return node_json
 
     @classmethod
-    def json_to_node(cls, node_tree, node_json):
-        current_node = super(__class__, __class__).json_to_node(node_tree, node_json)
+    def json_to_node(cls, node_tree, node_json, attachments_path):
+        current_node = super(__class__, __class__).json_to_node(node_tree=node_tree, node_json=node_json, attachments_path=attachments_path)
         tree_type = node_json['tree_type'] if 'tree_type' in node_json else 'ShaderNodeTree'
         current_node.node_tree = bpy.data.node_groups.new(type=tree_type, name=node_json['name'])
         node_group_tree_node_indexed = []
@@ -122,7 +122,7 @@ class NodeBaseShaderNodeGroup(NodeBase):
             node_class = NodeBase
             if hasattr(sys.modules[__name__], 'NodeBase' + current_node_json['bl_type']):
                 node_class = getattr(sys.modules[__name__], 'NodeBase' + current_node_json['bl_type'])
-            c_node = node_class.json_to_node(node_tree=current_node.node_tree, node_json=current_node_json)
+            c_node = node_class.json_to_node(node_tree=current_node.node_tree, node_json=current_node_json, attachments_path=attachments_path)
             if c_node:
                 # Node Inputs
                 for input_number, nodeInputInJson in enumerate(current_node_json['inputs']):
