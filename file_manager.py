@@ -59,3 +59,16 @@ class FileManager:
             return os.path.dirname(bpy.data.filepath)
         else:
             return tempfile.gettempdir()
+
+    @staticmethod
+    def project_name():
+        # returns current opened project dir
+        if bpy.data.filepath:
+            return os.path.splitext(os.path.basename(bpy.data.filepath))[0]
+        else:
+            return ''
+
+    @staticmethod
+    def attachments_path():
+        # returns path to bis-attachments dir
+        return os.path.join(__class__.project_dir(), __class__.project_name() + '_bis_external')

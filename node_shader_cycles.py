@@ -3,6 +3,7 @@
 
 import bpy
 import os
+from .file_manager import FileManager
 from .JsonEx import JsonEx
 from .bl_types_conversion import BLObject, BLParticleSystem
 from .node_common import NodeCommon, TMCommon, IUCommon, CMCommon, CurveMapping, NodeColorRamp
@@ -134,7 +135,7 @@ class NodeShaderNodeTexEnvironment(NodeCommon):
         node_json['image_source'] = ''
         if node.image:
             node_json['image'] = os.path.normpath(os.path.join(os.path.dirname(bpy.data.filepath), node.image.filepath.replace('//', '')))
-            node_json['image_name'] = node.image.name
+            node_json['image_name'] = FileManager.normalize_file_name(node.image.name)
             node_json['image_source'] = node.image.source
         if hasattr(node, 'color_space'):
             node_json['color_space'] = node.color_space
@@ -146,14 +147,23 @@ class NodeShaderNodeTexEnvironment(NodeCommon):
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json, attachments_path):
-        if node_in_json['image']:
-            if os.path.exists(node_in_json['image']) and os.path.isfile(node_in_json['image']):
-                if os.path.basename(node_in_json['image']) in bpy.data.images:
-                    bpy.data.images[os.path.basename(node_in_json['image'])].reload()
-                else:
-                    bpy.data.images.load(node_in_json['image'], check_existing=True)
-            if os.path.basename(node_in_json['image']) in bpy.data.images:
-                node.image = bpy.data.images[os.path.basename(node_in_json['image'])]
+        attachment_path = ''
+        attachment_name = ''
+        if node_in_json['image_name'] and os.path.exists(os.path.join(attachments_path, node_in_json['image_name'])) and os.path.isfile(os.path.join(attachments_path, node_in_json['image_name'])):
+            attachment_path = os.path.join(attachments_path, node_in_json['image_name'])
+            attachment_name = node_in_json['image_name']
+        elif node_in_json['image'] and os.path.exists(node_in_json['image']) and os.path.isfile(node_in_json['image']):
+            attachment_path = node_in_json['image']
+            attachment_name = os.path.basename(node_in_json['image'])
+        if attachment_path:
+            if attachment_name in bpy.data.images:
+                bpy.data.images[attachment_name].reload()
+            else:
+                attachment_block = bpy.data.images.load(attachment_path, check_existing=False)
+                if attachment_block:
+                    attachment_name = attachment_block.name
+            if attachment_name and attachment_name in bpy.data.images:
+                node.image = bpy.data.images[attachment_name]
                 node.image.source = node_in_json['image_source']
         if 'color_space' in node_in_json and hasattr(node, 'color_space'):
             node.color_space = node_in_json['color_space']
@@ -557,7 +567,10 @@ class NodeShaderNodeScript(NodeCommon):
                     node.script = bpy.data.texts[node_in_json['script']]
         else:
             if node_in_json['filepath']:
-                if os.path.exists(node_in_json['filepath']) and os.path.isfile(node_in_json['filepath']):
+                attachment_name = os.path.basename(node_in_json['filepath'])
+                if os.path.exists(os.path.join(attachments_path, attachment_name)) and os.path.isfile(os.path.join(attachments_path, attachment_name)):
+                    node.filepath = os.path.join(attachments_path, attachment_name)
+                elif os.path.exists(node_in_json['filepath']) and os.path.isfile(node_in_json['filepath']):
                     node.filepath = node_in_json['filepath']
         node.use_auto_update = node_in_json['use_auto_update']
         node.update()

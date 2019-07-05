@@ -111,7 +111,7 @@ class NodeManager:
                                 if cfg.from_server_to_file:
                                     copyfile(zip_file_path, os.path.join(FileManager.project_dir(), zip_file_name))
                                 # unzip to project directory
-                                attachments_path = os.path.join(FileManager.project_dir(), str(bis_item_id))
+                                attachments_path = os.path.join(FileManager.attachments_path(), str(bis_item_id))
                                 FileManager.unzip_files(source_zip_path=zip_file_path, dest_dir=attachments_path)
                     # item body
                     item_in_json = json.loads(request_rez['data']['item'])
@@ -301,7 +301,6 @@ class NodeManager:
         # item_type = 'MATERIAL' or 'NODEGROUP'
         request_rez = {'stat': 'ERR', 'data': {'text': 'Error to save'}}
         item_json = None
-        item_attachment = {}
         subtype = Material.get_subtype(context=context)
         if item:
             if item_type == 'NODEGROUP' or subtype == 'CompositorNodeTree':
