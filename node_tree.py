@@ -13,7 +13,7 @@ from .node_node_group import *
 
 class NodeTree:
     @classmethod
-    def to_json(cls, node_tree):
+    def to_json(cls, node_tree_parent, node_tree):
         node_tree_json = {
             'type': node_tree.type,
             'bl_idname': node_tree.bl_idname,
@@ -22,18 +22,17 @@ class NodeTree:
             'nodes': [],
             'links': []
         }
-        # nodes
-        __class__._enumerate(node_tree)
+        cls._enumerate(node_tree)
         # node_tree inputs
         for c_input in node_tree.inputs:
-            input_name = 'NodeIO' + c_input.bl_idname
+            input_name = 'NodeIO' + c_input.rna_type.identifier     # NodeSocketInterfaceXXX
             io_class = NodeIOCommon
             if hasattr(sys.modules[__name__], input_name):
                 io_class = getattr(sys.modules[__name__], input_name)
             node_tree_json['inputs'].append(io_class.input_to_json(c_input))
         # node_tree outputs
         for c_output in node_tree.outputs:
-            output_name = 'NodeIO' + c_output.bl_idname
+            output_name = 'NodeIO' + c_output.rna_type.identifier   # NodeSocketInterfaceXXX
             io_class = NodeIOCommon
             if hasattr(sys.modules[__name__], output_name):
                 io_class = getattr(sys.modules[__name__], output_name)
@@ -65,26 +64,17 @@ class NodeTree:
     def from_json(cls, node_tree_parent, node_tree_json, attachments_path):
         if node_tree_parent and node_tree_json:
             node_tree = node_tree_parent.node_tree
+            # node_tree inputs/outputs
             # node_tree inputs
             for input_number, input_json in enumerate(node_tree_json['inputs']):
-                if node_tree_parent.bl_rna.name == 'Group':
-                    # for group - generate new input
-                    node_tree.inputs.new(type=input_json['bl_idname'], name=input_json['name'])     # NodeSocketInterfaceXXX
-                    current_input = node_tree_parent.inputs[-1]   # NodeSocketXXX
-                    io_class = NodeIOCommon
-                    if hasattr(sys.modules[__name__], 'NodeIO' + input_json['bl_idname']):
-                        io_class = getattr(sys.modules[__name__], 'NodeIO' + input_json['bl_idname'])
-                    io_class.json_to_i(node_input=current_input, input_json=input_json)
+                # for NodeSocketInterfaceXXX - do nothing
+                # for NodeSocketXXX - work in node_node_group
+                pass
             # node outputs
             for output_number, output_json in enumerate(node_tree_json['outputs']):
-                if node_tree_parent.bl_rna.name == 'Group':
-                    # for group - generate new output
-                    node_tree.outputs.new(type=output_json['bl_idname'], name=output_json['name'])     # NodeSocketInterfaceXXX
-                    current_output = node_tree_parent.outputs[-1]   # NodeSocketXXX
-                    io_class = NodeIOCommon
-                    if hasattr(sys.modules[__name__], 'NodeIO' + output_json['bl_idname']):
-                        io_class = getattr(sys.modules[__name__], 'NodeIO' + output_json['bl_idname'])
-                    io_class.json_to_o(node_output=current_output, output_json=output_json)
+                # for NodeSocketInterfaceXXX - do nothing
+                # for NodeSocketXXX - work in node_node_group
+                pass
             # Nodes
             for current_node_in_json in node_tree_json['nodes']:
                 node_class = NodeCommon
@@ -93,15 +83,15 @@ class NodeTree:
                 node_class.json_to_node(node_tree=node_tree, node_json=current_node_in_json, attachments_path=attachments_path)
             # links
             for link_json in node_tree_json['links']:
-                from_node = __class__._node_by_bis_id(node_tree=node_tree, bis_node_id=link_json[0])
-                to_node = __class__._node_by_bis_id(node_tree=node_tree, bis_node_id=link_json[2])
+                from_node = cls._node_by_bis_id(node_tree=node_tree, bis_node_id=link_json[0])
+                to_node = cls._node_by_bis_id(node_tree=node_tree, bis_node_id=link_json[2])
                 # for group nodes and group inputs/output nodes - by number, for other nodes - by identifier
                 if isinstance(link_json[1], str):
-                    from_output = __class__._output_by_identifier(from_node, link_json[1])
+                    from_output = cls._output_by_identifier(from_node, link_json[1])
                 else:
                     from_output = from_node.outputs[link_json[1]]
                 if isinstance(link_json[3], str):
-                    to_input = __class__._input_by_identifier(to_node, link_json[3])
+                    to_input = cls._input_by_identifier(to_node, link_json[3])
                 else:
                     to_input = to_node.inputs[link_json[3]]
                 if from_output and to_input:
@@ -161,13 +151,13 @@ class NodeTree:
                 rez = output_with_identifier[0]
         return rez
 
-    @staticmethod
-    def external_items(node_tree):
+    @classmethod
+    def external_items(cls, node_tree):
         # returns external items (textures,... etc) list
         rez = []
         for node in node_tree.nodes:
             if node.type == 'GROUP':
-                rez.extend(__class__.external_items(node_tree=node.node_tree))
+                rez.extend(cls.external_items(node_tree=node.node_tree))
             elif node.type == 'TEX_IMAGE':
                 rez.append({
                     'path': FileManager.abs_path(node.image.filepath),

@@ -1,5 +1,9 @@
 Version history:
 -
+1.7.1
+- Deselects all other nodes when adding node group from BIS
+- Some inner engine changes
+
 1.7.0
 - Enabled storing materials with textures
 

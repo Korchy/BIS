@@ -20,8 +20,8 @@ class NodeManager:
 
     _material_limit_file_size = 26214400    # max zipped file with textures size (25 Mb)
 
-    @staticmethod
-    def items_from_bis(context, search_filter, page, update_preview=False):
+    @classmethod
+    def items_from_bis(cls, context, search_filter, page, update_preview=False):
         # get page of items list from BIS
         rez = None
         storage_subtype = Material.get_subtype(context)
@@ -32,7 +32,7 @@ class NodeManager:
                 'for': 'get_items',
                 'search_filter': search_filter,
                 'page': page,
-                'storage': __class__.storage_type(context),
+                'storage': cls.storage_type(context=context),
                 'storage_subtype': storage_subtype,
                 'storage_subtype2': storage_subtype2,
                 'update_preview': update_preview
@@ -50,14 +50,14 @@ class NodeManager:
                          Please log in your account on the BIS web site,\n \
                          Add some materials to the active palette,\n \
                          And press this button again.')
-                preview_to_update = BISItems.update_previews_from_data(data=request_rez['data']['items'], list_name=__class__.storage_type(context))
+                preview_to_update = BISItems.update_previews_from_data(data=request_rez['data']['items'], list_name=cls.storage_type(context))
                 if preview_to_update:
                     request = WebRequest.send_request(
                         context=context,
                         data={
                             'for': 'update_previews',
                             'preview_list': preview_to_update,
-                            'storage': __class__.storage_type(context),
+                            'storage': cls.storage_type(context),
                             'storage_subtype': storage_subtype,
                             'storage_subtype2': storage_subtype2
                         }
@@ -65,14 +65,14 @@ class NodeManager:
                     if request:
                         previews_update_rez = json.loads(request.text)
                         if previews_update_rez['stat'] == 'OK':
-                            BISItems.update_previews_from_data(data=previews_update_rez['data']['items'], list_name=__class__.storage_type(context))
-                BISItems.create_items_list(data=request_rez['data']['items'], list_name=__class__.storage_type(context))
+                            BISItems.update_previews_from_data(data=previews_update_rez['data']['items'], list_name=cls.storage_type(context))
+                BISItems.create_items_list(data=request_rez['data']['items'], list_name=cls.storage_type(context))
                 context.window_manager.bis_get_nodes_info_from_storage_vars.current_page = page
                 context.window_manager.bis_get_nodes_info_from_storage_vars.current_page_status = request_rez['data']['status']
         return rez
 
-    @staticmethod
-    def from_bis(context, bis_item_id, item_type):
+    @classmethod
+    def from_bis(cls, context, bis_item_id, item_type):
         # item_type = 'MATERIAL' or 'NODEGROUP'
         request_rez = {'stat': 'ERR', 'data': {'text': 'No Id', 'content': None}}
         if bis_item_id:
@@ -81,7 +81,7 @@ class NodeManager:
                 context=context,
                 data={
                     'for': 'get_item',
-                    'storage': __class__.storage_type(context=context),
+                    'storage': cls.storage_type(context=context),
                     'storage_subtype': subtype,
                     'storage_subtype2': Material.get_subtype2(context),
                     'id': bis_item_id,
@@ -93,13 +93,13 @@ class NodeManager:
                 if request_rez['stat'] == 'OK':
                     # attachment
                     attachments_path = ''
-                    if request_rez['data']['file_attachment']:
+                    if 'file_attachment' in request_rez['data'] and request_rez['data']['file_attachment']:
                         with tempfile.TemporaryDirectory() as temp_dir:
                             request_file = WebRequest.send_request(
                                 context=context,
                                 data={
                                     'for': 'get_item_file_attachment',
-                                    'storage': __class__.storage_type(context=context),
+                                    'storage': cls.storage_type(context=context),
                                     'id': bis_item_id
                                 }
                             )
@@ -129,7 +129,7 @@ class NodeManager:
                             Material.from_json(context=context, material_json=item_in_json, attachments_path=attachments_path)
                         elif item_type == 'NODEGROUP':
                             # use as Node Group
-                            active_node_tree = __class__.active_node_tree(context=context)
+                            active_node_tree = cls.active_node_tree(context=context)
                             # NodeGroup.new(parent_node_tree=active_node_tree, name=item_in_json['name'])
                             node_group_json = {
                                 'type': 'GROUP',
@@ -241,7 +241,8 @@ class NodeManager:
                             if subtype == 'ShaderNodeTree':
                                 if context.active_object and not context.active_object.active_material:
                                     Material.new(context=context)
-                            active_node_tree = __class__.active_node_tree(context=context)
+                            active_node_tree = cls.active_node_tree(context=context)
+                            cls._deselect_all_nodes(node_tree=active_node_tree)
                             if item_in_json and active_node_tree:
                                 nodegroup = NodeGroup.from_json(node_group_json=item_in_json, parent_node_tree=active_node_tree, attachments_path=attachments_path)
                                 if nodegroup:
@@ -252,7 +253,7 @@ class NodeManager:
                             if material:
                                 material.name = item_in_json['name']
                                 Material.clear(material=material, exclude_output_nodes=True)
-                                active_node_tree = __class__.active_node_tree(context=context)
+                                active_node_tree = cls.active_node_tree(context=context)
                                 nodegroup = NodeGroup.from_json(node_group_json=item_in_json, parent_node_tree=active_node_tree, attachments_path=attachments_path)
                                 if nodegroup:
                                     nodegroup['bis_uid'] = bis_item_id
@@ -295,8 +296,8 @@ class NodeManager:
                 request_rez['data']['text'] = 'BIS server not request'
         return request_rez
 
-    @staticmethod
-    def to_bis(context, item, item_type, tags=''):
+    @classmethod
+    def to_bis(cls, context, item, item_type, tags=''):
         # item = material or nodegroup
         # item_type = 'MATERIAL' or 'NODEGROUP'
         request_rez = {'stat': 'ERR', 'data': {'text': 'Error to save'}}
@@ -311,19 +312,19 @@ class NodeManager:
             if cfg.to_server_to_file:
                 with open(os.path.join(FileManager.project_dir(), 'send_to_server.json'), 'w') as currentFile:
                     json.dump(item_json, currentFile, indent=4)
-            if __class__.is_procedural(material=item):
+            if cls.is_procedural(material=item):
                 # send to server
                 if not cfg.no_sending_to_server:
-                    bis_links = list(__class__.get_bis_linked_items('bis_linked_item', item_json))
+                    bis_links = list(cls.get_bis_linked_items('bis_linked_item', item_json))
                     request = WebRequest.send_request(
                         context=context,
                         data={
                             'for': 'add_item',
                             'item_body': json.dumps(item_json),
-                            'storage': __class__.storage_type(context=context),
+                            'storage': cls.storage_type(context=context),
                             'storage_subtype': subtype,
                             'storage_subtype2': Material.get_subtype2(context=context),
-                            'procedural': 1 if __class__.is_procedural(material=item) else 0,
+                            'procedural': 1 if cls.is_procedural(material=item) else 0,
                             'engine': context.window.scene.render.engine,
                             'bis_links': json.dumps(bis_links),
                             'item_name': item_json['name'],
@@ -346,19 +347,19 @@ class NodeManager:
                         if zip_file and os.path.exists(zip_file):
                             if cfg.to_server_to_file:
                                 copyfile(zip_file, os.path.join(FileManager.project_dir(), item_json['name']+'.zip'))
-                            if os.stat(zip_file).st_size < __class__._material_limit_file_size:
+                            if os.stat(zip_file).st_size < cls._material_limit_file_size:
                                 # send to server
                                 if not cfg.no_sending_to_server:
-                                    bis_links = list(__class__.get_bis_linked_items('bis_linked_item', item_json))
+                                    bis_links = list(cls.get_bis_linked_items('bis_linked_item', item_json))
                                     request = WebRequest.send_request(
                                         context=context,
                                         data={
                                             'for': 'add_item',
                                             'item_body': json.dumps(item_json),
-                                            'storage': __class__.storage_type(context=context),
+                                            'storage': cls.storage_type(context=context),
                                             'storage_subtype': subtype,
                                             'storage_subtype2': Material.get_subtype2(context=context),
-                                            'procedural': 1 if __class__.is_procedural(material=item) else 0,
+                                            'procedural': 1 if cls.is_procedural(material=item) else 0,
                                             'engine': context.window.scene.render.engine,
                                             'bis_links': json.dumps(bis_links),
                                             'item_name': item_json['name'],
@@ -372,13 +373,13 @@ class NodeManager:
                                     if request:
                                         request_rez = json.loads(request.text)
                             else:
-                                request_rez['data']['text'] = 'Saving material must be less ' + str(round(__class__._material_limit_file_size/1024/1024)) + ' Mb with textures after zip export!'
+                                request_rez['data']['text'] = 'Saving material must be less ' + str(round(cls._material_limit_file_size/1024/1024)) + ' Mb with textures after zip export!'
         if request_rez['stat'] == 'OK':
             item['bis_uid'] = request_rez['data']['id']
         return request_rez
 
-    @staticmethod
-    def update_in_bis(context, item, item_type):
+    @classmethod
+    def update_in_bis(cls, context, item, item_type):
         # item = material or nodegroup
         # item_type = 'MATERIAL' or 'NODEGROUP'
         request_rez = {'stat': 'ERR', 'data': {'text': 'Error to update'}}
@@ -399,19 +400,19 @@ class NodeManager:
             if cfg.to_server_to_file:
                 with open(os.path.join(FileManager.project_dir(), 'send_to_server.json'), 'w') as currentFile:
                     json.dump(item_json, currentFile, indent=4)
-            if __class__.is_procedural(material=item):
+            if cls.is_procedural(material=item):
                 # send to server
                 if not cfg.no_sending_to_server:
-                    bis_links = list(__class__.get_bis_linked_items('bis_linked_item', item_json))
+                    bis_links = list(cls.get_bis_linked_items('bis_linked_item', item_json))
                     request = WebRequest.send_request(
                         context=context,
                         data={
                             'for': 'update_item',
                             'item_body': json.dumps(item_json),
-                            'storage': __class__.storage_type(context=context),
+                            'storage': cls.storage_type(context=context),
                             'storage_subtype': subtype,
                             'storage_subtype2': Material.get_subtype2(context=context),
-                            'procedural': 1 if __class__.is_procedural(material=item) else 0,
+                            'procedural': 1 if cls.is_procedural(material=item) else 0,
                             'engine': context.window.scene.render.engine,
                             'bis_links': json.dumps(bis_links),
                             'item_id': item['bis_uid'],
@@ -434,19 +435,19 @@ class NodeManager:
                         if zip_file and os.path.exists(zip_file):
                             if cfg.to_server_to_file:
                                 copyfile(zip_file, os.path.join(FileManager.project_dir(), item_json['name']+'.zip'))
-                            if os.stat(zip_file).st_size < __class__._material_limit_file_size:
+                            if os.stat(zip_file).st_size < cls._material_limit_file_size:
                                 # send to server
                                 if not cfg.no_sending_to_server:
-                                    bis_links = list(__class__.get_bis_linked_items('bis_linked_item', item_json))
+                                    bis_links = list(cls.get_bis_linked_items('bis_linked_item', item_json))
                                     request = WebRequest.send_request(
                                         context=context,
                                         data={
                                             'for': 'update_item',
                                             'item_body': json.dumps(item_json),
-                                            'storage': __class__.storage_type(context=context),
+                                            'storage': cls.storage_type(context=context),
                                             'storage_subtype': subtype,
                                             'storage_subtype2': Material.get_subtype2(context=context),
-                                            'procedural': 1 if __class__.is_procedural(material=item) else 0,
+                                            'procedural': 1 if cls.is_procedural(material=item) else 0,
                                             'engine': context.window.scene.render.engine,
                                             'bis_links': json.dumps(bis_links),
                                             'item_id': item['bis_uid'],
@@ -460,7 +461,7 @@ class NodeManager:
                                     if request:
                                         request_rez = json.loads(request.text)
                             else:
-                                request_rez['data']['text'] = 'Saving material must be less ' + str(round(__class__._material_limit_file_size/1024/1024)) + ' Mb with textures after zip export!'
+                                request_rez['data']['text'] = 'Saving material must be less ' + str(round(cls._material_limit_file_size/1024/1024)) + ' Mb with textures after zip export!'
         return request_rez
 
     @staticmethod
@@ -488,11 +489,11 @@ class NodeManager:
                 active_node_tree = active_node_tree.nodes.active.node_tree
         return active_node_tree
 
-    @staticmethod
-    def active_node(context):
+    @classmethod
+    def active_node(cls, context):
         # returns currently active node in NODE_EDITOR window
         active_node = None
-        active_node_tree = __class__.active_node_tree(context=context)
+        active_node_tree = cls.active_node_tree(context=context)
         if active_node_tree:
             active_node = active_node_tree.nodes.active
         return active_node
@@ -505,13 +506,13 @@ class NodeManager:
             active_material = context.active_object.active_material
         return active_material
 
-    @staticmethod
-    def is_procedural(material):
+    @classmethod
+    def is_procedural(cls, material):
         # check if material (nodegroup) is fully procedural
         rez = True
         for node in material.node_tree.nodes:
             if node.type == 'GROUP':
-                rez = __class__.is_procedural(node)
+                rez = cls.is_procedural(node)
                 if not rez:
                     break
             elif node.type == 'TEX_IMAGE':
@@ -522,13 +523,13 @@ class NodeManager:
                 break
         return rez
 
-    @staticmethod
-    def cpu_render_required(material):
+    @classmethod
+    def cpu_render_required(cls, material):
         # check if material (nodegroup) required only CPU render
         rez = False
         for node in material.node_tree.nodes:
             if node.type == 'GROUP':
-                rez = __class__.cpu_render_required(node)
+                rez = cls.cpu_render_required(node)
                 if rez:
                     break
             elif node.type == 'SCRIPT':
@@ -536,17 +537,23 @@ class NodeManager:
                 break
         return rez
 
-    @staticmethod
-    # returns generator to crate list with all linked items (texts, ...) to current item (nodegroup)
-    def get_bis_linked_items(key, nodegroup_in_json):
+    @classmethod
+    def get_bis_linked_items(cls, key, nodegroup_in_json):
+        # returns generator to crate list with all linked items (texts, ...) to current item (nodegroup)
         for k, v in nodegroup_in_json.items():
             if k == key:
                 yield v
             elif isinstance(v, dict):
-                for result in __class__.get_bis_linked_items(key, v):
+                for result in cls.get_bis_linked_items(key, v):
                     yield result
             elif isinstance(v, list):
                 for d in v:
                     if isinstance(d, dict):
-                        for result in __class__.get_bis_linked_items(key, d):
+                        for result in cls.get_bis_linked_items(key, d):
                             yield result
+
+    @staticmethod
+    def _deselect_all_nodes(node_tree):
+        # deselect all nodes in node_tree
+        for node in node_tree.nodes:
+            node.select = False

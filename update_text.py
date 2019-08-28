@@ -34,7 +34,7 @@ class BISUpdateText(Operator):
     def draw(self, context):
         layout = self.layout
         layout.separator()
-        layout.label('Update current Text in the BIS storage?')
+        layout.label(text='Update current Text in the BIS storage?')
         layout.separator()
 
     def invoke(self, context, event):

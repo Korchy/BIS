@@ -4,12 +4,13 @@
 from .JsonEx import JsonEx
 
 
+# NodeSocketXXX and NodeSocketInterfaceXXX classes
 class NodeIOCommon:
     @classmethod
     def input_to_json(cls, node_input):
         input_json = {
             'type': node_input.type,
-            'bl_idname': node_input.bl_idname,
+            'bl_idname': node_input.bl_socket_idname if hasattr(node_input, 'bl_socket_idname') else node_input.bl_idname,  # bl_socket_idname (NodeSocketInterfaceXXX) or bl_idname (NodeSocketXXX)
             'identifier': node_input.identifier,
             'name': node_input.name
         }
@@ -26,7 +27,7 @@ class NodeIOCommon:
     def output_to_json(cls, node_output):
         output_json = {
             'type': node_output.type,
-            'bl_idname': node_output.bl_idname,
+            'bl_idname': node_output.bl_socket_idname if hasattr(node_output, 'bl_socket_idname') else node_output.bl_idname,  # bl_socket_idname (NodeSocketInterfaceXXX) or bl_idname (NodeSocketXXX)
             'identifier': node_output.identifier,
             'name': node_output.name
         }
@@ -43,7 +44,8 @@ class NodeIOCommon:
     def json_to_i(cls, node_input, input_json):
         if node_input:
             node_input.name = input_json['name']
-            if node_input.bl_idname == input_json['bl_idname']:
+            bl_idname = node_input.bl_socket_idname if hasattr(node_input, 'bl_socket_idname') else node_input.bl_idname   # bl_socket_idname (NodeSocketInterfaceXXX) or bl_idname (NodeSocketXXX)
+            if bl_idname == input_json['bl_idname']:
                 # for current input specification
                 cls._json_to_i_spec(node_input, input_json)
 
@@ -56,7 +58,8 @@ class NodeIOCommon:
     def json_to_o(cls, node_output, output_json):
         if node_output:
             node_output.name = output_json['name']
-            if node_output.bl_idname == output_json['bl_idname']:
+            bl_idname = node_output.bl_socket_idname if hasattr(node_output, 'bl_socket_idname') else node_output.bl_idname     # bl_socket_idname (NodeSocketInterfaceXXX) or bl_idname (NodeSocketXXX)
+            if bl_idname == output_json['bl_idname']:
                 # for current output specification
                 cls._json_to_o_spec(node_output, output_json)
 
@@ -78,7 +81,7 @@ class NodeIONodeSocketColor(NodeIOCommon):
     @classmethod
     def _json_to_i_spec(cls, node_input, input_json):
         JsonEx.prop_array_from_json(node_input.default_value, input_json['default_value'])
-        if node_input.node.type == 'GROUP':
+        if hasattr(node_input, 'node') and node_input.node.type == 'GROUP':
             JsonEx.prop_array_from_json(node_input.node.inputs[-1].default_value, input_json['default_value'])
 
     @classmethod
@@ -118,7 +121,7 @@ class NodeIONodeSocketFloat(NodeIOCommon):
     @classmethod
     def _input_to_json_spec(cls, input_json, node_input):
         input_json['default_value'] = node_input.default_value
-        if node_input.node.type == 'GROUP':
+        if hasattr(node_input, 'node') and node_input.node.type == 'GROUP':
             node_input_index = node_input.node.inputs[:].index(node_input)
             input_json['min_value'] = node_input.node.node_tree.inputs[node_input_index].min_value
             input_json['max_value'] = node_input.node.node_tree.inputs[node_input_index].max_value
@@ -130,7 +133,7 @@ class NodeIONodeSocketFloat(NodeIOCommon):
     @classmethod
     def _json_to_i_spec(cls, node_input, input_json):
         node_input.default_value = input_json['default_value']
-        if node_input.node.type == 'GROUP':
+        if hasattr(node_input, 'node') and node_input.node.type == 'GROUP':
             node_input.node.inputs[-1].default_value = input_json['default_value']
             if 'min_value' in input_json:
                 node_input.node.node_tree.inputs[-1].min_value = input_json['min_value']

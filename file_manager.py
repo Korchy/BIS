@@ -30,8 +30,8 @@ class FileManager:
         else:
             return source_file_name
 
-    @staticmethod
-    def zip_files(source_files_list, temp_dir, zip_name):
+    @classmethod
+    def zip_files(cls, source_files_list, temp_dir, zip_name):
         # pack files to zip archive
         # source_files_list = [{'path': 'd:/xxx.jpg', 'name': 'xxx.jpg'}, ...]
         zip_file_name = zip_name + '.zip'
@@ -41,7 +41,7 @@ class FileManager:
                 file_path = file_info['path'] if 'path' in file_info else ''
                 if file_path:
                     file_name = file_info['name'] if 'name' in file_info else os.path.basename(file_path)
-                    zip_file.write(file_path, compress_type=zipfile.ZIP_DEFLATED, compresslevel=9, arcname=__class__.normalize_file_name(file_name))
+                    zip_file.write(file_path, compress_type=zipfile.ZIP_DEFLATED, compresslevel=9, arcname=cls.normalize_file_name(file_name))
         return zip_file_path
 
     @staticmethod
@@ -68,7 +68,7 @@ class FileManager:
         else:
             return ''
 
-    @staticmethod
-    def attachments_path():
+    @classmethod
+    def attachments_path(cls):
         # returns path to bis-attachments dir
-        return os.path.join(__class__.project_dir(), __class__.project_name() + '_bis_external')
+        return os.path.join(cls.project_dir(), cls.project_name() + '_bis_external')

@@ -20,7 +20,7 @@ class Material:
             'metallic': material.metallic,
             'roughness': material.roughness,
             'bis_uid': material['bis_uid'] if 'bis_uid' in material else None,
-            'node_tree': NodeTree.to_json(material.node_tree)
+            'node_tree': NodeTree.to_json(node_tree_parent=material, node_tree=material.node_tree)
         }
         # for current material specification
         cls._to_json_spec(material_json=material_json, material=material)
@@ -34,8 +34,8 @@ class Material:
     @classmethod
     def from_json(cls, context,  material_json, material=None, attachments_path=''):
         if not material:
-            material = __class__.new(context=context)
-            __class__.clear(material=material)
+            material = cls.new(context=context)
+            cls.clear(material=material)
         if material:
             # fill with data
             material.name = material_json['name']
@@ -56,11 +56,11 @@ class Material:
         # extend to current material (different engines)
         pass
 
-    @staticmethod
-    def new(context):
+    @classmethod
+    def new(cls, context):
         # add new empty material
         material = None
-        subtype = __class__.get_subtype(context=context)
+        subtype = cls.get_subtype(context=context)
         if subtype == 'ShaderNodeTree':
             if context.active_object:
                 material = bpy.data.materials.new(name='Material')

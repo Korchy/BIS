@@ -43,8 +43,8 @@ class BISUpdateMeshInStorage(Operator):
     def draw(self, context):
         layout = self.layout
         layout.separator()
-        layout.label('Update selected Meshes?')
-        layout.label('This will update the item: " ' + self.get_bis_uid(context)['bis_uid_name'] + ' "')
+        layout.label(text='Update selected Meshes?')
+        layout.label(text='This will update the item: " ' + self.get_bis_uid(context)['bis_uid_name'] + ' "')
         layout.separator()
 
     def invoke(self, context, event):

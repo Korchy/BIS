@@ -91,7 +91,7 @@ class NodeCommon:
                         current_input = current_node.inputs[input_number]
                     else:
                         # for other nodes - by identifier
-                        current_input = __class__.input_by_identifier(current_node, input_json['identifier'])
+                        current_input = cls.input_by_identifier(current_node, input_json['identifier'])
                 if current_input:
                     io_class = NodeIOCommon
                     if hasattr(sys.modules[__name__], 'NodeIO' + input_json['bl_idname']):
@@ -110,7 +110,7 @@ class NodeCommon:
                         current_output = current_node.outputs[output_number]
                     else:
                         # for other nodes - by identifier
-                        current_output = __class__.output_by_identifier(current_node, output_json['identifier'])
+                        current_output = cls.output_by_identifier(current_node, output_json['identifier'])
                 if current_output:
                     io_class = NodeIOCommon
                     if hasattr(sys.modules[__name__], 'NodeIO' + output_json['bl_idname']):
