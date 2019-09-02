@@ -65,16 +65,16 @@ class NodeTree:
         if node_tree_parent and node_tree_json:
             node_tree = node_tree_parent.node_tree
             # node_tree inputs/outputs
-            # node_tree inputs
-            for input_number, input_json in enumerate(node_tree_json['inputs']):
-                # for NodeSocketInterfaceXXX - do nothing
-                # for NodeSocketXXX - work in node_node_group
-                pass
-            # node outputs
-            for output_number, output_json in enumerate(node_tree_json['outputs']):
-                # for NodeSocketInterfaceXXX - do nothing
-                # for NodeSocketXXX - work in node_node_group
-                pass
+            # node_tree inputs - now do nothing
+            # for input_number, input_json in enumerate(node_tree_json['inputs']):
+            #     # for NodeSocketInterfaceXXX - do nothing
+            #     # for NodeSocketXXX - work in node_node_group
+            #     pass
+            # # node outputs
+            # for output_number, output_json in enumerate(node_tree_json['outputs']):
+            #     # for NodeSocketInterfaceXXX - do nothing
+            #     # for NodeSocketXXX - work in node_node_group
+            #     pass
             # Nodes
             for current_node_in_json in node_tree_json['nodes']:
                 node_class = NodeCommon

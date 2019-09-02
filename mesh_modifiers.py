@@ -588,9 +588,12 @@ class MeshModifierMIRROR(MeshModifierCommon):
         modifier_json['use_mirror_u'] = modifier.use_mirror_u
         modifier_json['use_mirror_v'] = modifier.use_mirror_v
         modifier_json['use_mirror_vertex_groups'] = modifier.use_mirror_vertex_groups
-        modifier_json['use_x'] = modifier.use_x
-        modifier_json['use_y'] = modifier.use_y
-        modifier_json['use_z'] = modifier.use_z
+        if hasattr(modifier, 'use_x'):
+            modifier_json['use_x'] = modifier.use_x
+            modifier_json['use_y'] = modifier.use_y
+            modifier_json['use_z'] = modifier.use_z
+        if hasattr(modifier, 'use_axis'):
+            modifier_json['use_axis'] = BLbpy_prop_array.to_json(prop_array=modifier.use_axis)
 
     @classmethod
     def _from_json_spec(cls, modifier, modifier_json):
@@ -603,9 +606,12 @@ class MeshModifierMIRROR(MeshModifierCommon):
         modifier.use_mirror_u = modifier_json['use_mirror_u']
         modifier.use_mirror_v = modifier_json['use_mirror_v']
         modifier.use_mirror_vertex_groups = modifier_json['use_mirror_vertex_groups']
-        modifier.use_x = modifier_json['use_x']
-        modifier.use_y = modifier_json['use_y']
-        modifier.use_z = modifier_json['use_z']
+        if 'use_x' in modifier_json and hasattr(modifier, 'use_x'):
+            modifier.use_x = modifier_json['use_x']
+            modifier.use_y = modifier_json['use_y']
+            modifier.use_z = modifier_json['use_z']
+        if 'use_axis' in modifier_json and hasattr(modifier, 'use_axis'):
+            BLbpy_prop_array.from_json(prop_array=modifier.use_axis, json=modifier_json['use_axis'])
 
 
 class MeshModifierMULTIRES(MeshModifierCommon):

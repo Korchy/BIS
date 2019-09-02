@@ -162,8 +162,7 @@ class NodeManager:
                                         'default_value': [0.0, 0.0, 0.0]
                                     }
                                 ],
-                                'nodes': item_in_json['node_tree']['nodes'],
-                                'links': item_in_json['node_tree']['links'],
+                                'node_tree': item_in_json['node_tree'],
                                 'BIS_addon_version': Addon.current_version(),
                                 'BIS_node_id': None
                             }
@@ -200,7 +199,7 @@ class NodeManager:
                                 'outputs': [],
                                 'is_active_output': True
                             }
-                            node_group_json['nodes'].append(output_node)
+                            node_group_json['node_tree']['nodes'].append(output_node)
                             input_node = {
                                 'type': 'GROUP_INPUT',
                                 'bl_idname': 'NodeGroupInput',
@@ -216,7 +215,7 @@ class NodeManager:
                                 'inputs': [],
                                 'outputs': []
                             }
-                            node_group_json['nodes'].append(input_node)
+                            node_group_json['node_tree']['nodes'].append(input_node)
                             node_group = NodeGroup.from_json(node_group_json=node_group_json, parent_node_tree=active_node_tree, attachments_path=attachments_path)
                             # create links from material output nodes to group output node
                             node_group_output_node = [node for node in node_group.node_tree.nodes if node.type == 'GROUP_OUTPUT'][0]
