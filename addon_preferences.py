@@ -24,12 +24,23 @@ class BISAddonPreferences(AddonPreferences):
         ],
         default='MATERIAL'
     )
+    # default panel mode in 3D_VIEW window
+    default_mode_in_3d_view: EnumProperty(
+        items=[
+            ('MESHES', 'Meshes', 'Meshes', '', 0),
+            ('MATERIALS', 'Materials', 'Materials', '', 1)
+        ],
+        default='MATERIALS'
+    )
 
     def draw(self, context):
         layout = self.layout
         layout.label(text='Use BIS materials as:')
         row = layout.row()
         row.prop(self, 'use_node_group_as', expand=True)
+        layout.label(text='Default mode in 3D_VIEW window:')
+        row = layout.row()
+        row.prop(self, 'default_mode_in_3d_view', expand=True)
         layout.separator()
         layout.prop(self, 'experimental_mode')
 

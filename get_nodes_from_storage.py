@@ -18,9 +18,9 @@ class BISGetNodesInfoFromStorage(Operator):
     def execute(self, context):
         NodeManager.items_from_bis(
             context,
-            search_filter=context.window_manager.bis_get_nodes_info_from_storage_vars.searchFilter,
+            search_filter=context.window_manager.bis_get_nodes_info_from_storage_vars.search_filter,
             page=0,
-            update_preview=context.window_manager.bis_get_nodes_info_from_storage_vars.updatePreviews
+            update_preview=context.window_manager.bis_get_nodes_info_from_storage_vars.update_previews
         )
         return {'FINISHED'}
 
@@ -34,9 +34,9 @@ class BISGetNodesInfoFromStoragePrevPage(Operator):
     def execute(self, context):
         NodeManager.items_from_bis(
             context,
-            search_filter=context.window_manager.bis_get_nodes_info_from_storage_vars.searchFilter,
+            search_filter=context.window_manager.bis_get_nodes_info_from_storage_vars.search_filter,
             page=context.window_manager.bis_get_nodes_info_from_storage_vars.current_page - 1,
-            update_preview=context.window_manager.bis_get_nodes_info_from_storage_vars.updatePreviews
+            update_preview=context.window_manager.bis_get_nodes_info_from_storage_vars.update_previews
         )
         return {'FINISHED'}
 
@@ -54,9 +54,9 @@ class BISGetNodesInfoFromStorageNextPage(Operator):
     def execute(self, context):
         NodeManager.items_from_bis(
             context,
-            search_filter=context.window_manager.bis_get_nodes_info_from_storage_vars.searchFilter,
+            search_filter=context.window_manager.bis_get_nodes_info_from_storage_vars.search_filter,
             page=context.window_manager.bis_get_nodes_info_from_storage_vars.current_page + 1,
-            update_preview=context.window_manager.bis_get_nodes_info_from_storage_vars.updatePreviews
+            update_preview=context.window_manager.bis_get_nodes_info_from_storage_vars.update_previews
         )
         return {'FINISHED'}
 
@@ -66,18 +66,18 @@ class BISGetNodesInfoFromStorageNextPage(Operator):
 
 
 class BISGetNodesInfoFromStorageVars(PropertyGroup):
-    searchFilter: StringProperty(
+    search_filter: StringProperty(
         name='Search',
         description='Filter to search',
         default=''
     )
-    updatePreviews: BoolProperty(
+    update_previews: BoolProperty(
         name='Update Previews',
         description='Update previews from server',
         default=False
     )
     items: EnumProperty(
-        items=lambda self, context: BISItems.get_previews(self, NodeManager.storage_type(context)),
+        items=lambda self, context: BISItems.get_previews(NodeManager.storage_type(context)),
         update=lambda self, context: BISItems.on_preview_select(self, NodeManager.storage_type(context))
     )
     current_page: IntProperty(

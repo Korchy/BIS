@@ -24,7 +24,7 @@ class GetNodeGroupFromStorage(Operator):
         if self.node_group_id:
             rez = NodeManager.from_bis(context=context,
                                        bis_item_id=self.node_group_id,
-                                       item_type=context.preferences.addons[__package__].preferences.use_node_group_as
+                                       item_type='MATERIAL' if context.area.type == 'VIEW_3D' else context.preferences.addons[__package__].preferences.use_node_group_as
                                        )
         if rez['stat'] != 'OK':
             bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['stat'] + ': ' + rez['data']['text'])

@@ -76,7 +76,7 @@ class BISGetMeshesInfoFromStorageVars(PropertyGroup):
         default=False
     )
     items: EnumProperty(
-        items=lambda self, context: BISItems.get_previews(self, MeshManager.storage_type(context)),
+        items=lambda self, context: BISItems.get_previews(MeshManager.storage_type(context)),
         update=lambda self, context: BISItems.on_preview_select(self, MeshManager.storage_type(context))
     )
     current_page: IntProperty(

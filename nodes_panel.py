@@ -26,14 +26,14 @@ class BISNodesPanel(Panel):
                                   '- How to get material from BIS as node group?\n' \
                                   'Switch mode to "NodeGroup" in the switcher below.'
             if WebAuthVars.userProStatus:
-                layout.prop(context.window_manager.bis_get_nodes_info_from_storage_vars, 'searchFilter')
+                layout.prop(context.window_manager.bis_get_nodes_info_from_storage_vars, 'search_filter')
                 layout.operator('bis.get_nodes_info_from_storage', icon='VIEWZOOM', text=' Search')
                 row = layout.row()
                 row.operator('bis.get_nodes_info_from_storage_prev_page', text='Prev')
                 row.operator('bis.get_nodes_info_from_storage_next_page', text='Next')
             else:
                 layout.operator('bis.get_nodes_info_from_storage', icon='FILE_REFRESH', text=' Get active materials')
-            layout.prop(context.window_manager.bis_get_nodes_info_from_storage_vars, 'updatePreviews')
+            layout.prop(context.window_manager.bis_get_nodes_info_from_storage_vars, 'update_previews')
             layout.separator()
             layout.separator()
             layout.template_icon_view(context.window_manager.bis_get_nodes_info_from_storage_vars, 'items', show_labels=True)

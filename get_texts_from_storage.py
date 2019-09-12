@@ -68,7 +68,7 @@ class BISGetTextsInfoFromStorageVars(PropertyGroup):
         default=''
     )
     items: EnumProperty(
-        items=lambda self, context: BISItems.get_previews(self, TextManager.storage_type()),
+        items=lambda self, context: BISItems.get_previews(TextManager.storage_type()),
         update=lambda self, context: BISItems.on_preview_select(self, TextManager.storage_type())
     )
     current_page: IntProperty(

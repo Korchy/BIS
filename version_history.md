@@ -1,5 +1,9 @@
 Version history:
 -
+1.8.0
+- Add additional panel mode in 3D_VIEW window to assign materials to meshes directly in 3D viewport
+- Some bug fixes
+
 1.7.1
 - Deselects all other nodes when adding node group from BIS
 - Some inner engine changes

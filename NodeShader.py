@@ -138,7 +138,8 @@ class NodeBaseShaderNodeTexEnvironment(NodeBase):
         if node.image:
             node_json['image'] = os.path.normpath(os.path.join(os.path.dirname(bpy.data.filepath), node.image.filepath.replace('//', '')))
             node_json['image_source'] = node.image.source
-        node_json['color_space'] = node.color_space
+        if hasattr(node, 'color_space'):
+            node_json['color_space'] = node.color_space
         node_json['projection'] = node.projection
         node_json['interpolation'] = node.interpolation
         node_json['texture_mapping'] = TMCommon.tm_to_json(node.texture_mapping)
@@ -156,7 +157,8 @@ class NodeBaseShaderNodeTexEnvironment(NodeBase):
             if os.path.basename(node_in_json['image']) in bpy.data.images:
                 node.image = bpy.data.images[os.path.basename(node_in_json['image'])]
                 node.image.source = node_in_json['image_source']
-        node.color_space = node_in_json['color_space']
+        if 'color_space' in node_in_json and hasattr(node, 'color_space'):
+            node.color_space = node_in_json['color_space']
         node.projection = node_in_json['projection']
         node.interpolation = node_in_json['interpolation']
         TMCommon.json_to_tm(node, node_in_json['texture_mapping'])

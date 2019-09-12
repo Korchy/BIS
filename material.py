@@ -62,10 +62,16 @@ class Material:
         material = None
         subtype = cls.get_subtype(context=context)
         if subtype == 'ShaderNodeTree':
-            if context.active_object:
-                material = bpy.data.materials.new(name='Material')
+            subtype2 = cls.get_subtype2(context=context)
+            if subtype2 == 'WORLD':
+                material = bpy.data.worlds.new(name='Material')
                 material.use_nodes = True
-                context.active_object.active_material = material
+                context.scene.world = material
+            elif subtype2 == 'OBJECT':
+                if context.active_object:
+                    material = bpy.data.materials.new(name='Material')
+                    material.use_nodes = True
+                    context.active_object.active_material = material
         elif subtype == 'CompositorNodeTree':
             if not context.window.scene.use_nodes:
                 context.window.scene.use_nodes = True

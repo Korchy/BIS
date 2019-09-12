@@ -125,10 +125,11 @@ class NodeManager:
                     if item_in_json['type'] == 'Material':
                         # got Material (can be only object material)
                         if item_type == 'MATERIAL':
-                            # use as Material
-                            Material.from_json(context=context, material_json=item_in_json, attachments_path=attachments_path)
+                            # Material as Material
+                            material = Material.from_json(context=context, material_json=item_in_json, attachments_path=attachments_path)
+                            cls._deselect_all_nodes(node_tree=material.node_tree)
                         elif item_type == 'NODEGROUP':
-                            # use as Node Group
+                            # Material as Node Group
                             active_node_tree = cls.active_node_tree(context=context)
                             # NodeGroup.new(parent_node_tree=active_node_tree, name=item_in_json['name'])
                             node_group_json = {
@@ -234,7 +235,7 @@ class NodeManager:
                     elif item_in_json['type'] == 'GROUP':
                         # got Node Group (can be object node group or compositor node group)
                         if item_type == 'NODEGROUP' or subtype == 'CompositorNodeTree':
-                            # use as Node Group (for object material and compositor material)
+                            # Node Group as Node Group (for object material and compositor material)
                             if subtype == 'CompositorNodeTree' and not context.window.scene.use_nodes:
                                 context.window.scene.use_nodes = True
                             if subtype == 'ShaderNodeTree':
@@ -247,7 +248,7 @@ class NodeManager:
                                 if nodegroup:
                                     nodegroup['bis_uid'] = bis_item_id
                         elif item_type == 'MATERIAL':
-                            # use as Material (only for object material)
+                            # Node Group as Material (only for object material)
                             material = Material.new(context=context)
                             if material:
                                 material.name = item_in_json['name']
@@ -258,39 +259,60 @@ class NodeManager:
                                     nodegroup['bis_uid'] = bis_item_id
                                     # additional nodes and links
                                     # node group output
-                                    shader_output = [i for i in nodegroup.outputs if i.type == 'SHADER' and 'volume' not in i.name.lower()]
-                                    color_output = [i for i in nodegroup.outputs if i.type == 'RGBA']
-                                    factor_output = [i for i in nodegroup.outputs if i.type == 'VALUE' and 'displacement' not in i.name.lower()]
-                                    volume_output = [i for i in nodegroup.outputs if i.type == 'SHADER' and 'volume' in i.name.lower()]
-                                    displacement_output = [i for i in nodegroup.outputs if i.type in ['VECTOR'] and i.name.lower() in ['displace', 'displacement', 'смещение']]
-                                    normal_output = [i for i in nodegroup.outputs if i.type == 'VECTOR' and i.name.lower() not in ['displace', 'displacement', 'смещение']]
-                                    # connect outputs
-                                    if shader_output:
-                                        active_node_tree.links.new(shader_output[0], active_node_tree.nodes['Material Output'].inputs['Surface'])
-                                    elif color_output:
-                                        diffuse_node = active_node_tree.nodes.new(type='ShaderNodeBsdfDiffuse')
-                                        diffuse_node.location = (500.0, 0.0)
-                                        active_node_tree.links.new(color_output[0], diffuse_node.inputs['Color'])
-                                        active_node_tree.links.new(diffuse_node.outputs['BSDF'], active_node_tree.nodes['Material Output'].inputs['Surface'])
-                                        if normal_output:
-                                            active_node_tree.links.new(normal_output[0], diffuse_node.inputs['Normal'])
-                                    elif factor_output:
-                                        diffuse_node = active_node_tree.nodes.new(type='ShaderNodeBsdfDiffuse')
-                                        diffuse_node.location = (500.0, 0.0)
-                                        active_node_tree.links.new(factor_output[0], diffuse_node.inputs['Color'])
-                                        active_node_tree.links.new(diffuse_node.outputs['BSDF'], active_node_tree.nodes['Material Output'].inputs['Surface'])
-                                        if normal_output:
-                                            active_node_tree.links.new(normal_output[0], diffuse_node.inputs['Normal'])
-                                    if volume_output:
-                                        active_node_tree.links.new(volume_output[0], active_node_tree.nodes['Material Output'].inputs['Volume'])
-                                    if displacement_output:
-                                        active_node_tree.links.new(displacement_output[0], active_node_tree.nodes['Material Output'].inputs['Displacement'])
+                                    shader_output = next(iter([i for i in nodegroup.outputs if i.type == 'SHADER' and 'volume' not in i.name.lower()]), None)
+                                    color_output = next(iter([i for i in nodegroup.outputs if i.type == 'RGBA']), None)
+                                    factor_output = next(iter([i for i in nodegroup.outputs if i.type == 'VALUE' and 'displacement' not in i.name.lower()]), None)
+                                    volume_output = next(iter([i for i in nodegroup.outputs if i.type == 'SHADER' and 'volume' in i.name.lower()]), None)
+                                    vector_displacement_output = next(iter([i for i in nodegroup.outputs if i.type in ['VECTOR'] and i.name.lower() in ['displace', 'displacement', 'смещение']]), None)
+                                    factor_displacement_output = next(iter([i for i in nodegroup.outputs if i.type in ['VALUE'] and i.name.lower() in ['displace', 'displacement', 'смещение']]), None)
+                                    normal_output = next(iter([i for i in nodegroup.outputs if i.type == 'VECTOR' and i.name.lower() not in ['displace', 'displacement', 'смещение']]), None)
+                                    # output node
+                                    output_node = next(iter([node for node in active_node_tree.nodes if node.name in ['Material Output', 'Light Output', 'World Output']]), None)
+                                    if output_node:
+                                        # connect outputs
+                                        if shader_output:
+                                            active_node_tree.links.new(shader_output, output_node.inputs['Surface'])
+                                        elif color_output:
+                                            diffuse_node = active_node_tree.nodes.new(type='ShaderNodeBsdfDiffuse')
+                                            diffuse_node.location = (500.0, 0.0)
+                                            active_node_tree.links.new(color_output, diffuse_node.inputs['Color'])
+                                            active_node_tree.links.new(diffuse_node.outputs['BSDF'], output_node.inputs['Surface'])
+                                            if normal_output:
+                                                active_node_tree.links.new(normal_output, diffuse_node.inputs['Normal'])
+                                        elif factor_output:
+                                            diffuse_node = active_node_tree.nodes.new(type='ShaderNodeBsdfDiffuse')
+                                            diffuse_node.location = (500.0, 0.0)
+                                            active_node_tree.links.new(factor_output, diffuse_node.inputs['Color'])
+                                            active_node_tree.links.new(diffuse_node.outputs['BSDF'], output_node.inputs['Surface'])
+                                            if normal_output:
+                                                active_node_tree.links.new(normal_output, diffuse_node.inputs['Normal'])
+                                        if volume_output:
+                                            active_node_tree.links.new(volume_output, output_node.inputs['Volume'])
+                                        if vector_displacement_output:
+                                            displacement_input = next(iter([i for i in output_node.inputs if i.name == 'Displacement']), None)
+                                            if displacement_input:
+                                                active_node_tree.links.new(vector_displacement_output, displacement_input)
+                                        if factor_displacement_output:
+                                            displacement_input = next(iter([i for i in output_node.inputs if i.name == 'Displacement']), None)
+                                            if displacement_input:
+                                                # convert factor displacement to vector displacement
+                                                # add nodes
+                                                combine_xyz_node = active_node_tree.nodes.new(type='ShaderNodeCombineXYZ')
+                                                combine_xyz_node.location = (output_node.location.x - 400.0, output_node.location.y - 100.0)
+                                                vector_displacement_node = active_node_tree.nodes.new(type='ShaderNodeVectorDisplacement')
+                                                vector_displacement_node.location = (combine_xyz_node.location.x + 200.0, combine_xyz_node.location.y)
+                                                vector_displacement_node.inputs['Scale'].default_value = 0.1
+                                                # add links
+                                                active_node_tree.links.new(factor_displacement_output, combine_xyz_node.inputs['Y'])
+                                                active_node_tree.links.new(combine_xyz_node.outputs['Vector'], vector_displacement_node.inputs['Vector'])
+                                                active_node_tree.links.new(vector_displacement_node.outputs['Displacement'], displacement_input)
                                     # connect inputs
                                     vector_input = [i for i in nodegroup.inputs if i.type == 'VECTOR' and i.name.lower() in ['vector']]
                                     if vector_input:
                                         texture_coordinates_node = active_node_tree.nodes.new(type='ShaderNodeTexCoord')
                                         texture_coordinates_node.location = (-200.0, 0.0)
                                         active_node_tree.links.new(texture_coordinates_node.outputs['UV'], vector_input[0])
+                            cls._deselect_all_nodes(node_tree=material.node_tree)
             else:
                 request_rez['data']['text'] = 'BIS server not request'
         return request_rez
@@ -479,7 +501,8 @@ class NodeManager:
                 if context.active_object and context.active_object.active_material:
                     active_node_tree = context.active_object.active_material.node_tree
             elif subtype2 == 'WORLD':
-                active_node_tree = context.scene.world.node_tree
+                if context.scene.world:
+                    active_node_tree = context.scene.world.node_tree
         elif subtype == 'CompositorNodeTree':
             if context.window.scene.use_nodes:
                 active_node_tree = context.area.spaces.active.node_tree

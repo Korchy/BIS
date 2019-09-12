@@ -8,7 +8,6 @@ from .node_io import *
 from .node_common import NodeCommon
 from .node_shader_cycles import *
 from .node_compositor import *
-from .node_node_group import *
 
 
 class NodeTree:
@@ -40,8 +39,13 @@ class NodeTree:
         # nodes
         for node in node_tree.nodes:
             node_class = NodeCommon
-            if hasattr(sys.modules[__name__], 'Node' + node.bl_idname):
-                node_class = getattr(sys.modules[__name__], 'Node' + node.bl_idname)
+            node_class_str = 'Node' + node.bl_idname
+            if node.type == 'GROUP':
+                from . import node_node_group   # import here to prevent cycle import in node_node_group
+                node_class = getattr(node_node_group, node_class_str)
+            else:
+                if hasattr(sys.modules[__name__], node_class_str):
+                    node_class = getattr(sys.modules[__name__], node_class_str)
             node_json = node_class.node_to_json(node)
             node_tree_json['nodes'].append(node_json)
         # links
@@ -78,8 +82,13 @@ class NodeTree:
             # Nodes
             for current_node_in_json in node_tree_json['nodes']:
                 node_class = NodeCommon
-                if hasattr(sys.modules[__name__], 'Node' + current_node_in_json['bl_idname']):
-                    node_class = getattr(sys.modules[__name__], 'Node' + current_node_in_json['bl_idname'])
+                node_class_str = 'Node' + current_node_in_json['bl_idname']
+                if current_node_in_json['type'] == 'GROUP':
+                    from . import node_node_group   # import here to prevent cycle import in node_node_group
+                    node_class = getattr(node_node_group, node_class_str)
+                else:
+                    if hasattr(sys.modules[__name__], node_class_str):
+                        node_class = getattr(sys.modules[__name__], node_class_str)
                 node_class.json_to_node(node_tree=node_tree, node_json=current_node_in_json, attachments_path=attachments_path)
             # links
             for link_json in node_tree_json['links']:
@@ -107,7 +116,7 @@ class NodeTree:
     def clear(node_tree, exclude_output_nodes=False):
         # clear node_tree except Output node
         for node in node_tree.nodes:
-            if not (exclude_output_nodes and node.bl_idname in ['ShaderNodeOutputMaterial', 'CompositorNodeComposite']):
+            if not (exclude_output_nodes and node.bl_idname in ['ShaderNodeOutputMaterial', 'CompositorNodeComposite', 'ShaderNodeOutputWorld']):
                 node_tree.nodes.remove(node)
 
     @staticmethod
