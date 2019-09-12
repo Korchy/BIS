@@ -3,6 +3,7 @@
 
 import bpy
 import os
+from . import cfg
 from .file_manager import FileManager
 from .JsonEx import JsonEx
 from .bl_types_conversion import BLObject, BLParticleSystem
@@ -529,7 +530,11 @@ class NodeShaderNodeVectorMath(NodeCommon):
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json, attachments_path):
-        node.operation = node_in_json['operation']
+        try:
+            node.operation = node_in_json['operation']
+        except Exception as exception:
+            if cfg.show_debug_err:
+                print(repr(exception))
 
 
 class NodeShaderNodeScript(NodeCommon):
