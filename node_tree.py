@@ -167,12 +167,12 @@ class NodeTree:
         for node in node_tree.nodes:
             if node.type == 'GROUP':
                 rez.extend(cls.external_items(node_tree=node.node_tree))
-            elif node.type == 'TEX_IMAGE':
+            elif node.type == 'TEX_IMAGE' and node.image:
                 rez.append({
                     'path': FileManager.abs_path(node.image.filepath),
                     'name': node.image.name
                 })
-            elif node.type == 'SCRIPT' and node.mode == 'EXTERNAL':
+            elif node.type == 'SCRIPT' and node.mode == 'EXTERNAL' and node.filepath:
                 rez.append({
                     'path': FileManager.abs_path(node.filepath)
                 })

@@ -1,5 +1,8 @@
 Version history:
 -
+1.8.1
+- Add "Material: Active to Selected" button to "Tools" im meshes panel
+
 1.8.0
 - Add additional panel mode in 3D_VIEW window to assign materials to meshes directly in 3D viewport
 - Some bug fixes

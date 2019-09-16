@@ -36,7 +36,6 @@ class BISTextsPanel(Panel):
             layout.separator()
             layout.separator()
             layout.prop(context.window_manager.bis_add_text_to_storage_vars, 'tags')
-            layout.label(text='(comma separated)')
             button = layout.operator('bis.add_text_to_storage', text='Save as New')
             button.show_message = True
             button = layout.operator('bis.update_text_in_storage', text='Update')

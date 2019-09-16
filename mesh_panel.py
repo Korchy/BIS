@@ -20,10 +20,10 @@ class BISMeshPanel(Panel):
         row.separator()
         help_button = row.operator('message.messagebox', icon='HELP')
         help_button.width = 600
-        help_button.message = '- Why I can not get materials?\n' \
-                              'This panel is for MESHES! Switch to the Shader Editor window to get materials.\n\n' \
+        help_button.message = '- How can I save materials to the library?\n' \
+                              'Switch to the Shader Editor window.\n\n' \
                               '- Please do not save Plane with material / Cube with material / Sphere with material to save your materials.\n' \
-                              ' This saves only meshes. To save your materials switch to the Shader Editor window.'
+                              ' From this window you can save only meshes.'
         if WebAuthVars.logged:
             if context.preferences.addons[__package__].preferences.default_mode_in_3d_view == 'MATERIALS':
                 # materials (simple)
@@ -39,6 +39,8 @@ class BISMeshPanel(Panel):
                 layout.separator()
                 layout.separator()
                 layout.template_icon_view(context.window_manager.bis_get_nodes_info_from_storage_vars, 'items', show_labels=True)
+                layout.separator()
+                layout.label(text='More options in the Shader Editor window')
             else:
                 # meshes
                 if WebAuthVars.userProStatus:
@@ -57,7 +59,6 @@ class BISMeshPanel(Panel):
                 layout.separator()
                 layout.prop(context.window_manager.bis_add_mesh_to_storage_vars, 'name')
                 layout.prop(context.window_manager.bis_add_mesh_to_storage_vars, 'tags')
-                layout.label(text='(comma separated)')
                 button = layout.operator('bis.add_mesh_to_storage', text='Save as New')
                 button.show_message = True
                 button = layout.operator('bis.update_mesh_in_storage', text='Update')
@@ -69,9 +70,25 @@ class BISMeshPanel(Panel):
             layout.operator('bis.web_auth', icon='WORLD', text='Sign in')
 
 
+class BIS_PT_tools_meshes_panel(Panel):
+    bl_idname = 'BIS_PT_tools_meshes_panel'
+    bl_label = 'Tools'
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = 'BIS'
+
+    def draw(self, context):
+        layout = self.layout
+        box = layout.box()
+        box.label(text='Materials')
+        box.operator(operator='bis.materials_active_to_selected', text='Active to Selected')
+
+
 def register():
     register_class(BISMeshPanel)
+    register_class(BIS_PT_tools_meshes_panel)
 
 
 def unregister():
+    unregister_class(BIS_PT_tools_meshes_panel)
     unregister_class(BISMeshPanel)

@@ -21,7 +21,8 @@ from . import get_mesh_from_storage
 from . import WebRequests
 from . import message_box
 from . import bis_items
-from . import nodes_tools_ops
+from . import tools_nodes_ops
+from . import tools_materials_ops
 from . import nodes_bis_custom
 
 
@@ -29,7 +30,7 @@ bl_info = {
     'name': 'BIS',
     'category': 'Material',
     'author': 'Nikita Akimov',
-    'version': (1, 8, 0),
+    'version': (1, 8, 1),
     'blender': (2, 80, 0),
     'location': 'N-Panel > BIS',
     'wiki_url': 'https://bis.interplanety.org/',
@@ -60,11 +61,13 @@ def register():
     WebRequests.register()
     message_box.register()
     bis_items.register()
-    nodes_tools_ops.register()
+    tools_nodes_ops.register()
+    tools_materials_ops.register()
 
 
 def unregister():
-    nodes_tools_ops.unregister()
+    tools_materials_ops.unregister()
+    tools_nodes_ops.unregister()
     bis_items.unregister()
     message_box.unregister()
     WebRequests.unregister()

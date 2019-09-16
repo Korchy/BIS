@@ -58,8 +58,8 @@ class BISAddMeshToStorageVars(PropertyGroup):
         default=''
     )
     tags: StringProperty(
-        name='Tags',
-        description='Tags (comma separated)',
+        name='Tags (comma separated)',
+        description='Add some tags to describe this object',
         default=''
     )
 

@@ -40,7 +40,6 @@ class BISNodesPanel(Panel):
             layout.separator()
             layout.separator()
             layout.prop(context.window_manager.bis_add_nodegroup_to_storage_vars, 'tags')
-            layout.label(text='(comma separated)')
             button = layout.operator('bis.add_nodegroup_to_storage', text='Save as New')
             button.show_message = True
             button = layout.operator('bis.update_nodegroup_in_storage', text='Update')
@@ -55,8 +54,8 @@ class BISNodesPanel(Panel):
             layout.operator('bis.web_auth', icon='WORLD', text='Sign in')
 
 
-class BISNodesToolsPanel(Panel):
-    bl_idname = 'BIS_PT_nodes_tools_panel'
+class BIS_PT_tools_nodes_panel(Panel):
+    bl_idname = 'BIS_PT_tools_nodes_panel'
     bl_label = 'Tools'
     bl_space_type = 'NODE_EDITOR'
     bl_region_type = 'UI'
@@ -67,19 +66,19 @@ class BISNodesToolsPanel(Panel):
         box = layout.box()
         box.label(text='Add input/output to node group')
         row = box.row()
-        row.prop(context.window_manager.bis_nodes_tools_vars, 'io_type', expand=True)
+        row.prop(context.window_manager.bis_tools_nodes_vars, 'io_type', expand=True)
         row = box.row(align=True)
-        button = row.operator('bis.add_node_group_io', icon='ADD', text='Input')
+        button = row.operator('bis.tools_nodes_add_node_group_io', icon='ADD', text='Input')
         button.in_out = 'IN'
-        button = row.operator('bis.add_node_group_io', icon='ADD', text='Output')
+        button = row.operator('bis.tools_nodes_add_node_group_io', icon='ADD', text='Output')
         button.in_out = 'OUT'
 
 
 def register():
     register_class(BISNodesPanel)
-    register_class(BISNodesToolsPanel)
+    register_class(BIS_PT_tools_nodes_panel)
 
 
 def unregister():
-    unregister_class(BISNodesToolsPanel)
+    unregister_class(BIS_PT_tools_nodes_panel)
     unregister_class(BISNodesPanel)

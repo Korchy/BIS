@@ -38,8 +38,8 @@ class AddTextToStorage(Operator):
 
 class AddTextToStorageVars(PropertyGroup):
     tags: StringProperty(
-        name='Tags',
-        description='Tags (comma separated)',
+        name='Tags (comma separated)',
+        description='Add some tags to describe this text',
         default=''
     )
 

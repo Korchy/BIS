@@ -90,15 +90,6 @@ class BISItems:
         elif storage_type == 'VIEW_3D':
             bpy.ops.bis.get_mesh_from_storage(mesh_id=int(items_property.items))
 
-    # @staticmethod
-    # def on_preview_select(self, storage_type):
-    #     if storage_type == 'NODE_EDITOR':
-    #         bpy.ops.bis.get_nodegroup_from_storage(node_group_id=int(self.items))
-    #     elif storage_type == 'TEXT_EDITOR':
-    #         bpy.ops.bis.get_text_from_storage(text_id=int(self.items))
-    #     elif storage_type == 'VIEW_3D':
-    #         bpy.ops.bis.get_mesh_from_storage(mesh_id=int(self.items))
-    #
     @classmethod
     def get_item_name_by_id(cls, item_id, storage):
         item_in_list = [item[1] for item in cls.items_lists[storage].items if item[4] == item_id]

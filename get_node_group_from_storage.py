@@ -6,6 +6,7 @@ from bpy.props import IntProperty
 from bpy.utils import register_class, unregister_class
 from bpy.types import Operator
 from .node_manager import NodeManager
+from .tools_materials import ToolsMaterials
 
 
 class GetNodeGroupFromStorage(Operator):
@@ -26,7 +27,11 @@ class GetNodeGroupFromStorage(Operator):
                                        bis_item_id=self.node_group_id,
                                        item_type='MATERIAL' if context.area.type == 'VIEW_3D' else context.preferences.addons[__package__].preferences.use_node_group_as
                                        )
-        if rez['stat'] != 'OK':
+        if rez['stat'] == 'OK':
+            # copy to all selected
+            if context.area.type == 'VIEW_3D':
+                ToolsMaterials.material_from_active_object_to_selected(context=context)
+        else:
             bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['stat'] + ': ' + rez['data']['text'])
         return {'FINISHED'}
 
