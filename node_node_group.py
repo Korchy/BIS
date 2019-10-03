@@ -59,7 +59,7 @@ class NodeShaderNodeGroup(NodeCommon):
     @classmethod
     def _json_to_node_spec(cls, node, node_json, attachments_path):
         node['BIS_addon_version'] = node_json['BIS_addon_version'] if 'BIS_addon_version' in node_json else Addon.node_group_first_version
-        if Addon.node_group_version_equal_or_less(node['BIS_addon_version'], '1.7.0'):
+        if Addon.node_group_version_equal_or_less(node['BIS_addon_version'], '1.7.0') and 'nodes' in node_json:
             # for 1.7.0 and less - nodes and links are separate
             # this can be removed if there would no v. 1.7.0 and less materials/nodegroups in the BIS lbrary
             # Nodes
