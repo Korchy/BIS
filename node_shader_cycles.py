@@ -263,20 +263,30 @@ class NodeShaderNodeTexVoronoi(NodeShaderNodeTexChecker):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         super()._node_to_json_spec(node_json=node_json, node=node)
-        node_json['coloring'] = node.coloring
+        if hasattr(node, 'coloring'):
+            node_json['coloring'] = node.coloring
         if hasattr(node, 'distance'):
             node_json['distance'] = node.distance
         if hasattr(node, 'feature'):
             node_json['feature'] = node.feature
+        if hasattr(node, 'voronoi_dimensions'):
+            node_json['voronoi_dimensions'] = node.voronoi_dimensions
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         super()._json_to_node_spec(node=node, node_in_json=node_in_json, attachments_path=attachments_path)
-        node.coloring = node_in_json['coloring']
+        if 'coloring' in node_in_json and hasattr(node, 'coloring'):
+            node.coloring = node_in_json['coloring']
         if 'distance' in node_in_json and hasattr(node, 'distance'):
             node.distance = node_in_json['distance']
         if 'feature' in node_in_json and hasattr(node, 'feature'):
-            node.feature = node_in_json['feature']
+            try:
+                node.feature = node_in_json['feature']
+            except Exception as exception:
+                if cfg.show_debug_err:
+                    print(repr(exception))
+        if 'voronoi_dimensions' in node_in_json and hasattr(node, 'voronoi_dimensions'):
+            node.voronoi_dimensions = node_in_json['voronoi_dimensions']
 
 
 class NodeShaderNodeTexWave(NodeShaderNodeTexChecker):
