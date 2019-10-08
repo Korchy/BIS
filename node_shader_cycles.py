@@ -278,7 +278,11 @@ class NodeShaderNodeTexVoronoi(NodeShaderNodeTexChecker):
         if 'coloring' in node_in_json and hasattr(node, 'coloring'):
             node.coloring = node_in_json['coloring']
         if 'distance' in node_in_json and hasattr(node, 'distance'):
-            node.distance = node_in_json['distance']
+            try:
+                node.distance = node_in_json['distance']
+            except Exception as exception:
+                if cfg.show_debug_err:
+                    print(repr(exception))
         if 'feature' in node_in_json and hasattr(node, 'feature'):
             try:
                 node.feature = node_in_json['feature']

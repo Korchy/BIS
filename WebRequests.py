@@ -22,7 +22,7 @@ class WebAuthVars:
 
 
 class WebAuth(Operator):
-    bl_idname = __package__.lower()+'.web_auth'
+    bl_idname = 'bis.web_auth'
     bl_label = 'Authorization'
 
     userLogin: StringProperty(
