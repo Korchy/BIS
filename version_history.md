@@ -1,5 +1,8 @@
 Version history:
 -
+1.8.2
+- Updated some nodes parameters
+
 1.8.1
 - Add "Material: Active to Selected" button to "Tools" im meshes panel
 

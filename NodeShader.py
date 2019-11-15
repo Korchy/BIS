@@ -445,13 +445,20 @@ class NodeBaseShaderNodeMapping(NodeBase):
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         node.vector_type = node_in_json['vector_type']
-        JsonEx.vector3_from_json(node.translation, node_in_json['translation'])
-        JsonEx.vector3_from_json(node.rotation, node_in_json['rotation'])
-        JsonEx.vector3_from_json(node.scale, node_in_json['scale'])
-        JsonEx.vector3_from_json(node.min, node_in_json['min'])
-        JsonEx.vector3_from_json(node.max, node_in_json['max'])
-        node.use_min = node_in_json['use_min']
-        node.use_max = node_in_json['use_max']
+        if hasattr(node_in_json, 'translation'):
+            JsonEx.vector3_from_json(node.translation, node_in_json['translation'])
+        if hasattr(node_in_json, 'rotation'):
+            JsonEx.vector3_from_json(node.rotation, node_in_json['rotation'])
+        if hasattr(node_in_json, 'scale'):
+            JsonEx.vector3_from_json(node.scale, node_in_json['scale'])
+        if hasattr(node_in_json, 'min'):
+            JsonEx.vector3_from_json(node.min, node_in_json['min'])
+        if hasattr(node_in_json, 'max'):
+            JsonEx.vector3_from_json(node.max, node_in_json['max'])
+        if hasattr(node_in_json, 'use_min'):
+            node.use_min = node_in_json['use_min']
+        if hasattr(node_in_json, 'use_max'):
+            node.use_max = node_in_json['use_max']
 
 
 class NodeBaseShaderNodeMath(NodeBase):

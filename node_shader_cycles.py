@@ -150,10 +150,10 @@ class NodeShaderNodeTexEnvironment(NodeCommon):
     def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         attachment_path = ''
         attachment_name = ''
-        if node_in_json['image_name'] and os.path.exists(os.path.join(attachments_path, node_in_json['image_name'])) and os.path.isfile(os.path.join(attachments_path, node_in_json['image_name'])):
+        if 'image_name' in node_in_json and node_in_json['image_name'] and os.path.exists(os.path.join(attachments_path, node_in_json['image_name'])) and os.path.isfile(os.path.join(attachments_path, node_in_json['image_name'])):
             attachment_path = os.path.join(attachments_path, node_in_json['image_name'])
             attachment_name = node_in_json['image_name']
-        elif node_in_json['image'] and os.path.exists(node_in_json['image']) and os.path.isfile(node_in_json['image']):
+        elif 'image' in node_in_json and node_in_json['image'] and os.path.exists(node_in_json['image']) and os.path.isfile(node_in_json['image']):
             attachment_path = node_in_json['image']
             attachment_name = os.path.basename(node_in_json['image'])
         if attachment_path:
@@ -252,11 +252,15 @@ class NodeShaderNodeTexMusgrave(NodeShaderNodeTexChecker):
     def _node_to_json_spec(cls, node_json, node):
         super()._node_to_json_spec(node_json=node_json, node=node)
         node_json['musgrave_type'] = node.musgrave_type
+        if hasattr(node, 'musgrave_dimensions'):
+            node_json['musgrave_dimensions'] = node.musgrave_dimensions
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         super()._json_to_node_spec(node=node, node_in_json=node_in_json, attachments_path=attachments_path)
         node.musgrave_type = node_in_json['musgrave_type']
+        if 'musgrave_dimensions' in node_in_json and hasattr(node, 'musgrave_dimensions'):
+            node.musgrave_dimensions = node_in_json['musgrave_dimensions']
 
 
 class NodeShaderNodeTexVoronoi(NodeShaderNodeTexChecker):
@@ -326,7 +330,29 @@ class NodeShaderNodeTexSky(NodeShaderNodeTexChecker):
 
 
 class NodeShaderNodeTexNoise(NodeShaderNodeTexChecker):
-    pass
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
+        super()._node_to_json_spec(node_json=node_json, node=node)
+        if hasattr(node, 'noise_dimensions'):
+            node_json['noise_dimensions'] = node.noise_dimensions
+
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
+        super()._json_to_node_spec(node=node, node_in_json=node_in_json, attachments_path=attachments_path)
+        if 'noise_dimensions' in node_in_json and hasattr(node, 'noise_dimensions'):
+            node.noise_dimensions = node_in_json['noise_dimensions']
+
+
+class NodeShaderNodeTexWhiteNoise(NodeCommon):
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
+        if hasattr(node, 'noise_dimensions'):
+            node_json['noise_dimensions'] = node.noise_dimensions
+
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
+        if 'noise_dimensions' in node_in_json and hasattr(node, 'noise_dimensions'):
+            node.noise_dimensions = node_in_json['noise_dimensions']
 
 
 class NodeShaderNodeWireframe(NodeCommon):
