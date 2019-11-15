@@ -12,6 +12,7 @@ from .node_node_group import NodeGroup
 from .material import Material
 from .node_tree import NodeTree
 from .addon import Addon
+from .blender_ex import BlenderEx
 from .WebRequests import WebRequest, WebAuthVars
 from .bis_items import BISItems
 
@@ -354,7 +355,8 @@ class NodeManager:
                             'bis_links': json.dumps(bis_links),
                             'item_name': item_json['name'],
                             'item_tags': tags.strip(),
-                            'addon_version': Addon.current_version()
+                            'addon_version': Addon.current_version(),
+                            'blender_version': BlenderEx.version_str_short()
                         }
                     )
                     if request:
@@ -389,7 +391,8 @@ class NodeManager:
                                             'bis_links': json.dumps(bis_links),
                                             'item_name': item_json['name'],
                                             'item_tags': tags.strip(),
-                                            'addon_version': Addon.current_version()
+                                            'addon_version': Addon.current_version(),
+                                            'blender_version': BlenderEx.version_str_short()
                                         },
                                         files={
                                             'attachment_file': open(zip_file, 'rb')
@@ -416,7 +419,8 @@ class NodeManager:
                                 'bis_links': json.dumps(bis_links),
                                 'item_name': item_json['name'],
                                 'item_tags': tags.strip(),
-                                'addon_version': Addon.current_version()
+                                'addon_version': Addon.current_version(),
+                                'blender_version': BlenderEx.version_str_short()
                             }
                         )
                         if request:
@@ -464,7 +468,8 @@ class NodeManager:
                             'bis_links': json.dumps(bis_links),
                             'item_id': item['bis_uid'],
                             'item_name': item_json['name'],
-                            'addon_version': Addon.current_version()
+                            'addon_version': Addon.current_version(),
+                            'blender_version': BlenderEx.version_str_short()
                         }
                     )
                     if request:
@@ -499,7 +504,8 @@ class NodeManager:
                                             'bis_links': json.dumps(bis_links),
                                             'item_id': item['bis_uid'],
                                             'item_name': item_json['name'],
-                                            'addon_version': Addon.current_version()
+                                            'addon_version': Addon.current_version(),
+                                            'blender_version': BlenderEx.version_str_short()
                                         },
                                         files={
                                             'attachment_file': open(zip_file, 'rb')
@@ -526,7 +532,8 @@ class NodeManager:
                                 'bis_links': json.dumps(bis_links),
                                 'item_id': item['bis_uid'],
                                 'item_name': item_json['name'],
-                                'addon_version': Addon.current_version()
+                                'addon_version': Addon.current_version(),
+                                'blender_version': BlenderEx.version_str_short()
                             }
                         )
                         if request:
