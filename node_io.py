@@ -105,6 +105,10 @@ class NodeIONodeSocketVectorTranslation(NodeIONodeSocketVector):
     pass
 
 
+class NodeIONodeSocketVectorEuler(NodeIONodeSocketVector):
+    pass
+
+
 class NodeIONodeSocketVectorVelocity(NodeIONodeSocketVector):
     pass
 
