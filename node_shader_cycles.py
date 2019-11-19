@@ -545,6 +545,18 @@ class NodeShaderNodeMapping(NodeCommon):
             node.use_max = node_in_json['use_max']
 
 
+class NodeShaderNodeMapRange(NodeCommon):
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
+        if hasattr(node, 'clamp'):
+            node_json['clamp'] = node.clamp
+
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
+        if 'clamp' in node_in_json and hasattr(node, 'clamp'):
+            node.clamp = node_in_json['clamp']
+
+
 class NodeShaderNodeNormal(NodeCommon):
     pass
 
@@ -818,6 +830,10 @@ class NodeShaderNodeVolumeScatter(NodeCommon):
     pass
 
 
+class NodeShaderNodeVolumeInfo(NodeCommon):
+    pass
+
+
 class NodeShaderNodeTexIES(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
@@ -871,3 +887,19 @@ class NodeShaderNodeDisplacement(NodeCommon):
 
 class NodeShaderNodeVectorDisplacement(NodeShaderNodeDisplacement):
     pass
+
+
+class NodeShaderNodeClamp(NodeCommon):
+    pass
+
+
+class NodeShaderNodeVertexColor(NodeCommon):
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
+        if hasattr(node, 'layer_name'):
+            node_json['layer_name'] = node.layer_name
+
+    @classmethod
+    def _json_to_node_spec(cls, node, node_in_json, attachments_path):
+        if 'layer_name' in node_in_json and hasattr(node, 'layer_name'):
+            node.layer_name = node_in_json['layer_name']
