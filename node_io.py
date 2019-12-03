@@ -80,7 +80,8 @@ class NodeIONodeSocketColor(NodeIOCommon):
 
     @classmethod
     def _json_to_i_spec(cls, node_input, input_json):
-        JsonEx.prop_array_from_json(node_input.default_value, input_json['default_value'])
+        if 'default_value' in input_json:
+            JsonEx.prop_array_from_json(node_input.default_value, input_json['default_value'])
         if hasattr(node_input, 'node') and node_input.node.type == 'GROUP':
             JsonEx.prop_array_from_json(node_input.node.inputs[-1].default_value, input_json['default_value'])
 
