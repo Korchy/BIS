@@ -5,8 +5,8 @@
 
 import bpy
 import os
-from .node_common import NodeCommon, CurveMapping, NodeColorRamp
-from .bl_types_conversion import BLbpy_prop_collection, BLbpy_prop_array, BLColor, BLScene
+from .node_common import NodeCommon, NodeColorRamp
+from .bl_types_conversion import BLbpy_prop_collection, BLbpy_prop_array, BLColor, BLScene, BLCurveMapping
 
 
 class NodeCompositorNodeBlur(NodeCommon):
@@ -170,13 +170,13 @@ class NodeCompositorNodeTexture(NodeCommon):
 class NodeCompositorNodeTime(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
-        node_json['curve'] = CurveMapping.cum_to_json(node.curve)
+        node_json['curve'] = BLCurveMapping.to_json(instance=node.curve)
         node_json['frame_end'] = node.frame_end
         node_json['frame_start'] = node.frame_start
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json, attachments_path):
-        CurveMapping.json_to_cum(node.curve, node_in_json['curve'])
+        BLCurveMapping.from_json(instance=node.curve, json=node_in_json['curve'])
         node.frame_end = node_in_json['frame_end']
         node.frame_start = node_in_json['frame_start']
 
@@ -376,11 +376,11 @@ class NodeCompositorNodeGamma(NodeCommon):
 class NodeCompositorNodeHueCorrect(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
-        node_json['mapping'] = CurveMapping.cum_to_json(node.mapping)
+        node_json['mapping'] = BLCurveMapping.to_json(instance=node.mapping)
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json, attachments_path):
-        CurveMapping.json_to_cum(node.mapping, node_in_json['mapping'])
+        BLCurveMapping.from_json(instance=node.mapping, json=node_in_json['mapping'])
 
 
 class NodeCompositorNodeHueSat(NodeCommon):
@@ -416,11 +416,11 @@ class NodeCompositorNodeMixRGB(NodeCommon):
 class NodeCompositorNodeCurveRGB(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
-        node_json['mapping'] = CurveMapping.cum_to_json(node.mapping)
+        node_json['mapping'] = BLCurveMapping.to_json(instance=node.mapping)
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json, attachments_path):
-        CurveMapping.json_to_cum(node.mapping, node_in_json['mapping'])
+        BLCurveMapping.from_json(instance=node.mapping, json=node_in_json['mapping'])
 
 
 class NodeCompositorNodeTonemap(NodeCommon):
@@ -794,11 +794,11 @@ class NodeCompositorNodeNormalize(NodeCommon):
 class NodeCompositorNodeCurveVec(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
-        node_json['mapping'] = CurveMapping.cum_to_json(node.mapping)
+        node_json['mapping'] = BLCurveMapping.to_json(instance=node.mapping)
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json, attachments_path):
-        CurveMapping.json_to_cum(node.mapping, node_in_json['mapping'])
+        BLCurveMapping.from_json(instance=node.mapping, json=node_in_json['mapping'])
 
 
 class NodeCompositorNodeEllipseMask(NodeCommon):

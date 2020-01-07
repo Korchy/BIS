@@ -1,5 +1,9 @@
 Version history:
 -
+1.8.3
+- Updated some nodes parameters
+- Added saving blend mode property from material settings
+
 1.8.2
 - Updated some nodes parameters
 

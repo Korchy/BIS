@@ -6,8 +6,8 @@ import os
 from . import cfg
 from .file_manager import FileManager
 from .JsonEx import JsonEx
-from .bl_types_conversion import BLObject, BLParticleSystem
-from .node_common import NodeCommon, TMCommon, IUCommon, CMCommon, CurveMapping, NodeColorRamp
+from .bl_types_conversion import BLObject, BLParticleSystem, BLCurveMapping
+from .node_common import NodeCommon, TMCommon, IUCommon, CMCommon, NodeColorRamp
 from .TextManager import TextManager
 
 
@@ -462,11 +462,11 @@ class NodeShaderNodeWavelength(NodeCommon):
 class NodeShaderNodeRGBCurve(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
-        node_json['mapping'] = CurveMapping.cum_to_json(node.mapping)
+        node_json['mapping'] = BLCurveMapping.to_json(instance=node.mapping)
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json, attachments_path):
-        CurveMapping.json_to_cum(node.mapping, node_in_json['mapping'])
+        BLCurveMapping.from_json(instance=node.mapping, json=node_in_json['mapping'])
 
 
 class NodeShaderNodeVectorCurve(NodeShaderNodeRGBCurve):
@@ -511,38 +511,10 @@ class NodeShaderNodeMapping(NodeCommon):
     @classmethod
     def _node_to_json_spec(cls, node_json, node):
         node_json['vector_type'] = node.vector_type
-        if hasattr(node, 'translation'):
-            node_json['translation'] = JsonEx.vector3_to_json(node.translation)
-        if hasattr(node, 'rotation'):
-            node_json['rotation'] = JsonEx.vector3_to_json(node.rotation)
-        if hasattr(node, 'scale'):
-            node_json['scale'] = JsonEx.vector3_to_json(node.scale)
-        if hasattr(node, 'min'):
-            node_json['min'] = JsonEx.vector3_to_json(node.min)
-        if hasattr(node, 'max'):
-            node_json['max'] = JsonEx.vector3_to_json(node.max)
-        if hasattr(node, 'use_min'):
-            node_json['use_min'] = node.use_min
-        if hasattr(node, 'use_max'):
-            node_json['use_max'] = node.use_max
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         node.vector_type = node_in_json['vector_type']
-        if 'translation' in node_in_json and hasattr(node, 'translation'):
-            JsonEx.vector3_from_json(node.translation, node_in_json['translation'])
-        if 'rotation' in node_in_json and hasattr(node, 'rotation'):
-            JsonEx.vector3_from_json(node.rotation, node_in_json['rotation'])
-        if 'scale' in node_in_json and hasattr(node, 'scale'):
-            JsonEx.vector3_from_json(node.scale, node_in_json['scale'])
-        if 'min' in node_in_json and hasattr(node, 'min'):
-            JsonEx.vector3_from_json(node.min, node_in_json['min'])
-        if 'max' in node_in_json and hasattr(node, 'max'):
-            JsonEx.vector3_from_json(node.max, node_in_json['max'])
-        if 'use_min' in node_in_json and hasattr(node, 'use_min'):
-            node.use_min = node_in_json['use_min']
-        if 'use_max' in node_in_json and hasattr(node, 'use_max'):
-            node.use_max = node_in_json['use_max']
 
 
 class NodeShaderNodeMapRange(NodeCommon):
@@ -550,11 +522,13 @@ class NodeShaderNodeMapRange(NodeCommon):
     def _node_to_json_spec(cls, node_json, node):
         if hasattr(node, 'clamp'):
             node_json['clamp'] = node.clamp
+        cls.attr_to_json(attribute_name='interpolation_type', node=node, node_json=node_json)
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         if 'clamp' in node_in_json and hasattr(node, 'clamp'):
             node.clamp = node_in_json['clamp']
+        cls.attr_from_json(attribute_name='interpolation_type', node=node, node_json=node_in_json)
 
 
 class NodeShaderNodeNormal(NodeCommon):

@@ -160,6 +160,20 @@ class BLNodeOutputFileSlotFile(BLBaseType):
 class BLColor(BLBaseType):
 
     @classmethod
+    def from_json(cls, instance, json, instance_field=None):
+        # instance from json call - redefine for older compatibility (was [...] now {class: xx, instance={...}})
+        if 'class' not in json:
+            json = {
+                "class": "Color",
+                "instance": {
+                    'r': json[0],
+                    'g': json[1],
+                    'b': json[2]
+                }
+            }
+        return cls._json_to_instance(instance=instance, json=json['instance'], instance_field=instance_field)
+
+    @classmethod
     def _instance_to_json(cls, instance):
         # data to json
         json = {
@@ -179,6 +193,23 @@ class BLColor(BLBaseType):
 
 
 class BLVector(BLBaseType):
+
+    @classmethod
+    def from_json(cls, instance, json, instance_field=None):
+        # instance from json call - redefine for older compatibility (was [...] now {class: xx, instance=[...]})
+        if 'class' not in json:
+            pass
+        z = json[2] if len(json) == 3 else None
+        json = {
+            "class": "Vector",
+            "instance": {
+                'x': json[0],
+                'y': json[1]
+            }
+        }
+        if z:
+            json['instance']['z'] = z
+        return cls._json_to_instance(instance=instance, json=json['instance'], instance_field=instance_field)
 
     @classmethod
     def _instance_to_json(cls, instance):
@@ -325,6 +356,17 @@ class BLImage(BLBaseType):
 
 
 class BLCurveMapping(BLBaseType):
+
+    @classmethod
+    def from_json(cls, instance, json, instance_field=None):
+        # instance from json call - redefine for older compatibility (was {...} now {class: xx, instance={...}})
+        if 'class' not in json:
+            json = {
+                "class": "CurveMapping",
+                "instance": json
+            }
+        return cls._json_to_instance(instance=instance, json=json['instance'], instance_field=instance_field)
+
     @classmethod
     def _instance_to_json(cls, instance):
         json = {
@@ -337,6 +379,10 @@ class BLCurveMapping(BLBaseType):
             'white_level': BLColor.to_json(instance.white_level),
             'curves': []
         }
+        if hasattr(instance, 'extend'):
+            json['extend'] = instance.extend
+        if hasattr(instance, 'tone'):
+            json['tone'] = instance.tone
         for curve_map in instance.curves:
             json['curves'].append(BLCurveMap.to_json(curve_map))
         return json
@@ -348,34 +394,67 @@ class BLCurveMapping(BLBaseType):
         instance.clip_min_y = json['clip_min_y']
         instance.clip_max_x = json['clip_max_x']
         instance.clip_max_y = json['clip_max_y']
-        BLColor.from_json(instance.black_level, json['black_level'])
-        BLColor.from_json(instance.white_level, json['white_level'])
+        if 'black_level' in json and hasattr(instance, 'black_level'):
+            BLColor.from_json(instance.black_level, json['black_level'])
+        if 'white_level' in json and hasattr(instance, 'white_level'):
+            BLColor.from_json(instance.white_level, json['white_level'])
+        if 'extend' in json and hasattr(instance, 'extend'):
+            instance.extend = json['extend']
+        if 'tone' in json and hasattr(instance, 'tone'):
+            instance.tone = json['tone']
         for i, curve in enumerate(json['curves']):
             BLCurveMap.from_json(instance.curves[i], curve)
         instance.update()
 
 
 class BLCurveMap(BLBaseType):
+
+    @classmethod
+    def from_json(cls, instance, json, instance_field=None):
+        # instance from json call - redefine for older compatibility (was {...} now {class: xx, instance={...}})
+        if 'class' not in json:
+            json = {
+                "class": "CurveMap",
+                "instance": json
+            }
+        return cls._json_to_instance(instance=instance, json=json['instance'], instance_field=instance_field)
+
     @classmethod
     def _instance_to_json(cls, instance):
         json = {
-            'extend': instance.extend,
             'points': []
         }
+        if hasattr(instance, 'extend'):
+            json['extend'] = instance.extend
         for point in instance.points:
             json['points'].append(BLCurveMapPoint.to_json(point))
         return json
 
     @classmethod
     def _json_to_instance(cls, instance, json, instance_field=None):
-        instance.extend = json['extend']
+        if 'extend' in json and hasattr(instance, 'extend'):
+            instance.extend = json['extend']
         for i, point in enumerate(json['points']):
             if len(instance.points) <= i:
-                instance.points.new(point['instance']['location']['instance']['x'], point['instance']['location']['instance']['y'])
+                if 'instance' in point:
+                    instance.points.new(point['instance']['location']['instance']['x'], point['instance']['location']['instance']['y'])
+                else:   # older compatibility (was [...] now {class: xx, instance={...}})
+                    instance.points.new(point['location'][0], point['location'][0])
             BLCurveMapPoint.from_json(instance.points[i], point)
 
 
 class BLCurveMapPoint(BLBaseType):
+
+    @classmethod
+    def from_json(cls, instance, json, instance_field=None):
+        # instance from json call - redefine for older compatibility (was [...] now {class: xx, instance={...}})
+        if 'class' not in json:
+            json = {
+                "class": "CurveMapPoint",
+                "instance": json
+            }
+        return cls._json_to_instance(instance=instance, json=json['instance'], instance_field=instance_field)
+
     @classmethod
     def _instance_to_json(cls, instance):
         return {
@@ -450,4 +529,46 @@ class BLScene(BLBaseType):
                 setattr(instance, instance_field, bpy.data.scenes[json['name']])
             else:
                 instance.scene = bpy.data.scenes[json['name']]
+        return instance
+
+
+class BLEuler(BLBaseType):
+
+    @classmethod
+    def from_json(cls, instance, json, instance_field=None):
+        # instance from json call - redefine for older compatibility (was [x,y,z] now Euler dict)
+        if isinstance(json, list):
+            json = {
+                "class": "Euler",
+                "instance": {
+                    "order": "XYZ",
+                    "x": json[0],
+                    "y": json[1],
+                    "z": json[2]
+                }
+            }
+        return cls._json_to_instance(instance=instance, json=json['instance'], instance_field=instance_field)
+
+    @classmethod
+    def _instance_to_json(cls, instance):
+        # data to json
+        json = {}
+        if instance:
+            json['order'] = instance.order
+            json['x'] = instance.x
+            json['y'] = instance.y
+            json['z'] = instance.z
+        return json
+
+    @classmethod
+    def _json_to_instance(cls, instance, json, instance_field=None):
+        # data from json
+        if hasattr(instance, 'order') and 'order' in json and json['order']:
+            instance.order = json['order']
+        if hasattr(instance, 'x') and 'x' in json:
+            instance.x = json['x']
+        if hasattr(instance, 'y') and 'y' in json:
+            instance.y = json['y']
+        if hasattr(instance, 'z') and 'z' in json:
+            instance.z = json['z']
         return instance

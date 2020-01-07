@@ -22,6 +22,10 @@ class Material:
             'bis_uid': material['bis_uid'] if 'bis_uid' in material else None,
             'node_tree': NodeTree.to_json(node_tree_parent=material, node_tree=material.node_tree)
         }
+        if hasattr(material, 'blend_method'):
+            material_json['blend_method'] = material.blend_method
+        if hasattr(material, 'shadow_method'):
+            material_json['shadow_method'] = material.shadow_method
         # for current material specification
         cls._to_json_spec(material_json=material_json, material=material)
         return material_json
@@ -45,6 +49,10 @@ class Material:
                 material.metallic = material_json['metallic']
             if 'roughness' in material_json and hasattr(material, 'roughness'):
                 material.roughness = material_json['roughness']
+            if 'blend_method' in material_json and hasattr(material, 'blend_method'):
+                material.blend_method = material_json['blend_method']
+            if 'shadow_method' in material_json and hasattr(material, 'shadow_method'):
+                material.shadow_method = material_json['shadow_method']
             NodeTree.from_json(node_tree_parent=material, node_tree_json=material_json['node_tree'], attachments_path=attachments_path)
             material['bis_uid'] = material_json['bis_uid'] if 'bis_uid' in material_json else None
             # for current material specification

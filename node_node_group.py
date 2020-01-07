@@ -40,7 +40,7 @@ class NodeGroup:
         return node_group
 
 
-class NodeShaderNodeGroup(NodeCommon):
+class NodeCompositorNodeGroup(NodeCommon):
 
     @classmethod
     def node_to_json(cls, node):
@@ -61,7 +61,7 @@ class NodeShaderNodeGroup(NodeCommon):
         node['BIS_addon_version'] = node_json['BIS_addon_version'] if 'BIS_addon_version' in node_json else Addon.node_group_first_version
         if Addon.node_group_version_equal_or_less(node['BIS_addon_version'], '1.7.0') and 'nodes' in node_json:
             # for 1.7.0 and less - nodes and links are separate
-            # this can be removed if there would no v. 1.7.0 and less materials/nodegroups in the BIS lbrary
+            # this can be removed if there would no v. 1.7.0 and less materials/nodegroups in the BIS library
             # Nodes
             for current_node_in_json in node_json['nodes']:
                 node_class = NodeCommon
@@ -112,5 +112,31 @@ class NodeShaderNodeGroup(NodeCommon):
         return rez
 
 
-class NodeCompositorNodeGroup(NodeShaderNodeGroup):
-    pass
+class NodeShaderNodeGroup(NodeCompositorNodeGroup):
+
+    @classmethod
+    def _node_to_json_spec(cls, node_json, node):
+        node_json = super()._node_to_json_spec(node_json=node_json, node=node)
+        # save additional settings from material
+        if bpy.context.active_object and bpy.context.active_object.active_material:
+            active_material = bpy.context.active_object.active_material
+            if hasattr(active_material, 'blend_method'):
+                node_json['blend_method'] = active_material.blend_method
+            if hasattr(active_material, 'shadow_method'):
+                node_json['shadow_method'] = active_material.shadow_method
+        return node_json
+
+    @classmethod
+    def _json_to_node_spec(cls, node, node_json, attachments_path):
+        super()._json_to_node_spec(node=node, node_json=node_json, attachments_path=attachments_path)
+        # add additional settings from material
+        if bpy.context.active_object and bpy.context.active_object.active_material:
+            active_material = bpy.context.active_object.active_material
+            if 'blend_method' in node_json and hasattr(active_material, 'blend_method'):
+                # change only default value
+                if active_material.blend_method == 'OPAQUE':
+                    active_material.blend_method = node_json['blend_method']
+            if 'shadow_method' in node_json and hasattr(active_material, 'shadow_method'):
+                # change only default value
+                if active_material.shadow_method == 'OPAQUE':
+                    active_material.shadow_method = node_json['shadow_method']

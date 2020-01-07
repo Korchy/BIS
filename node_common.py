@@ -26,6 +26,7 @@ class NodeCommon:
             'height': node.height,
             'use_custom_color': node.use_custom_color,
             'color': JsonEx.color_to_json(node.color),
+            'mute': node.mute,
             'parent': node.parent.name if node.parent else '',
             'inputs': [],
             'outputs': [],
@@ -76,6 +77,7 @@ class NodeCommon:
             current_node.height = node_json['height']
             current_node.use_custom_color = node_json['use_custom_color']
             JsonEx.color_from_json(current_node.color, node_json['color'])
+            cls.attr_from_json(attribute_name='mute', node=current_node, node_json=node_json)
             current_node['parent_str'] = node_json['parent'] if 'parent' in node_json else ''
             current_node['BIS_node_id'] = node_json['BIS_node_id'] if 'BIS_node_id' in node_json else None
             # node inputs
@@ -145,6 +147,16 @@ class NodeCommon:
                 rez = output_with_identifier[0]
         return rez
 
+    @classmethod
+    def attr_to_json(cls, attribute_name, node, node_json):
+        if hasattr(node, attribute_name):
+            node_json[attribute_name] = getattr(node, attribute_name)
+
+    @classmethod
+    def attr_from_json(cls, attribute_name, node, node_json):
+        if attribute_name in node_json and hasattr(node, attribute_name):
+            setattr(node, attribute_name, node_json[attribute_name])
+
 
 # Node TextureMapping
 class TMCommon:
@@ -153,7 +165,7 @@ class TMCommon:
         return {
             'vector_type': tm.vector_type,
             'translation': JsonEx.vector3_to_json(tm.translation),
-            'rotation': JsonEx.vector3_to_json(tm.rotation),
+            'rotation': BLEuler.to_json(instance=tm.rotation),
             'scale': JsonEx.vector3_to_json(tm.scale),
             'min': JsonEx.vector3_to_json(tm.min),
             'max': JsonEx.vector3_to_json(tm.max),
@@ -169,7 +181,7 @@ class TMCommon:
     def json_to_tm(cls, node, tm_in_json):
         node.texture_mapping.vector_type = tm_in_json['vector_type']
         JsonEx.vector3_from_json(node.texture_mapping.translation, tm_in_json['translation'])
-        JsonEx.vector3_from_json(node.texture_mapping.rotation, tm_in_json['rotation'])
+        BLEuler.from_json(instance=node.texture_mapping.rotation, json=tm_in_json['rotation'])
         JsonEx.vector3_from_json(node.texture_mapping.scale, tm_in_json['scale'])
         JsonEx.vector3_from_json(node.texture_mapping.min, tm_in_json['min'])
         JsonEx.vector3_from_json(node.texture_mapping.max, tm_in_json['max'])
@@ -185,26 +197,53 @@ class TMCommon:
 class IUCommon:
     @classmethod
     def iu_to_json(cls, iu):
-        rez = {
-            'use_auto_refresh': iu.use_auto_refresh,
-            'frame_current': iu.frame_current,
-            'use_cyclic': iu.use_cyclic,
-            'frame_duration': iu.frame_duration,
-            'frame_offset': iu.frame_offset,
-            'frame_start': iu.frame_start
-        }
+        rez = {}
+        if hasattr(iu, 'frame_current'):
+            rez['frame_current'] = iu.frame_current
+        if hasattr(iu, 'frame_duration'):
+            rez['frame_duration'] = iu.frame_duration
+        if hasattr(iu, 'frame_offset'):
+            rez['frame_offset'] = iu.frame_offset
+        if hasattr(iu, 'frame_start'):
+            rez['frame_start'] = iu.frame_start
+        if hasattr(iu, 'multilayer_layer'):
+            rez['multilayer_layer'] = iu.multilayer_layer
+        if hasattr(iu, 'multilayer_pass'):
+            rez['multilayer_pass'] = iu.multilayer_pass
+        if hasattr(iu, 'multilayer_view'):
+            rez['multilayer_view'] = iu.multilayer_view
+        if hasattr(iu, 'tile'):
+            rez['tile'] = iu.tile
+        if hasattr(iu, 'use_auto_refresh'):
+            rez['use_auto_refresh'] = iu.use_auto_refresh
+        if hasattr(iu, 'use_cyclic'):
+            rez['use_cyclic'] = iu.use_cyclic
         if hasattr(iu, 'fields_per_frame'):
             rez['fields_per_frame'] = iu.fields_per_frame
         return rez
 
     @classmethod
     def json_to_iu(cls, node, iu_in_json):
-        node.image_user.use_auto_refresh = iu_in_json['use_auto_refresh']
-        node.image_user.frame_current = iu_in_json['frame_current']
-        node.image_user.use_cyclic = iu_in_json['use_cyclic']
-        node.image_user.frame_duration = iu_in_json['frame_duration']
-        node.image_user.frame_offset = iu_in_json['frame_offset']
-        node.image_user.frame_start = iu_in_json['frame_start']
+        if 'frame_current' in iu_in_json and hasattr(node.image_user, 'frame_current'):
+            node.image_user.frame_current = iu_in_json['frame_current']
+        if 'frame_duration' in iu_in_json and hasattr(node.image_user, 'frame_duration'):
+            node.image_user.frame_duration = iu_in_json['frame_duration']
+        if 'frame_offset' in iu_in_json and hasattr(node.image_user, 'frame_offset'):
+            node.image_user.frame_offset = iu_in_json['frame_offset']
+        if 'frame_start' in iu_in_json and hasattr(node.image_user, 'frame_start'):
+            node.image_user.frame_start = iu_in_json['frame_start']
+        if 'multilayer_layer' in iu_in_json and hasattr(node.image_user, 'multilayer_layer'):
+            node.image_user.multilayer_layer = iu_in_json['multilayer_layer']
+        if 'multilayer_pass' in iu_in_json and hasattr(node.image_user, 'multilayer_pass'):
+            node.image_user.multilayer_pass = iu_in_json['multilayer_pass']
+        if 'multilayer_view' in iu_in_json and hasattr(node.image_user, 'multilayer_view'):
+            node.image_user.multilayer_view = iu_in_json['multilayer_view']
+        if 'tile' in iu_in_json and hasattr(node.image_user, 'tile'):
+            node.image_user.tile = iu_in_json['tile']
+        if 'use_auto_refresh' in iu_in_json and hasattr(node.image_user, 'use_auto_refresh'):
+            node.image_user.use_auto_refresh = iu_in_json['use_auto_refresh']
+        if 'use_cyclic' in iu_in_json and hasattr(node.image_user, 'use_cyclic'):
+            node.image_user.use_cyclic = iu_in_json['use_cyclic']
         if 'fields_per_frame' in iu_in_json and hasattr(node.image_user, 'fields_per_frame'):
             node.image_user.fields_per_frame = iu_in_json['fields_per_frame']
 
@@ -283,6 +322,10 @@ class CurveMapping:
             'white_level': JsonEx.color_to_json(cum.white_level),
             'curves': []
         }
+        if hasattr(cum, 'extend'):
+            rez['extend'] = cum.extend
+        if hasattr(cum, 'tone'):
+            rez['tone'] = cum.tone
         for curveMap in cum.curves:
             rez['curves'].append(CurveMap.cm_to_json(curveMap))
         return rez
@@ -294,6 +337,10 @@ class CurveMapping:
         cum.clip_min_y = cum_in_json['clip_min_y']
         cum.clip_max_x = cum_in_json['clip_max_x']
         cum.clip_max_y = cum_in_json['clip_max_y']
+        if 'extend' in cum_in_json and hasattr(cum, 'extend'):
+            cum.extend = cum_in_json['extend']
+        if 'tone' in cum_in_json and hasattr(cum, 'tone'):
+            cum.tone = cum_in_json['tone']
         JsonEx.color_from_json(cum.black_level, cum_in_json['black_level'])
         JsonEx.color_from_json(cum.white_level, cum_in_json['white_level'])
         for i, curve in enumerate(cum_in_json['curves']):
@@ -306,16 +353,18 @@ class CurveMap:
     @classmethod
     def cm_to_json(cls, cm):
         rez = {
-            'extend': cm.extend,
             'points': []
         }
+        if hasattr(cm, 'extend'):
+            rez['extend'] = cm.extend
         for point in cm.points:
             rez['points'].append(CurveMapPoint.cmp_to_json(point))
         return rez
 
     @classmethod
     def json_to_cm(cls, cm, cm_in_json):
-        cm.extend = cm_in_json['extend']
+        if 'extend' in cm_in_json and hasattr(cm, 'extend'):
+            cm.extend = cm_in_json['extend']
         for i, point in enumerate(cm_in_json['points']):
             if len(cm.points) <= i:
                 cm.points.new(point['location'][0], point['location'][1])

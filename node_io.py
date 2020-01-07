@@ -2,6 +2,7 @@
 # interplanety@interplanety.org
 
 from .JsonEx import JsonEx
+from .bl_types_conversion import BLEuler
 
 
 # NodeSocketXXX and NodeSocketInterfaceXXX classes
@@ -106,8 +107,25 @@ class NodeIONodeSocketVectorTranslation(NodeIONodeSocketVector):
     pass
 
 
-class NodeIONodeSocketVectorEuler(NodeIONodeSocketVector):
-    pass
+class NodeIONodeSocketVectorEuler(NodeIOCommon):
+    @classmethod
+    def _input_to_json_spec(cls, input_json, node_input):
+        input_json['default_value'] = BLEuler.to_json(instance=node_input.default_value)
+
+    @classmethod
+    def _output_to_json_spec(cls, output_json, node_output):
+        output_json['default_value'] = BLEuler.to_json(instance=node_output.default_value)
+
+    @classmethod
+    def _json_to_i_spec(cls, node_input, input_json):
+        if 'default_value' in input_json:
+            BLEuler.from_json(instance=node_input.default_value, json=input_json['default_value'])
+            if hasattr(node_input, 'node') and node_input.node.type == 'GROUP':
+                BLEuler.from_json(instance=node_input.node.inputs[-1].default_value, json=input_json['default_value'])
+
+    @classmethod
+    def _json_to_o_spec(cls, node_output, output_json):
+        BLEuler.from_json(instance=node_output.default_value, json=output_json['default_value'])
 
 
 class NodeIONodeSocketVectorVelocity(NodeIONodeSocketVector):
