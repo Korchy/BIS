@@ -198,17 +198,16 @@ class BLVector(BLBaseType):
     def from_json(cls, instance, json, instance_field=None):
         # instance from json call - redefine for older compatibility (was [...] now {class: xx, instance=[...]})
         if 'class' not in json:
-            pass
-        z = json[2] if len(json) == 3 else None
-        json = {
-            "class": "Vector",
-            "instance": {
-                'x': json[0],
-                'y': json[1]
+            z = json[2] if len(json) == 3 else None
+            json = {
+                "class": "Vector",
+                "instance": {
+                    'x': json[0],
+                    'y': json[1]
+                }
             }
-        }
-        if z:
-            json['instance']['z'] = z
+            if z:
+                json['instance']['z'] = z
         return cls._json_to_instance(instance=instance, json=json['instance'], instance_field=instance_field)
 
     @classmethod
