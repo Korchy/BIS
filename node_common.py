@@ -206,12 +206,6 @@ class IUCommon:
             rez['frame_offset'] = iu.frame_offset
         if hasattr(iu, 'frame_start'):
             rez['frame_start'] = iu.frame_start
-        if hasattr(iu, 'multilayer_layer'):
-            rez['multilayer_layer'] = iu.multilayer_layer
-        if hasattr(iu, 'multilayer_pass'):
-            rez['multilayer_pass'] = iu.multilayer_pass
-        if hasattr(iu, 'multilayer_view'):
-            rez['multilayer_view'] = iu.multilayer_view
         if hasattr(iu, 'tile'):
             rez['tile'] = iu.tile
         if hasattr(iu, 'use_auto_refresh'):
@@ -232,12 +226,6 @@ class IUCommon:
             node.image_user.frame_offset = iu_in_json['frame_offset']
         if 'frame_start' in iu_in_json and hasattr(node.image_user, 'frame_start'):
             node.image_user.frame_start = iu_in_json['frame_start']
-        if 'multilayer_layer' in iu_in_json and hasattr(node.image_user, 'multilayer_layer'):
-            node.image_user.multilayer_layer = iu_in_json['multilayer_layer']
-        if 'multilayer_pass' in iu_in_json and hasattr(node.image_user, 'multilayer_pass'):
-            node.image_user.multilayer_pass = iu_in_json['multilayer_pass']
-        if 'multilayer_view' in iu_in_json and hasattr(node.image_user, 'multilayer_view'):
-            node.image_user.multilayer_view = iu_in_json['multilayer_view']
         if 'tile' in iu_in_json and hasattr(node.image_user, 'tile'):
             node.image_user.tile = iu_in_json['tile']
         if 'use_auto_refresh' in iu_in_json and hasattr(node.image_user, 'use_auto_refresh'):
