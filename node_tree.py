@@ -94,17 +94,18 @@ class NodeTree:
             for link_json in node_tree_json['links']:
                 from_node = cls._node_by_bis_id(node_tree=node_tree, bis_node_id=link_json[0])
                 to_node = cls._node_by_bis_id(node_tree=node_tree, bis_node_id=link_json[2])
-                # for group nodes and group inputs/output nodes - by number, for other nodes - by identifier
-                if isinstance(link_json[1], str):
-                    from_output = cls._output_by_identifier(from_node, link_json[1])
-                else:
-                    from_output = from_node.outputs[link_json[1]]
-                if isinstance(link_json[3], str):
-                    to_input = cls._input_by_identifier(to_node, link_json[3])
-                else:
-                    to_input = to_node.inputs[link_json[3]]
-                if from_output and to_input:
-                    node_tree.links.new(from_output, to_input)
+                if from_node and to_node:
+                    # for group nodes and group inputs/output nodes - by number, for other nodes - by identifier
+                    if isinstance(link_json[1], str):
+                        from_output = cls._output_by_identifier(from_node, link_json[1])
+                    else:
+                        from_output = from_node.outputs[link_json[1]]
+                    if isinstance(link_json[3], str):
+                        to_input = cls._input_by_identifier(to_node, link_json[3])
+                    else:
+                        to_input = to_node.inputs[link_json[3]]
+                    if from_output and to_input:
+                        node_tree.links.new(from_output, to_input)
             # Frames
             for c_node in node_tree.nodes:
                 if c_node['parent_str']:
