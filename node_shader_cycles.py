@@ -303,12 +303,20 @@ class NodeShaderNodeTexWave(NodeShaderNodeTexChecker):
         super()._node_to_json_spec(node_json=node_json, node=node)
         node_json['wave_profile'] = node.wave_profile
         node_json['wave_type'] = node.wave_type
+        if hasattr(node, 'bands_direction'):
+            node_json['bands_direction'] = node.bands_direction
+        if hasattr(node, 'rings_direction'):
+            node_json['rings_direction'] = node.rings_direction
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json, attachments_path):
         super()._json_to_node_spec(node=node, node_in_json=node_in_json, attachments_path=attachments_path)
         node.wave_profile = node_in_json['wave_profile']
         node.wave_type = node_in_json['wave_type']
+        if 'bands_direction' in node_in_json and hasattr(node, 'bands_direction'):
+            node.bands_direction = node_in_json['bands_direction']
+        if 'rings_direction' in node_in_json and hasattr(node, 'rings_direction'):
+            node.rings_direction = node_in_json['rings_direction']
 
 
 class NodeShaderNodeTexSky(NodeShaderNodeTexChecker):
