@@ -1,14 +1,21 @@
 # Nikita Akimov
 # interplanety@interplanety.org
+#
+# GitHub
+#   https://github.com/Korchy/BIS
 
 import bpy
+import base64
 import json
 import os
+from distutils.version import StrictVersion
 from shutil import copyfile
 import tempfile
+import zlib
 from .file_manager import FileManager
 from . import cfg
-from .node_node_group import NodeGroup
+from .node_node_group import NodeGroup as NodeGroupOld  # for older compatibility < 1.9.0
+from .node_group import NodeGroup
 from .material import Material
 from .node_tree import NodeTree
 from .addon import Addon
@@ -36,7 +43,8 @@ class NodeManager:
                 'storage': cls.storage_type(context=context),
                 'storage_subtype': storage_subtype,
                 'storage_subtype2': storage_subtype2,
-                'update_preview': update_preview
+                'update_preview': update_preview,
+                'addon_version': Addon.current_version()
                 }
         )
         if request:
@@ -60,7 +68,8 @@ class NodeManager:
                             'preview_list': preview_to_update,
                             'storage': cls.storage_type(context),
                             'storage_subtype': storage_subtype,
-                            'storage_subtype2': storage_subtype2
+                            'storage_subtype2': storage_subtype2,
+                            'addon_version': Addon.current_version(),
                         }
                     )
                     if request:
@@ -95,6 +104,7 @@ class NodeManager:
                     if request_rez['stat'] == 'OK':
                         # attachment
                         attachments_path = ''
+                        item_version = request_rez['data']['addon_version']
                         if 'file_attachment' in request_rez['data'] and request_rez['data']['file_attachment']:
                             with tempfile.TemporaryDirectory() as temp_dir:
                                 request_file = WebRequest.send_request(
@@ -116,15 +126,37 @@ class NodeManager:
                                     attachments_path = os.path.join(FileManager.attachments_path(), str(bis_item_id))
                                     FileManager.unzip_files(source_zip_path=zip_file_path, dest_dir=attachments_path)
                         # item body
-                        item_in_json = json.loads(request_rez['data']['item'])
+                        # >= 1.9.0 - decompress
+                        # TODO after update to 1.9.0 remove else condition
+                        if StrictVersion(item_version) >= StrictVersion('1.9.0'):
+                            # >= 1.9.0
+                            item_json_compressed = base64.b64decode(request_rez['data']['item'])
+                            item_json_str = zlib.decompress(item_json_compressed).decode('utf-8')
+                            item_in_json = json.loads(item_json_str)
+                        else:
+                            item_in_json = json.loads(request_rez['data']['item'])
+
                         if cfg.from_server_to_file:
                             with open(os.path.join(FileManager.project_dir(), 'received_from_server.json'), 'w') as currentFile:
                                 json.dump(item_in_json, currentFile, indent=4)
-                        item_version = item_in_json['BIS_addon_version'] if 'BIS_addon_version' in item_in_json else Addon.node_group_first_version
-                        if Addon.node_group_version_higher(item_version, Addon.current_version()):
+                        # TODO after update to 1.9.0 remove elif and else
+                        if StrictVersion(item_version) >= StrictVersion('1.9.0'):
+                            # 1.9.0
+                            item_in_json['bis_version'] = item_version
+                            item_type_got = item_in_json['instance']['type']
+                            item_name_got = item_in_json['instance']['name']
+                            item_node_tree_got = item_in_json['instance']['node_tree']
+                        else:
+                            item_in_json['BIS_addon_version'] = item_version
+                            item_type_got = item_in_json['type']
+                            item_name_got = item_in_json['name']
+                            item_node_tree_got = item_in_json['node_tree'] if 'node_tree' in item_in_json else None
+
+                        # if Addon.node_group_version_higher(item_version, Addon.current_version()):
+                        if StrictVersion(item_version) > StrictVersion(Addon.current_version()):
                             bpy.ops.message.messagebox('INVOKE_DEFAULT', message='This material item was saved in higher BIS version and may not load correctly.\
                              Please download the last BIS add-on version!')
-                        if item_in_json['type'] == 'Material':
+                        if item_type_got == 'Material':
                             # got Material (can be only object material)
                             if item_type == 'MATERIAL':
                                 # Material as Material
@@ -134,93 +166,225 @@ class NodeManager:
                                 # Material as Node Group
                                 active_node_tree = cls.active_node_tree(context=context)
                                 cls._deselect_all_nodes(node_tree=active_node_tree)
-                                # NodeGroup.new(parent_node_tree=active_node_tree, name=item_in_json['name'])
-                                node_group_json = {
-                                    'type': 'GROUP',
-                                    'bl_idname': 'ShaderNodeGroup' if active_node_tree.bl_idname == 'ShaderNodeTree' else 'CompositorNodeGroup',
-                                    'name': item_in_json['name'],
-                                    'label': '',
-                                    'hide': False,
-                                    'location': [0.0, 0.0],
-                                    'width': 300,
-                                    'height': 200,
-                                    'use_custom_color': False,
-                                    'color': [1.0, 1.0, 1.0],
-                                    'parent': '',
-                                    'inputs': [],
-                                    'outputs': [
-                                        {
-                                            'type': 'SHADER',
-                                            'bl_idname': 'NodeSocketShader',
-                                            'name': 'Surface'
+                                # NodeGroup.new(parent_node_tree=active_node_tree, name=item_name_got)
+
+                                # TODO for older compatibility - after update to 1.9.0 remove else condition
+                                if StrictVersion(item_version) >= StrictVersion('1.9.0'):
+                                    node_group_json = {
+                                        "class": "ShaderNodeGroup",
+                                        "instance": {
+                                            "inputs": [],
+                                            "outputs": [
+                                                {
+                                                    "class": "NodeSocketShader",
+                                                    "instance": {
+                                                        "name": "Surface",
+                                                        "type": "SHADER"
+                                                    }
+                                                },
+                                                {
+                                                    "class": "NodeSocketShader",
+                                                    "instance": {
+                                                        "name": "Volume",
+                                                        "type": "SHADER"
+                                                    }
+                                                },
+                                                {
+                                                    "class": "NodeSocketVector",
+                                                    "instance": {
+                                                        "name": "Displacement",
+                                                        "type": "VECTOR"
+                                                    }
+                                                }
+                                            ],
+                                            "location": {
+                                                "class": "Vector",
+                                                "instance": {
+                                                    "x": 0.0,
+                                                    "y": 0.0
+                                                }
+                                            },
+                                            # "name": item_in_json['instance']['node_tree']['instance']['name'],
+                                            "name": item_in_json['instance']['name'],
+                                            "width": 300.0,
+                                            'node_tree': item_node_tree_got,
+                                            "type": "GROUP"
                                         },
-                                        {
-                                            'type': 'SHADER',
-                                            'bl_idname': 'NodeSocketShader',
-                                            'name': 'Volume'
-                                        },
-                                        {
-                                            'type': 'VECTOR',
-                                            'bl_idname': 'NodeSocketVector',
-                                            'name': 'Displacement',
-                                            'default_value': [0.0, 0.0, 0.0]
+                                        'bis_version': item_version
+                                    }
+                                    input_node_json = {
+                                        "class": "NodeGroupInput",
+                                        "instance": {
+                                            "inputs": [],
+                                            "outputs": [],
+                                            "location": {
+                                                "class": "Vector",
+                                                "instance": {
+                                                    "x": -300.0,
+                                                    "y": 0.0
+                                                }
+                                            },
+                                            "name": "Group Input"
                                         }
-                                    ],
-                                    'node_tree': item_in_json['node_tree'],
-                                    'BIS_addon_version': Addon.current_version(),
-                                    'BIS_node_id': None
-                                }
-                                output_node = {
-                                    'type': 'GROUP_OUTPUT',
-                                    'bl_idname': 'NodeGroupOutput',
-                                    'name': 'Group Output',
-                                    'label': '',
-                                    'hide': False,
-                                    'location': [300.0, 0.0],
-                                    'width': 140.0,
-                                    'height': 100.0,
-                                    'use_custom_color': False,
-                                    'color': [1.0, 1.0, 1.0],
-                                    'parent': '',
-                                    'inputs': [
-                                        {
-                                            'type': 'SHADER',
-                                            'bl_idname': 'NodeSocketShader',
-                                            'name': 'Surface'
-                                        },
-                                        {
-                                            'type': 'SHADER',
-                                            'bl_idname': 'NodeSocketShader',
-                                            'name': 'Volume'
-                                        },
-                                        {
-                                            'type': 'VECTOR',
-                                            'bl_idname': 'NodeSocketVector',
-                                            'name': 'Displacement',
-                                            'default_value': [0.0, 0.0, 0.0]
+                                    }
+                                    output_node_json = {
+                                        "class": "NodeGroupOutput",
+                                        "instance": {
+                                            "inputs": [
+                                                {
+                                                    "class": "NodeSocketShader",
+                                                    "instance": {
+                                                        "name": "Surface",
+                                                        "type": "SHADER"
+                                                    }
+                                                },
+                                                {
+                                                    "class": "NodeSocketShader",
+                                                    "instance": {
+                                                        "name": "Volume",
+                                                        "type": "SHADER"
+                                                    }
+                                                },
+                                                {
+                                                    "class": "NodeSocketVector",
+                                                    "instance": {
+                                                        "name": "Displacement",
+                                                        "type": "VECTOR"
+                                                    }
+                                                }
+                                            ],
+                                            "outputs": [],
+                                            "is_active_output": True,
+                                            "location": {
+                                                "class": "Vector",
+                                                "instance": {
+                                                    "x": 300.0,
+                                                    "y": 0.0
+                                                }
+                                            },
+                                            "name": "Group Output"
                                         }
-                                    ],
-                                    'outputs': [],
-                                    'is_active_output': True
-                                }
-                                node_group_json['node_tree']['nodes'].append(output_node)
-                                input_node = {
-                                    'type': 'GROUP_INPUT',
-                                    'bl_idname': 'NodeGroupInput',
-                                    'name': 'Group Input',
-                                    'label': '',
-                                    'hide': False,
-                                    'location': [-300.0, 0.0],
-                                    'width': 140.0,
-                                    'height': 100.0,
-                                    'use_custom_color': False,
-                                    'color': [1.0, 1.0, 1.0],
-                                    'parent': '',
-                                    'inputs': [],
-                                    'outputs': []
-                                }
-                                node_group_json['node_tree']['nodes'].append(input_node)
-                                node_group = NodeGroup.from_json(node_group_json=node_group_json, parent_node_tree=active_node_tree, attachments_path=attachments_path)
+                                    }
+                                    node_tree_outputs_json = [
+                                        {
+                                            "class": "NodeSocketInterfaceShader",
+                                            "instance": {
+                                                "name": "Surface"
+                                            },
+                                            "bl_socket_idname": "NodeSocketShader"
+                                        },
+                                        {
+                                            "class": "NodeSocketInterfaceShader",
+                                            "instance": {
+                                                "name": "Volume"
+                                            },
+                                            "bl_socket_idname": "NodeSocketShader"
+                                        },
+                                        {
+                                            "class": "NodeSocketInterfaceVector",
+                                            "instance": {
+                                                "name": "Displacement"
+                                            },
+                                            "bl_socket_idname": "NodeSocketVector"
+                                        }
+                                    ]
+                                    node_group_json['instance']['node_tree']['instance']['nodes'].append(input_node_json)
+                                    node_group_json['instance']['node_tree']['instance']['nodes'].append(output_node_json)
+                                    node_group_json['instance']['node_tree']['instance']['outputs'] += node_tree_outputs_json
+                                    node_group_json['instance']['node_tree']['instance']['name'] = item_in_json['instance']['name']
+                                else:
+                                    node_group_json = {
+                                        'type': 'GROUP',
+                                        'bl_idname': 'ShaderNodeGroup' if active_node_tree.bl_idname == 'ShaderNodeTree' else 'CompositorNodeGroup',
+                                        'name': item_name_got,
+                                        'label': '',
+                                        'hide': False,
+                                        'location': [0.0, 0.0],
+                                        'width': 300,
+                                        'height': 200,
+                                        'use_custom_color': False,
+                                        'color': [1.0, 1.0, 1.0],
+                                        'parent': '',
+                                        'inputs': [],
+                                        'outputs': [
+                                            {
+                                                'type': 'SHADER',
+                                                'bl_idname': 'NodeSocketShader',
+                                                'name': 'Surface'
+                                            },
+                                            {
+                                                'type': 'SHADER',
+                                                'bl_idname': 'NodeSocketShader',
+                                                'name': 'Volume'
+                                            },
+                                            {
+                                                'type': 'VECTOR',
+                                                'bl_idname': 'NodeSocketVector',
+                                                'name': 'Displacement',
+                                                'default_value': [0.0, 0.0, 0.0]
+                                            }
+                                        ],
+                                        'node_tree': item_node_tree_got,
+                                        'BIS_addon_version': Addon.current_version(),
+                                        'bis_node_uid': None
+                                    }
+                                    output_node = {
+                                        'type': 'GROUP_OUTPUT',
+                                        'bl_idname': 'NodeGroupOutput',
+                                        'name': 'Group Output',
+                                        'label': '',
+                                        'hide': False,
+                                        'location': [300.0, 0.0],
+                                        'width': 140.0,
+                                        'height': 100.0,
+                                        'use_custom_color': False,
+                                        'color': [1.0, 1.0, 1.0],
+                                        'parent': '',
+                                        'inputs': [
+                                            {
+                                                'type': 'SHADER',
+                                                'bl_idname': 'NodeSocketShader',
+                                                'name': 'Surface'
+                                            },
+                                            {
+                                                'type': 'SHADER',
+                                                'bl_idname': 'NodeSocketShader',
+                                                'name': 'Volume'
+                                            },
+                                            {
+                                                'type': 'VECTOR',
+                                                'bl_idname': 'NodeSocketVector',
+                                                'name': 'Displacement',
+                                                'default_value': [0.0, 0.0, 0.0]
+                                            }
+                                        ],
+                                        'outputs': [],
+                                        'is_active_output': True
+                                    }
+                                    node_group_json['node_tree']['nodes'].append(output_node)
+                                    input_node = {
+                                        'type': 'GROUP_INPUT',
+                                        'bl_idname': 'NodeGroupInput',
+                                        'name': 'Group Input',
+                                        'label': '',
+                                        'hide': False,
+                                        'location': [-300.0, 0.0],
+                                        'width': 140.0,
+                                        'height': 100.0,
+                                        'use_custom_color': False,
+                                        'color': [1.0, 1.0, 1.0],
+                                        'parent': '',
+                                        'inputs': [],
+                                        'outputs': []
+                                    }
+                                    node_group_json['node_tree']['nodes'].append(input_node)
+
+                                # TODO for older compatibility - after update to 1.9.0 remove else condition
+                                if StrictVersion(item_version) >= StrictVersion('1.9.0'):
+                                    node_group = NodeGroup.from_json(node_group_json=node_group_json, parent_node_tree=active_node_tree, attachments_path=attachments_path)
+                                else:
+                                    node_group = NodeGroupOld.from_json(node_group_json=node_group_json, parent_node_tree=active_node_tree, attachments_path=attachments_path)
+
                                 # create links from material output nodes to group output node
                                 node_group_output_node = [node for node in node_group.node_tree.nodes if node.type == 'GROUP_OUTPUT'][0]
                                 for link in node_group.node_tree.links:
@@ -235,7 +399,7 @@ class NodeManager:
                                 for node in node_group.node_tree.nodes:
                                     if node.type == 'OUTPUT_MATERIAL':
                                         node_group.node_tree.nodes.remove(node)
-                        elif item_in_json['type'] == 'GROUP':
+                        elif item_type_got == 'GROUP':
                             # got Node Group (can be object node group or compositor node group)
                             if item_type == 'NODEGROUP' or subtype == 'CompositorNodeTree':
                                 # Node Group as Node Group (for object material and compositor material)
@@ -247,17 +411,29 @@ class NodeManager:
                                 active_node_tree = cls.active_node_tree(context=context)
                                 cls._deselect_all_nodes(node_tree=active_node_tree)
                                 if item_in_json and active_node_tree:
-                                    nodegroup = NodeGroup.from_json(node_group_json=item_in_json, parent_node_tree=active_node_tree, attachments_path=attachments_path)
+
+                                    # TODO for older compatibility - after update to 1.9.0 remove else condition
+                                    if StrictVersion(item_version) >= StrictVersion('1.9.0'):
+                                        nodegroup = NodeGroup.from_json(node_group_json=item_in_json, parent_node_tree=active_node_tree, attachments_path=attachments_path)
+                                    else:
+                                        nodegroup = NodeGroupOld.from_json(node_group_json=item_in_json, parent_node_tree=active_node_tree, attachments_path=attachments_path)
+
                                     if nodegroup:
                                         nodegroup['bis_uid'] = bis_item_id
                             elif item_type == 'MATERIAL':
                                 # Node Group as Material (only for object material)
                                 material = Material.new(context=context)
                                 if material:
-                                    material.name = item_in_json['name']
+                                    material.name = item_name_got
                                     Material.clear(material=material, exclude_output_nodes=True)
                                     active_node_tree = cls.active_node_tree(context=context)
-                                    nodegroup = NodeGroup.from_json(node_group_json=item_in_json, parent_node_tree=active_node_tree, attachments_path=attachments_path)
+
+                                    # TODO for older compatibility - after update to 1.9.0 remove else condition
+                                    if StrictVersion(item_version) >= StrictVersion('1.9.0'):
+                                        nodegroup = NodeGroup.from_json(node_group_json=item_in_json, parent_node_tree=active_node_tree, attachments_path=attachments_path)
+                                    else:
+                                        nodegroup = NodeGroupOld.from_json(node_group_json=item_in_json, parent_node_tree=active_node_tree, attachments_path=attachments_path)
+
                                     if nodegroup:
                                         nodegroup['bis_uid'] = bis_item_id
                                         # additional nodes and links
@@ -331,7 +507,7 @@ class NodeManager:
         subtype = Material.get_subtype(context=context)
         if item:
             if item_type == 'NODEGROUP' or subtype == 'CompositorNodeTree':
-                item_json = NodeGroup.to_json(nodegroup=item)
+                item_json = NodeGroup.to_json(node_group=item)
             elif item_type == 'MATERIAL':
                 item_json = Material.to_json(context=context, material=item)
         if item_json:
@@ -341,19 +517,23 @@ class NodeManager:
             if cls.is_procedural(material=item):
                 # send to server
                 if not cfg.no_sending_to_server:
-                    bis_links = list(cls.get_bis_linked_items('bis_linked_item', item_json))
+                    bis_links = list(cls.get_bis_linked_items('bis_linked_item', item_json))    # TODO check with internal text scripts
+                    # zip json to reduce size and convert to base64 to have a string
+                    # future improvement - don't convert to base64 string, store to db raw binary after zlib (need to use BLOB field in mysql)
+                    item_json_compressed = zlib.compress(json.dumps(item_json).encode('utf-8'))
+                    item_json_compressed_b64 = base64.b64encode(item_json_compressed)
                     request = WebRequest.send_request(
                         context=context,
                         data={
                             'for': 'add_item',
-                            'item_body': json.dumps(item_json),
+                            'item_body': item_json_compressed_b64,
                             'storage': cls.storage_type(context=context),
                             'storage_subtype': subtype,
                             'storage_subtype2': Material.get_subtype2(context=context),
                             'procedural': 1 if cls.is_procedural(material=item) else 0,
                             'engine': context.window.scene.render.engine,
                             'bis_links': json.dumps(bis_links),
-                            'item_name': item_json['name'],
+                            'item_name': item_json['instance']['name'],
                             'item_tags': tags.strip(),
                             'addon_version': Addon.current_version(),
                             'blender_version': BlenderEx.version_str_short()
@@ -369,11 +549,11 @@ class NodeManager:
                         zip_file = FileManager.zip_files(
                             source_files_list=file_attachment,
                             temp_dir=temp_dir,
-                            zip_name=item_json['name']
+                            zip_name=item_json['instance']['name']
                         )
                         if zip_file and os.path.exists(zip_file):
                             if cfg.to_server_to_file:
-                                copyfile(zip_file, os.path.join(FileManager.project_dir(), item_json['name']+'.zip'))
+                                copyfile(zip_file, os.path.join(FileManager.project_dir(), item_json['instance']['name']+'.zip'))
                             if os.stat(zip_file).st_size < cls._material_limit_file_size:
                                 # send to server
                                 if not cfg.no_sending_to_server:
@@ -389,7 +569,7 @@ class NodeManager:
                                             'procedural': 1 if cls.is_procedural(material=item) else 0,
                                             'engine': context.window.scene.render.engine,
                                             'bis_links': json.dumps(bis_links),
-                                            'item_name': item_json['name'],
+                                            'item_name': item_json['instance']['name'],
                                             'item_tags': tags.strip(),
                                             'addon_version': Addon.current_version(),
                                             'blender_version': BlenderEx.version_str_short()
@@ -417,7 +597,7 @@ class NodeManager:
                                 'procedural': 1 if cls.is_procedural(material=item) else 0,
                                 'engine': context.window.scene.render.engine,
                                 'bis_links': json.dumps(bis_links),
-                                'item_name': item_json['name'],
+                                'item_name': item_json['instance']['name'],
                                 'item_tags': tags.strip(),
                                 'addon_version': Addon.current_version(),
                                 'blender_version': BlenderEx.version_str_short()
@@ -437,9 +617,9 @@ class NodeManager:
         item_json = None
         subtype = Material.get_subtype(context=context)
         if item:
-            if 'bis_uid' in item:
+            if 'bis_uid' in item and item['bis_uid']:
                 if item_type == 'NODEGROUP' or subtype == 'CompositorNodeTree':
-                    item_json = NodeGroup.to_json(nodegroup=item)
+                    item_json = NodeGroup.to_json(node_group=item)
                 elif item_type == 'MATERIAL':
                     item_json = Material.to_json(context=context, material=item)
             else:
@@ -455,11 +635,15 @@ class NodeManager:
                 # send to server
                 if not cfg.no_sending_to_server:
                     bis_links = list(cls.get_bis_linked_items('bis_linked_item', item_json))
+                    # zip json to reduce size and convert to base64 to have a string
+                    # future improvement - don't convert to base64 string, store to db raw binary after zlib (need to use BLOB field in mysql)
+                    item_json_compressed = zlib.compress(json.dumps(item_json).encode('utf-8'))
+                    item_json_compressed_b64 = base64.b64encode(item_json_compressed)
                     request = WebRequest.send_request(
                         context=context,
                         data={
                             'for': 'update_item',
-                            'item_body': json.dumps(item_json),
+                            'item_body': item_json_compressed_b64,
                             'storage': cls.storage_type(context=context),
                             'storage_subtype': subtype,
                             'storage_subtype2': Material.get_subtype2(context=context),
@@ -467,7 +651,7 @@ class NodeManager:
                             'engine': context.window.scene.render.engine,
                             'bis_links': json.dumps(bis_links),
                             'item_id': item['bis_uid'],
-                            'item_name': item_json['name'],
+                            'item_name': item_json['instance']['name'],
                             'addon_version': Addon.current_version(),
                             'blender_version': BlenderEx.version_str_short()
                         }
@@ -482,11 +666,11 @@ class NodeManager:
                         zip_file = FileManager.zip_files(
                             source_files_list=file_attachment,
                             temp_dir=temp_dir,
-                            zip_name=item_json['name']
+                            zip_name=item_json['instance']['name']
                         )
                         if zip_file and os.path.exists(zip_file):
                             if cfg.to_server_to_file:
-                                copyfile(zip_file, os.path.join(FileManager.project_dir(), item_json['name']+'.zip'))
+                                copyfile(zip_file, os.path.join(FileManager.project_dir(), item_json['instance']['name']+'.zip'))
                             if os.stat(zip_file).st_size < cls._material_limit_file_size:
                                 # send to server
                                 if not cfg.no_sending_to_server:
@@ -503,7 +687,7 @@ class NodeManager:
                                             'engine': context.window.scene.render.engine,
                                             'bis_links': json.dumps(bis_links),
                                             'item_id': item['bis_uid'],
-                                            'item_name': item_json['name'],
+                                            'item_name': item_json['instance']['name'],
                                             'addon_version': Addon.current_version(),
                                             'blender_version': BlenderEx.version_str_short()
                                         },
@@ -531,7 +715,7 @@ class NodeManager:
                                 'engine': context.window.scene.render.engine,
                                 'bis_links': json.dumps(bis_links),
                                 'item_id': item['bis_uid'],
-                                'item_name': item_json['name'],
+                                'item_name': item_json['instance']['name'],
                                 'addon_version': Addon.current_version(),
                                 'blender_version': BlenderEx.version_str_short()
                             }

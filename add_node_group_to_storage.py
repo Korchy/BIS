@@ -1,5 +1,8 @@
 # Nikita Akimov
 # interplanety@interplanety.org
+#
+# GitHub
+#   https://github.com/Korchy/BIS
 
 import bpy
 from . import cfg
@@ -55,11 +58,12 @@ class BISAddNodeToStorage(Operator):
             tags += (';' if tags else '') + '{0[0]}.{0[1]}'.format(app.version)
             if context.window_manager.bis_add_nodegroup_to_storage_vars.tags != '':
                 tags += (';' if tags else '') + context.window_manager.bis_add_nodegroup_to_storage_vars.tags
-            rez = NodeManager.to_bis(context=context,
-                                     item=data_to_save,
-                                     item_type=context.preferences.addons[__package__].preferences.use_node_group_as,
-                                     tags=tags
-                                     )
+            rez = NodeManager.to_bis(
+                context=context,
+                item=data_to_save,
+                item_type=context.preferences.addons[__package__].preferences.use_node_group_as,
+                tags=tags
+            )
         if rez['stat'] == 'OK':
             context.window_manager.bis_add_nodegroup_to_storage_vars.tags = ''
         else:

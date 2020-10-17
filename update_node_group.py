@@ -1,11 +1,15 @@
 # Nikita Akimov
 # interplanety@interplanety.org
+#
+# GitHub
+#   https://github.com/Korchy/BIS
 
 import bpy
 from bpy.props import BoolProperty
 from bpy.types import Operator
 from bpy.utils import register_class, unregister_class
 from . import cfg
+from .material import Material
 from .node_manager import NodeManager
 
 
@@ -22,7 +26,8 @@ class BISUpdateNodegroup(Operator):
     def execute(self, context):
         request_rez = {"stat": "ERR", "data": {"text": "Undefined material item to update"}}
         item_to_update = None
-        if context.preferences.addons[__package__].preferences.use_node_group_as == 'NODEGROUP':
+        subtype = Material.get_subtype(context=context)
+        if context.preferences.addons[__package__].preferences.use_node_group_as == 'NODEGROUP' or subtype == 'CompositorNodeTree':
             active_node = NodeManager.active_node(context=context)
             if active_node and active_node.type == 'GROUP':
                 item_to_update = active_node  # save active node group
@@ -35,10 +40,11 @@ class BISUpdateNodegroup(Operator):
             else:
                 request_rez['data']['text'] = 'No material to save'
         if item_to_update:
-            request_rez = NodeManager.update_in_bis(context=context,
-                                                    item=item_to_update,
-                                                    item_type=context.preferences.addons[__package__].preferences.use_node_group_as
-                                                    )
+            request_rez = NodeManager.update_in_bis(
+                context=context,
+                item=item_to_update,
+                item_type=context.preferences.addons[__package__].preferences.use_node_group_as
+            )
         if request_rez['stat'] != 'OK':
             if cfg.show_debug_err:
                 print(request_rez['stat'] + ': ' + request_rez['data']['text'])

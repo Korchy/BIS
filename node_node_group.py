@@ -1,5 +1,15 @@
 # Nikita Akimov
 # interplanety@interplanety.org
+#
+# GitHub
+#   https://github.com/Korchy/BIS
+
+# --------------------------------------------------------------
+# for older compatibility
+# used for node groups version < 1.9.0
+# if there would no < 1.9.0 nodegroups - all this file can be removed
+# work in - node_group
+# --------------------------------------------------------------
 
 import bpy
 import sys
@@ -100,14 +110,15 @@ class NodeCompositorNodeGroup(NodeCommon):
         # don't enumerate node group itself - not to loose if it is already enumerated by parent node group
         for current_node in node.node_tree.nodes:
             start += 1
-            current_node['BIS_node_id'] = start
+            current_node['bis_node_uid'] = start
         return start
 
     @staticmethod
     def _node_by_bis_id(node_tree, bis_node_id):
         rez = None
         for node in node_tree.nodes:
-            if 'BIS_node_id' in node and node['BIS_node_id'] == bis_node_id:
+            if 'bis_node_uid' in node and node['bis_node_uid'] == bis_node_id or \
+                    'BIS_node_id' in node and node['BIS_node_id'] == bis_node_id:   # TODO remove this condition after update to 1.9.0
                 rez = node
         return rez
 

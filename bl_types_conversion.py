@@ -1,6 +1,13 @@
 # Nikita Akimov
 # interplanety@interplanety.org
 
+# --------------------------------------------------------------
+# for older compatibility
+# used for node groups version < 1.9.0
+# if there would no < 1.9.0 nodegroups - all this file can be removed
+# work in - bl_types
+# --------------------------------------------------------------
+
 # Blender types to/from JSON conversion
 # Blender types with prefix BL
 

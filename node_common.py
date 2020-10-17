@@ -1,6 +1,13 @@
 # Nikita Akimov
 # interplanety@interplanety.org
 
+# --------------------------------------------------------------
+# for older compatibility
+# used for node groups version 1.9.0
+# if there would no < 1.9.0 nodegroups - all this file can be removed
+# work in - node
+# --------------------------------------------------------------
+
 # Base Node classes
 
 import sys
@@ -30,7 +37,7 @@ class NodeCommon:
             'parent': node.parent.name if node.parent else '',
             'inputs': [],
             'outputs': [],
-            'BIS_node_id': node['BIS_node_id'] if 'BIS_node_id' in node else None
+            'bis_node_uid': node['bis_node_uid'] if 'bis_node_uid' in node else None
         }
         # node inputs
         for c_input in node.inputs:
@@ -79,7 +86,8 @@ class NodeCommon:
             JsonEx.color_from_json(current_node.color, node_json['color'])
             cls.attr_from_json(attribute_name='mute', node=current_node, node_json=node_json)
             current_node['parent_str'] = node_json['parent'] if 'parent' in node_json else ''
-            current_node['BIS_node_id'] = node_json['BIS_node_id'] if 'BIS_node_id' in node_json else None
+            current_node['BIS_node_id'] = node_json['BIS_node_id'] if 'BIS_node_id' in node_json else None  # TODO remove this string after update to 1.9.0
+            current_node['bis_node_uid'] = node_json['bis_node_uid'] if 'bis_node_uid' in node_json else None
             # node inputs
             for input_number, input_json in enumerate(node_json['inputs']):
                 if current_node.type == 'GROUP':

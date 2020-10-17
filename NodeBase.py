@@ -33,7 +33,7 @@ class NodeBase:
             'parent': node.parent.name if node.parent else '',
             'inputs': [],
             'outputs': [],
-            'BIS_node_id': node['BIS_node_id'] if 'BIS_node_id' in node else None
+            'bis_node_uid': node['bis_node_uid'] if 'bis_node_uid' in node else None
         }
         # for current node specification
         cls._node_to_json_spec(node_json, node)
@@ -64,7 +64,8 @@ class NodeBase:
             current_node.use_custom_color = node_json['use_custom_color']
             JsonEx.color_from_json(current_node.color, node_json['color'])
             current_node['parent_str'] = node_json['parent'] if 'parent' in node_json else ''
-            current_node['BIS_node_id'] = node_json['BIS_node_id'] if 'BIS_node_id' in node_json else None
+            current_node['BIS_node_id'] = node_json['BIS_node_id'] if 'BIS_node_id' in node_json else None  # TODO remove this string after update to 1.9.0
+            current_node['bis_node_uid'] = node_json['bis_node_uid'] if 'bis_node_uid' in node_json else None
             # for current node specification
             cls._json_to_node_spec(current_node, node_json, attachments_path)
         return current_node

@@ -1,5 +1,8 @@
 # Nikita Akimov
 # interplanety@interplanety.org
+#
+# GitHub
+#   https://github.com/Korchy/BIS
 
 import bpy
 from . import addon_preferences
@@ -30,8 +33,8 @@ bl_info = {
     'name': 'BIS',
     'category': 'Material',
     'author': 'Nikita Akimov',
-    'version': (1, 8, 4),
-    'blender': (2, 81, 0),
+    'version': (1, 9, 0),
+    'blender': (2, 90, 0),
     'location': 'N-Panel > BIS',
     'wiki_url': 'https://bis.interplanety.org/',
     'tracker_url': 'https://bis.interplanety.org/',
