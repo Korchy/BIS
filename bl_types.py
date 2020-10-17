@@ -401,7 +401,7 @@ class BLImage(BLBaseType):
         # data to json
         json = {}
         if instance:
-            json['source'] = instance.source
+            # json['source'] = instance.source
             json['filepath'] = os.path.normpath(os.path.join(os.path.dirname(bpy.data.filepath), instance.filepath.replace('//', '')))
         return json
 
@@ -411,14 +411,24 @@ class BLImage(BLBaseType):
         # all attachments (images) must be loaded first
         if 'filepath' in json['instance'] and json['instance']['filepath']:
             image_name = os.path.basename(json['instance']['filepath'])
-            if os.path.exists(json['instance']['filepath']) and os.path.isfile(json['instance']['filepath']):
-                if image_name in bpy.data.images:
-                    bpy.data.images[image_name].reload()
-                else:
-                    bpy.data.images.load(json['instance']['filepath'], check_existing=True)
-            if image_name in bpy.data.images:
+            # find image file
+            image_path = ''
+            if os.path.exists(os.path.join(attachments_path, image_name)) and os.path.isfile(os.path.join(attachments_path, image_name)):
+                # first look in received attachments
+                image_path = os.path.join(attachments_path, image_name)
+            elif os.path.exists(json['instance']['filepath']) and os.path.isfile(json['instance']['filepath']):
+                # next look by original path
+                image_path = json['instance']['filepath']
+            # get image
+            if image_path:
+                image = bpy.data.images.load(image_path, check_existing=True)
+                # image.source = json['instance']['source']
+            elif image_name in bpy.data.images:
                 image = bpy.data.images[image_name]
-                image.source = json['instance']['source']
+            else:
+                image = None
+            # set image as attribute
+            if image:
                 setattr(instance_owner, instance_name, image)
 
 
