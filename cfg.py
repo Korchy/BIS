@@ -6,7 +6,7 @@
 # -------------------------------------------------------------------------------
 
 # show errors
-show_debug_err = True
+show_debug_err = False
 
 # no sending content to server (False - send to server, True - not send)
 no_sending_to_server = False
