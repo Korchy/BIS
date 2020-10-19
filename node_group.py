@@ -34,4 +34,5 @@ class NodeGroup:
                 node_json=node_group_json,
                 attachments_path=attachments_path
             )
+        node_group.node_tree.name = node_group_json['instance']['name']     # to prevent .001 in name of new node group if already exists some other nodes with this name
         return node_group

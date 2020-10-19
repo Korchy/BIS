@@ -10,6 +10,7 @@
 import os
 import sys
 import bpy
+from .TextManager import TextManager
 from . import cfg
 
 
@@ -184,10 +185,14 @@ class BlTypes:
 class BLBaseType:
 
     # exclude for all types
+    # instance to json
     _common_excluded_attributes_get = ['bl_idname', 'original', 'rna_type', 'select']
-    _common_excluded_attributes_set = ['bl_idname', 'original', 'rna_type', 'select', 'type']
+    # json to instance
+    _common_excluded_attributes_set = ['bis_linked_item', 'bl_idname', 'original', 'rna_type', 'select', 'type']
     # exclude for current type in child classes
+    # json to instance
     excluded_attributes_get = []
+    # json to instance
     excluded_attributes_set = []
 
     @classmethod
@@ -432,6 +437,31 @@ class BLImage(BLBaseType):
                 setattr(instance_owner, instance_name, image)
 
 
+class BLText(BLBaseType):
+
+    @classmethod
+    def instance_to_json(cls, instance):
+        # data to json
+        json = {}
+        rez = TextManager.to_bis(context=bpy.context, text=instance)
+        if rez['stat'] == 'OK':
+            bis_linked_item = {
+                'storage': TextManager.storage_type(),
+                'id': rez['data']['id']
+            }
+            json['bis_linked_item'] = bis_linked_item
+        return json
+
+    @classmethod
+    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None, excluded_attributes: list = None, first_attributes: list = None):
+        # data from json
+        rez = TextManager.from_bis(context=bpy.context, bis_text_id=json['instance']['bis_linked_item']['id'])
+        if rez['stat'] == 'OK':
+            text_item = TextManager.item_by_bis_uid(bis_uid=json['instance']['bis_linked_item']['id'])
+            if text_item:
+                setattr(instance_owner, instance_name, text_item)
+
+
 class BLCurveMapping(BLBaseType):
     pass
 
@@ -608,6 +638,10 @@ class BLNodeSocketColor(BLBaseType):
     pass
 
 
+class BLNodeSocketInt(BLBaseType):
+    pass
+
+
 class BLNodeSocketShader(BLBaseType):
     pass
 
@@ -617,6 +651,14 @@ class BLNodeSocketInterfaceFloat(BLBaseType):
 
 
 class BLNodeSocketInterfaceFloatFactor(BLBaseType):
+    pass
+
+
+class BLNodeSocketInterfaceFloatUnsigned(BLBaseType):
+    pass
+
+
+class BLNodeSocketInterfaceInt(BLBaseType):
     pass
 
 

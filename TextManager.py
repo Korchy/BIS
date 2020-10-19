@@ -1,5 +1,8 @@
 # Nikita Akimov
 # interplanety@interplanety.org
+#
+# GitHub
+#   https://github.com/Korchy/BIS
 
 import json
 import sys
@@ -135,6 +138,11 @@ class TextManager:
         else:
             rez['data']['text'] = 'Empty Text'
         return rez
+
+    @staticmethod
+    def item_by_bis_uid(bis_uid):
+        # return Text item by bis_uid или Null
+        return next((item for item in bpy.data.texts if 'bis_uid' in item and item['bis_uid'] == bis_uid), None)
 
     @staticmethod
     def storage_type():
