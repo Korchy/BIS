@@ -155,7 +155,7 @@ class Node:
                     BlTypes.complex_from_json(
                         instance=current_input,
                         json=input_json,
-                        excluded_attributes=['name', 'type']
+                        excluded_attributes=['bl_idname', 'name', 'type']
                     )
             # node outputs
             for output_number, output_json in enumerate(node_json['instance']['outputs']):
@@ -169,7 +169,7 @@ class Node:
                     BlTypes.complex_from_json(
                         instance=current_output,
                         json=output_json,
-                        excluded_attributes=['name', 'type']
+                        excluded_attributes=['bl_idname', 'name', 'type']
                     )
             # for current node specification
             cls._json_to_node_spec(node, node_json, attachments_path)

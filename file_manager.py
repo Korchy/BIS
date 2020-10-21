@@ -1,5 +1,8 @@
 # Nikita Akimov
 # interplanety@interplanety.org
+#
+# GitHub
+#   https://github.com/Korchy/BIS
 
 # File manager
 import os
@@ -39,9 +42,14 @@ class FileManager:
         with zipfile.ZipFile(zip_file_path, 'w') as zip_file:
             for file_info in source_files_list:
                 file_path = file_info['path'] if 'path' in file_info else ''
-                if file_path:
+                if file_path and os.path.exists(file_path) and os.path.isfile(file_path):
                     file_name = file_info['name'] if 'name' in file_info else os.path.basename(file_path)
-                    zip_file.write(file_path, compress_type=zipfile.ZIP_DEFLATED, compresslevel=9, arcname=cls.normalize_file_name(file_name))
+                    zip_file.write(
+                        file_path,
+                        compress_type=zipfile.ZIP_DEFLATED,
+                        compresslevel=9,
+                        arcname=cls.normalize_file_name(file_name)
+                    )
         return zip_file_path
 
     @staticmethod
