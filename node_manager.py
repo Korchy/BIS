@@ -561,11 +561,15 @@ class NodeManager:
                                 # send to server
                                 if not cfg.no_sending_to_server:
                                     bis_links = list(cls.get_bis_linked_items('bis_linked_item', item_json))
+                                    # zip json to reduce size and convert to base64 to have a string
+                                    # future improvement - don't convert to base64 string, store to db raw binary after zlib (need to use BLOB field in mysql)
+                                    item_json_compressed = zlib.compress(json.dumps(item_json).encode('utf-8'))
+                                    item_json_compressed_b64 = base64.b64encode(item_json_compressed)
                                     request = WebRequest.send_request(
                                         context=context,
                                         data={
                                             'for': 'add_item',
-                                            'item_body': json.dumps(item_json),
+                                            'item_body': item_json_compressed_b64,
                                             'storage': cls.storage_type(context=context),
                                             'storage_subtype': subtype,
                                             'storage_subtype2': Material.get_subtype2(context=context),
@@ -589,11 +593,15 @@ class NodeManager:
                     # non procedural but without external items
                     if not cfg.no_sending_to_server:
                         bis_links = list(cls.get_bis_linked_items('bis_linked_item', item_json))
+                        # zip json to reduce size and convert to base64 to have a string
+                        # future improvement - don't convert to base64 string, store to db raw binary after zlib (need to use BLOB field in mysql)
+                        item_json_compressed = zlib.compress(json.dumps(item_json).encode('utf-8'))
+                        item_json_compressed_b64 = base64.b64encode(item_json_compressed)
                         request = WebRequest.send_request(
                             context=context,
                             data={
                                 'for': 'add_item',
-                                'item_body': json.dumps(item_json),
+                                'item_body': item_json_compressed_b64,
                                 'storage': cls.storage_type(context=context),
                                 'storage_subtype': subtype,
                                 'storage_subtype2': Material.get_subtype2(context=context),
