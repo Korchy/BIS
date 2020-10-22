@@ -610,6 +610,10 @@ class BLNodeSocketFloat(BLBaseType):
     pass
 
 
+class BLNodeSocketFloatAngle(BLBaseType):
+    pass
+
+
 class BLNodeSocketFloatFactor(BLBaseType):
     pass
 
@@ -618,7 +622,15 @@ class BLNodeSocketFloatUnsigned(BLBaseType):
     pass
 
 
+class BLNodeSocketString(BLBaseType):
+    pass
+
+
 class BLNodeSocketVector(BLBaseType):
+    pass
+
+
+class BLNodeSocketVectorDirection(BLBaseType):
     pass
 
 
@@ -647,6 +659,10 @@ class BLNodeSocketShader(BLBaseType):
 
 
 class BLNodeSocketInterfaceFloat(BLBaseType):
+    pass
+
+
+class BLNodeSocketInterfaceFloatAngle(BLBaseType):
     pass
 
 

@@ -72,6 +72,7 @@ class Material:
                     bis_version=material_json['bis_version']
                 )
                 material['bis_uid'] = material_json['instance']['bis_uid'] if 'bis_uid' in material_json['instance'] else None
+                material.name = material_json['instance']['name']  # to prevent .001 in name of new material if already exists some other materials with this name
             else:
                 material.name = material_json['name']
                 if 'diffuse_color' in material_json and hasattr(material, 'diffuse_color'):
