@@ -682,6 +682,10 @@ class BLNodeSocketInterfaceVector(BLBaseType):
     pass
 
 
+class BLNodeSocketInterfaceVectorEuler(BLBaseType):
+    pass
+
+
 class BLNodeSocketInterfaceVectorTranslation(BLBaseType):
     pass
 

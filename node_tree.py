@@ -97,7 +97,12 @@ class NodeTree:
                 # 1.9.0
                 # node_tree inputs
                 for input_number, input_json in enumerate(node_tree_json['instance']['inputs']):
-                    new_input = node_tree.inputs.new(type=input_json['bl_socket_idname'], name=input_json['instance']['name'])  # NodeSocketInterfaceXXX
+                    # NodeSocketInterfaceXXX
+                    input_name = input_json['instance']['name'] if 'name' in input_json['instance'] else ''  # name can be empty
+                    new_input = node_tree.inputs.new(
+                        type=input_json['bl_socket_idname'],
+                        name=input_name
+                    )
                     BlTypes.complex_from_json(
                         instance=new_input,
                         json=input_json,
@@ -105,7 +110,12 @@ class NodeTree:
                     )
                 # node outputs
                 for output_number, output_json in enumerate(node_tree_json['instance']['outputs']):
-                    new_output = node_tree.outputs.new(type=output_json['bl_socket_idname'], name=output_json['instance']['name'])  # NodeSocketInterfaceXXX
+                    # NodeSocketInterfaceXXX
+                    output_name = output_json['instance']['name'] if 'name' in output_json['instance'] else ''  # name can be empty
+                    new_output = node_tree.outputs.new(
+                        type=output_json['bl_socket_idname'],
+                        name=output_name
+                    )
                     BlTypes.complex_from_json(
                         instance=new_output,
                         json=output_json,

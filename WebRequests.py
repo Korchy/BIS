@@ -8,6 +8,7 @@ from bpy.types import Operator
 import json
 import os
 import requests
+import platform
 
 
 class WebAuthVars:
@@ -141,6 +142,11 @@ class WebRequestsVars:
     def get_session():
         if not WebRequestsVars.session:
             WebRequestsVars.session = requests.Session()
+            WebRequestsVars.session.headers.update(
+                {
+                    'User-Agent': requests.utils.default_headers()['User-Agent'] + ' (' + platform.platform() + ')'
+                }
+            )
         return WebRequestsVars.session
 
     @staticmethod
@@ -165,7 +171,7 @@ class WebRequest:
         try:
             request = session.post(WebAuthVars.host + '/' + host_target, data=request_data, files=files)
         except requests.exceptions.RequestException as error:
-            print('ERR: No internet connection to BIS ', error)
+            print('ERR: problems with connection to BIS ', error)
         if request:
             if 'text/html' in request.headers['Content-Type']:
                 request_rez = None
