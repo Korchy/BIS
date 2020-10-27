@@ -7,6 +7,7 @@
 # node class
 
 import bpy
+from .addon import Addon
 from .bl_types import BlTypes
 
 
@@ -113,7 +114,7 @@ class Node:
                     node_tree_parent=node,
                     node_tree_json=node_json['instance']['node_tree'],
                     attachments_path=attachments_path,
-                    bis_version='1.9.0'
+                    bis_version=Addon.current_version()
                 )
             # don't process
             excluded_attributes = [

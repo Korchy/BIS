@@ -93,7 +93,7 @@ class NodeTree:
 
             # TODO after updating to 1.9.0 remove if and else conditions, remain only block inside if
 
-            if bis_version and bis_version == '1.9.0':
+            if bis_version and bis_version in ['1.9.0', '1.9.1']:
                 # 1.9.0
                 # node_tree inputs
                 for input_number, input_json in enumerate(node_tree_json['instance']['inputs']):

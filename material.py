@@ -53,7 +53,7 @@ class Material:
 
             # TODO remove else condition after update to 1.9.0 - remain only inside if condition
 
-            if 'bis_version' in material_json and material_json['bis_version'] == '1.9.0':
+            if 'bis_version' in material_json and material_json['bis_version'] in ['1.9.0', '1.9.1']:
                 material.name = material_json['instance']['name']
                 if 'diffuse_color' in material_json and hasattr(material, 'diffuse_color'):
                     BLbpy_prop_array.from_json(material.diffuse_color, material_json['instance']['diffuse_color'])
