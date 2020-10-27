@@ -151,9 +151,6 @@ class NodeManager:
                             item_type_got = item_in_json['type']
                             item_name_got = item_in_json['name']
                             item_node_tree_got = item_in_json['node_tree'] if 'node_tree' in item_in_json else None
-
-                        # print(item_type_got)     # for me to see type of updating item
-
                         # if Addon.node_group_version_higher(item_version, Addon.current_version()):
                         if StrictVersion(item_version) > StrictVersion(Addon.current_version()):
                             bpy.ops.message.messagebox('INVOKE_DEFAULT', message='This material item was saved in higher BIS version and may not load correctly.\

@@ -140,11 +140,16 @@ class NodeShaderNodeTexEnvironment(NodeCommon):
             node_json['image_source'] = node.image.source
         if hasattr(node, 'color_space'):
             node_json['color_space'] = node.color_space
-        node_json['projection'] = node.projection
-        node_json['interpolation'] = node.interpolation
-        node_json['texture_mapping'] = TMCommon.tm_to_json(node.texture_mapping)
-        node_json['image_user'] = IUCommon.iu_to_json(node.image_user)
-        node_json['color_mapping'] = CMCommon.cm_to_json(node.color_mapping)
+        if hasattr(node, 'projection'):
+            node_json['projection'] = node.projection
+        if hasattr(node, 'interpolation'):
+            node_json['interpolation'] = node.interpolation
+        if hasattr(node, 'texture_mapping'):
+            node_json['texture_mapping'] = TMCommon.tm_to_json(node.texture_mapping)
+        if hasattr(node, 'image_user'):
+            node_json['image_user'] = IUCommon.iu_to_json(node.image_user)
+        if hasattr(node, 'color_mapping'):
+            node_json['color_mapping'] = CMCommon.cm_to_json(node.color_mapping)
 
     @classmethod
     def _json_to_node_spec(cls, node, node_in_json, attachments_path):
@@ -168,11 +173,16 @@ class NodeShaderNodeTexEnvironment(NodeCommon):
                 node.image.source = node_in_json['image_source']
         if 'color_space' in node_in_json and hasattr(node, 'color_space'):
             node.color_space = node_in_json['color_space']
-        node.projection = node_in_json['projection']
-        node.interpolation = node_in_json['interpolation']
-        TMCommon.json_to_tm(node, node_in_json['texture_mapping'])
-        IUCommon.json_to_iu(node, node_in_json['image_user'])
-        CMCommon.json_to_cm(node, node_in_json['color_mapping'])
+        if 'projection' in node_in_json and hasattr(node, 'projection'):
+            node.projection = node_in_json['projection']
+        if 'interpolation' in node_in_json and hasattr(node, 'interpolation'):
+            node.interpolation = node_in_json['interpolation']
+        if 'texture_mapping' in node_in_json and hasattr(node, 'texture_mapping'):
+            TMCommon.json_to_tm(node, node_in_json['texture_mapping'])
+        if 'image_user' in node_in_json and hasattr(node, 'image_user'):
+            IUCommon.json_to_iu(node, node_in_json['image_user'])
+        if 'color_mapping' in node_in_json and hasattr(node, 'color_mapping'):
+            CMCommon.json_to_cm(node, node_in_json['color_mapping'])
 
 
 class NodeShaderNodeTexImage(NodeShaderNodeTexEnvironment):

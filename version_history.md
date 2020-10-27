@@ -1,5 +1,8 @@
 Version history:
 -
+1.9.1
+- Fixed converting of all the materials in the BIS to new format. This version is fully compatible with old format in reading but writes materials only with the new format.
+
 1.9.0
 - Storage system changed to be more flexible to future changes (compatible with NodeTree Source)
 - Updated for Blender 2.90, 2.91

@@ -26,7 +26,7 @@ class Node:
         # node attributes
         # don't process
         excluded_attributes = [
-            'dimensions', 'height', 'inputs', 'internal_links', 'node_tree', 'outputs', 'rna_type', 'select',
+            'dimensions', 'inputs', 'internal_links', 'node_tree', 'outputs', 'rna_type', 'select',
             'shading_compatibility', 'show_options', 'show_preview', 'show_texture', 'width_hidden'
         ]
         # this attributes - complex
