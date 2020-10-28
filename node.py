@@ -8,7 +8,7 @@
 
 import bpy
 from .addon import Addon
-from .bl_types import BlTypes
+from .bl_types import BlTypes, BLFilepath
 
 
 class Node:
@@ -138,12 +138,21 @@ class Node:
             for attribute_name in node_json['instance']:
                 if attribute_name not in excluded_attributes and hasattr(node, attribute_name):
                     # print('attribute', attribute_name)
-                    BlTypes.from_json(
-                        instance_name=attribute_name,
-                        instance_owner=node,
-                        instance_json=node_json['instance'][attribute_name],
-                        attachments_path=attachments_path
-                    )
+                    if attribute_name == 'filepath':
+                        # separate for "filepath" because this is a "str" type but used path to an external file
+                        BLFilepath.from_json(
+                            instance_name=attribute_name,
+                            instance_owner=node,
+                            json=node_json['instance'][attribute_name],
+                            attachments_path=attachments_path
+                        )
+                    else:
+                        BlTypes.from_json(
+                            instance_name=attribute_name,
+                            instance_owner=node,
+                            instance_json=node_json['instance'][attribute_name],
+                            attachments_path=attachments_path
+                        )
             # node inputs
             for input_number, input_json in enumerate(node_json['instance']['inputs']):
                 if node.type in ['GROUP', 'GROUP_INPUT', 'GROUP_OUTPUT']:

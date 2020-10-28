@@ -606,6 +606,30 @@ class BLNodeFrame(BLBaseType):
         return json
 
 
+class BLFilepath(BLBaseType):
+
+    # not a type, used for working with external objects like *.osl, *.ies external files
+    # instance_to_json works like with a "str" type
+
+    @classmethod
+    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None, excluded_attributes: list = None, first_attributes: list = None):
+        # data from json
+        # all attachments (files) must be loaded first
+        if json:
+            file_name = os.path.basename(json)
+            # find external file
+            file_path = ''
+            if os.path.exists(os.path.join(attachments_path, file_name)) and os.path.isfile(os.path.join(attachments_path, file_name)):
+                # first look in received attachments
+                file_path = os.path.join(attachments_path, file_name)
+            elif os.path.exists(json) and os.path.isfile(json):
+                # next look by original path
+                file_path = json
+            # get file
+            if file_path:
+                setattr(instance_owner, instance_name, file_path)
+
+
 class BLNodeSocketFloat(BLBaseType):
     pass
 
