@@ -419,6 +419,7 @@ class NodeManager:
 
                                     if nodegroup:
                                         nodegroup['bis_uid'] = bis_item_id
+                                        nodegroup.location = (0.0, 0.0)
                             elif item_type == 'MATERIAL':
                                 # Node Group as Material (only for object material)
                                 material = Material.new(context=context)
@@ -435,6 +436,7 @@ class NodeManager:
 
                                     if nodegroup:
                                         nodegroup['bis_uid'] = bis_item_id
+                                        nodegroup.location = (0.0, 0.0)
                                         # additional nodes and links
                                         # node group output
                                         shader_output = next(iter([i for i in nodegroup.outputs if i.type == 'SHADER' and 'volume' not in i.name.lower()]), None)
