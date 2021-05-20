@@ -10,6 +10,7 @@
 import os
 import sys
 import bpy
+from .file_manager import FileManager
 from .TextManager import TextManager
 from . import cfg
 
@@ -25,7 +26,8 @@ class BlTypes:
             return False
 
     @classmethod
-    def to_json(cls, instance, instance_name=None, attachments_path=None, excluded_attributes: list = None, first_attributes: list = None):
+    def to_json(cls, instance, instance_name=None, attachments_path=None,
+                excluded_attributes: list = None, first_attributes: list = None):
         # instance to json
         if isinstance(instance, (int, float, bool, set, str)):
             # simple type
@@ -61,11 +63,13 @@ class BlTypes:
                 return BLBaseType.to_json(instance=instance)
 
     @classmethod
-    def complex_to_json(cls, instance, instance_name=None, attachments_path=None, excluded_attributes: list = None, first_attributes: list = None):
+    def complex_to_json(cls, instance, instance_name=None, attachments_path=None,
+                        excluded_attributes: list = None, first_attributes: list = None):
         instance_json = {}
         # excluded attributes - don't process them (ex: type, select)
         excluded_attributes = excluded_attributes if excluded_attributes is not None else []
-        # first process attributes - need to be processed first because when changed - change another attributes (ex: mode)
+        # first process attributes
+        # need to be processed first because when changed - change another attributes (ex: mode)
         first_attributes = first_attributes if first_attributes is not None else []
         first_attributes_filtered = [
             attr for attr in first_attributes if
@@ -99,7 +103,8 @@ class BlTypes:
         return instance_json
 
     @classmethod
-    def from_json(cls, instance_name, instance_owner, instance_json, attachments_path=None, excluded_attributes: list = None, first_attributes: list = None):
+    def from_json(cls, instance_name, instance_owner, instance_json, attachments_path=None,
+                  excluded_attributes: list = None, first_attributes: list = None):
         # fill instance from json
         if hasattr(instance_owner, instance_name):
             instance = getattr(instance_owner, instance_name)
@@ -142,7 +147,8 @@ class BlTypes:
                 )
 
     @classmethod
-    def complex_from_json(cls, instance, json, attachments_path=None, excluded_attributes: list = None, first_attributes: list = None):
+    def complex_from_json(cls, instance, json, attachments_path=None,
+                          excluded_attributes: list = None, first_attributes: list = None):
         if instance:
             # instance attributes
             # print(
@@ -213,7 +219,8 @@ class BLBaseType:
         )
 
     @classmethod
-    def from_json(cls, instance_name, instance_owner, json, attachments_path=None, excluded_attributes: list = None, first_attributes: list = None):
+    def from_json(cls, instance_name, instance_owner, json, attachments_path=None,
+                  excluded_attributes: list = None, first_attributes: list = None):
         # instance from json call
         return cls.json_to_instance(
             instance_name=instance_name,
@@ -225,7 +232,8 @@ class BLBaseType:
             )
 
     @classmethod
-    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None, excluded_attributes: list = None, first_attributes: list = None):
+    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None,
+                         excluded_attributes: list = None, first_attributes: list = None):
         # get data from json and fill instance with that data
         return BlTypes.complex_from_json(
             instance=getattr(instance_owner, instance_name),
@@ -255,7 +263,8 @@ class BLbpy_prop_collection(BLBaseType):
         return json
 
     @classmethod
-    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None, excluded_attributes: list = None, first_attributes: list = None):
+    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None,
+                         excluded_attributes: list = None, first_attributes: list = None):
         # add new items if not exists
         instance = getattr(instance_owner, instance_name)
         items_exists = len(instance)
@@ -288,7 +297,8 @@ class BLbpy_prop_array(BLBaseType):
         return json
 
     @classmethod
-    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None, excluded_attributes: list = None, first_attributes: list = None):
+    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None,
+                         excluded_attributes: list = None, first_attributes: list = None):
         instance = getattr(instance_owner, instance_name)
         for i, array_item_json in enumerate(json['instance']):
             instance[i] = array_item_json
@@ -335,7 +345,8 @@ class BLColor(BLBaseType):
         return json
 
     @classmethod
-    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None, excluded_attributes: list = None, first_attributes: list = None):
+    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None,
+                         excluded_attributes: list = None, first_attributes: list = None):
         instance = getattr(instance_owner, instance_name)
         instance.r = json['instance']['r']
         instance.g = json['instance']['g']
@@ -356,7 +367,8 @@ class BLVector(BLBaseType):
         return json
 
     @classmethod
-    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None, excluded_attributes: list = None, first_attributes: list = None):
+    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None,
+                         excluded_attributes: list = None, first_attributes: list = None):
         instance = getattr(instance_owner, instance_name)
         instance.x = json['instance']['x']
         instance.y = json['instance']['y']
@@ -388,7 +400,8 @@ class BLObject(BLBaseType):
         return json
 
     @classmethod
-    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None, excluded_attributes: list = None, first_attributes: list = None):
+    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None,
+                         excluded_attributes: list = None, first_attributes: list = None):
         # data from json
         if 'name' in json['instance'] and json['instance']['name'] in bpy.data.objects:
             setattr(instance_owner, instance_name, bpy.data.objects[json['instance']['name']])
@@ -407,18 +420,33 @@ class BLImage(BLBaseType):
         json = {}
         if instance:
             # json['source'] = instance.source
-            json['filepath'] = os.path.normpath(os.path.join(os.path.dirname(bpy.data.filepath), instance.filepath.replace('//', '')))
+            # json['filepath'] = os.path.normpath(
+            #     os.path.join(
+            #         os.path.dirname(bpy.data.filepath),
+            #         instance.filepath.replace('//', '')
+            #     )
+            # )
+            json['filepath'] = os.path.normpath(
+                os.path.join(
+                    os.path.dirname(bpy.data.filepath),
+                    os.path.dirname(instance.filepath.replace('//', '')),
+                    FileManager.normalize_file_name(instance.name),
+                )
+            )
         return json
 
     @classmethod
-    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None, excluded_attributes: list = None, first_attributes: list = None):
+    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None,
+                         excluded_attributes: list = None, first_attributes: list = None):
         # data from json
         # all attachments (images) must be loaded first
         if 'filepath' in json['instance'] and json['instance']['filepath']:
             image_name = os.path.basename(json['instance']['filepath'])
             # find image file
             image_path = ''
-            if os.path.exists(os.path.join(attachments_path, image_name)) and os.path.isfile(os.path.join(attachments_path, image_name)):
+            # print(os.path.join(attachments_path, image_name))
+            if os.path.exists(os.path.join(attachments_path, image_name)) and \
+                    os.path.isfile(os.path.join(attachments_path, image_name)):
                 # first look in received attachments
                 image_path = os.path.join(attachments_path, image_name)
             elif os.path.exists(json['instance']['filepath']) and os.path.isfile(json['instance']['filepath']):
@@ -453,7 +481,8 @@ class BLText(BLBaseType):
         return json
 
     @classmethod
-    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None, excluded_attributes: list = None, first_attributes: list = None):
+    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None,
+                         excluded_attributes: list = None, first_attributes: list = None):
         # data from json
         rez = TextManager.from_bis(context=bpy.context, bis_text_id=json['instance']['bis_linked_item']['id'])
         if rez['stat'] == 'OK':
@@ -493,7 +522,8 @@ class BLColorRampElement(BLBaseType):
 class BLTexture(BLBaseType):
 
     @classmethod
-    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None, excluded_attributes: list = None, first_attributes: list = None):
+    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None,
+                         excluded_attributes: list = None, first_attributes: list = None):
         # data from json
         if 'name' in json['instance'] and 'type' in json['instance']:
             # create new anyway, because existed could be from other material
@@ -561,7 +591,8 @@ class BLScene(BLBaseType):
         return json
 
     @classmethod
-    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None, excluded_attributes: list = None, first_attributes: list = None):
+    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None,
+                         excluded_attributes: list = None, first_attributes: list = None):
         # data from json
         if 'name' in json['instance'] and json['instance']['name'] in bpy.data.scenes:
             setattr(instance_owner, instance_name, bpy.data.scenes[json['instance']['name']])
@@ -581,7 +612,8 @@ class BLEuler(BLBaseType):
         return json
 
     @classmethod
-    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None, excluded_attributes: list = None, first_attributes: list = None):
+    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None,
+                         excluded_attributes: list = None, first_attributes: list = None):
         # data from json
         instance = getattr(instance_owner, instance_name)
         if hasattr(instance, 'order') and 'order' in json['instance'] and json['instance']['order']:
@@ -610,16 +642,19 @@ class BLFilepath(BLBaseType):
 
     # not a type, used for working with external objects like *.osl, *.ies external files
     # instance_to_json works like with a "str" type
+    # TODO check - maybe need to do as in the BLImage to keep proper external object names
 
     @classmethod
-    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None, excluded_attributes: list = None, first_attributes: list = None):
+    def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None,
+                         excluded_attributes: list = None, first_attributes: list = None):
         # data from json
         # all attachments (files) must be loaded first
         if json:
             file_name = os.path.basename(json)
             # find external file
             file_path = ''
-            if os.path.exists(os.path.join(attachments_path, file_name)) and os.path.isfile(os.path.join(attachments_path, file_name)):
+            if os.path.exists(os.path.join(attachments_path, file_name)) and \
+                    os.path.isfile(os.path.join(attachments_path, file_name)):
                 # first look in received attachments
                 file_path = os.path.join(attachments_path, file_name)
             elif os.path.exists(json) and os.path.isfile(json):

@@ -1,5 +1,8 @@
 Version history:
 -
+1.9.2
+- Fixed issue with textures path-names
+
 1.9.1
 - Fixed converting of all the materials in the BIS to new format. This version is fully compatible with old format in reading but writes materials only with the new format.
 

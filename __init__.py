@@ -33,7 +33,7 @@ bl_info = {
     'name': 'BIS',
     'category': 'Material',
     'author': 'Nikita Akimov',
-    'version': (1, 9, 1),
+    'version': (1, 9, 2),
     'blender': (2, 90, 0),
     'location': 'N-Panel > BIS',
     'wiki_url': 'https://bis.interplanety.org/',
