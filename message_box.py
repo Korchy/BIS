@@ -1,5 +1,9 @@
 # Nikita Akimov
 # interplanety@interplanety.org
+#
+# GitHub
+#   https://github.com/Korchy/BIS
+
 
 from bpy.props import StringProperty, IntProperty, BoolProperty
 from bpy.types import Operator

@@ -1,5 +1,8 @@
 # Nikita Akimov
 # interplanety@interplanety.org
+#
+# GitHub
+#   https://github.com/Korchy/BIS
 
 import bpy
 from bpy.utils import register_class, unregister_class

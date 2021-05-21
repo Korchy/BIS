@@ -1,5 +1,9 @@
 # Nikita Akimov
 # interplanety@interplanety.org
+#
+# GitHub
+#   https://github.com/Korchy/BIS
+
 
 import bpy
 from bpy.types import Operator, PropertyGroup, WindowManager
@@ -23,13 +27,17 @@ class BIS_OT_tools_nodes_add_node_group_io(Operator):
     def execute(self, context):
         active_node = NodeManager.active_node(context=context)
         if self.in_out == 'IN':
-            NodesTools.add_input_to_node(node=active_node,
-                                         input_type=context.window_manager.bis_tools_nodes_vars.io_type,
-                                         input_name='input')
+            NodesTools.add_input_to_node(
+                node=active_node,
+                input_type=context.window_manager.bis_tools_nodes_vars.io_type,
+                input_name='input'
+            )
         elif self.in_out == 'OUT':
-            NodesTools.add_output_to_node(node=active_node,
-                                          output_type=context.window_manager.bis_tools_nodes_vars.io_type,
-                                          output_name='output')
+            NodesTools.add_output_to_node(
+                node=active_node,
+                output_type=context.window_manager.bis_tools_nodes_vars.io_type,
+                output_name='output'
+            )
         return {'FINISHED'}
 
     @classmethod

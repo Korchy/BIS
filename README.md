@@ -11,7 +11,7 @@ BIS website: https://bis.interplanety.org
 
 Current version:
 -
-1.9.2.
+1.10.0.
 
 Blender version:
 -
@@ -35,5 +35,3 @@ Installation and usage:
 Version history:
 -
 [version_history](version_history.md)
-
-The BIS repository for Blender 2.79 is here: https://github.com/Korchy/bis_2_7

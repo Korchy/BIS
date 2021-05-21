@@ -1,5 +1,8 @@
 # Nikita Akimov
 # interplanety@interplanety.org
+#
+# GitHub
+#   https://github.com/Korchy/BIS
 
 import bpy
 from .TextManager import TextManager
@@ -28,7 +31,11 @@ class AddTextToStorage(Operator):
             current_text = bpy.data.texts[self.text_name]
         else:
             current_text = context.area.spaces.active.text
-        rez = TextManager.to_bis(context=context, text=current_text, tags=context.window_manager.bis_add_text_to_storage_vars.tags)
+        rez = TextManager.to_bis(
+            context=context,
+            text=current_text,
+            tags=context.window_manager.bis_add_text_to_storage_vars.tags
+        )
         if rez['stat'] == 'OK':
             context.window_manager.bis_add_text_to_storage_vars.tags = ''
             if self.show_message:

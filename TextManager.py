@@ -5,7 +5,6 @@
 #   https://github.com/Korchy/BIS
 
 import json
-import sys
 import bpy
 import base64
 from .WebRequests import WebRequest, WebAuthVars
@@ -40,7 +39,11 @@ class TextManager:
                          Please log in your account on the BIS web site,\n \
                          Add some texts to the active palette,\n \
                          And press this button again.')
-                BISItems.create_items_list(request_rez['data']['items'], context.area.spaces.active.type, previews=False)
+                BISItems.create_items_list(
+                    request_rez['data']['items'],
+                    context.area.spaces.active.type,
+                    previews=False
+                )
                 context.window_manager.bis_get_texts_info_from_storage_vars.current_page = page
                 context.window_manager.bis_get_texts_info_from_storage_vars.current_page_status = request_rez['data']['status']
         return rez

@@ -1,5 +1,8 @@
 # Nikita Akimov
 # interplanety@interplanety.org
+#
+# GitHub
+#   https://github.com/Korchy/BIS
 
 import bpy
 import os
@@ -34,9 +37,13 @@ class BISItems:
             if previews:
                 path = cls.get_preview_path(item_id=int(item_info['id']), list_name=list_name)
                 thumb = cls.items_lists[list_name].load(path, path, 'IMAGE')
-                cls.items_lists[list_name].items.append((item_info['id'], item_info['name'], item_info['name'], thumb.icon_id, int(item_info['id'])))
+                cls.items_lists[list_name].items.append(
+                    (item_info['id'], item_info['name'], item_info['name'], thumb.icon_id, int(item_info['id']))
+                )
             else:
-                cls.items_lists[list_name].items.append((item_info['id'], item_info['name'], item_info['name'], '', int(item_info['id'])))
+                cls.items_lists[list_name].items.append(
+                    (item_info['id'], item_info['name'], item_info['name'], '', int(item_info['id']))
+                )
 
     @classmethod
     def get_previews(cls, storage_type):
@@ -68,17 +75,18 @@ class BISItems:
     @classmethod
     def update_previews_from_data(cls, data, list_name):
         preview_to_update = ''
-        for prewiew_info in data:
-            preview_dir = cls.get_preview_dir(item_id=int(prewiew_info['id']), list_name=list_name)
-            if prewiew_info['preview']:
-                preview_content = base64.b64decode(prewiew_info['preview'])
+        for preview_info in data:
+            preview_dir = cls.get_preview_dir(item_id=int(preview_info['id']), list_name=list_name)
+            if preview_info['preview']:
+                preview_content = base64.b64decode(preview_info['preview'])
                 if not os.path.exists(preview_dir):
                     os.makedirs(preview_dir)
-                with open(cls.get_preview_path(item_id=int(prewiew_info['id']), list_name=list_name), 'wb') as current_preview:
+                with open(cls.get_preview_path(item_id=int(preview_info['id']), list_name=list_name), 'wb') \
+                        as current_preview:
                     current_preview.write(preview_content)
             else:
-                if not os.path.exists(cls.get_preview_path(item_id=int(prewiew_info['id']), list_name=list_name)):
-                    preview_to_update += ('' if preview_to_update == '' else ',') + prewiew_info['id']
+                if not os.path.exists(cls.get_preview_path(item_id=int(preview_info['id']), list_name=list_name)):
+                    preview_to_update += ('' if preview_to_update == '' else ',') + preview_info['id']
         return preview_to_update
 
     @staticmethod

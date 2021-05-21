@@ -27,7 +27,8 @@ class BISUpdateNodegroup(Operator):
         request_rez = {"stat": "ERR", "data": {"text": "Undefined material item to update"}}
         item_to_update = None
         subtype = Material.get_subtype(context=context)
-        if context.preferences.addons[__package__].preferences.use_node_group_as == 'NODEGROUP' or subtype == 'CompositorNodeTree':
+        if context.preferences.addons[__package__].preferences.use_node_group_as == 'NODEGROUP' or \
+                subtype == 'CompositorNodeTree':
             active_node = NodeManager.active_node(context=context)
             if active_node and active_node.type == 'GROUP':
                 item_to_update = active_node  # save active node group

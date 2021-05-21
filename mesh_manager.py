@@ -1,5 +1,9 @@
 # Nikita Akimov
 # interplanety@interplanety.org
+#
+# GitHub
+#   https://github.com/Korchy/BIS
+
 
 import json
 import os
@@ -12,15 +16,15 @@ from mathutils import Vector
 from .WebRequests import WebRequest, WebAuthVars
 from .bis_items import BISItems
 from .addon import Addon
-from .mesh_modifiers import MeshModifierCommon
+# from .mesh_modifiers import MeshModifierCommon
 from . import cfg
-from .bl_types_conversion import BLVector
+from .bl_types import BLVector
 
 
 class MeshManager:
 
     _mesh_limit_vert_count = 50000      # max number of vertices im mesh
-    _mesh_limit_file_size = 3145728     # max exported to obj and zipped file size (3 Mb)
+    _mesh_limit_file_size = 3*1024*1024     # max exported to obj and zipped file size (3 Mb)
 
     @staticmethod
     def items_from_bis(context, search_filter, page, update_preview):
@@ -355,7 +359,11 @@ class MeshManager:
         # load mesh data from json
         # origin
         mesh_origin = Vector((0, 0, 0))
-        BLVector.from_json(mesh_origin, mesh_json['origin'])
+        BLVector.from_json(
+            instance_name='origin',
+            instance_owner=mesh,
+            json=mesh_json
+        )
         __class__._set_mesh_origin(context=context, mesh=mesh, to=mesh_origin)
         # use auto smooth
         if 'use_auto_smooth' in mesh_json and hasattr(mesh.data, 'use_auto_smooth'):

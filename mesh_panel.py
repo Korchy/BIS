@@ -1,5 +1,9 @@
 # Nikita Akimov
 # interplanety@interplanety.org
+#
+# GitHub
+#   https://github.com/Korchy/BIS
+
 
 from bpy.types import Panel
 from bpy.utils import register_class, unregister_class
@@ -38,7 +42,11 @@ class BISMeshPanel(Panel):
                 layout.prop(context.window_manager.bis_get_nodes_info_from_storage_vars, 'update_previews')
                 layout.separator()
                 layout.separator()
-                layout.template_icon_view(context.window_manager.bis_get_nodes_info_from_storage_vars, 'items', show_labels=True)
+                layout.template_icon_view(
+                    context.window_manager.bis_get_nodes_info_from_storage_vars,
+                    'items',
+                    show_labels=True
+                )
                 layout.separator()
                 layout.label(text='More options in the Shader Editor window')
             else:

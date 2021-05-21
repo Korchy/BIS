@@ -6,15 +6,9 @@
 
 # node_tree class
 
-import bpy
-import sys
 from . import cfg
 from .file_manager import FileManager
 from .node import Node
-from .node_io import *
-from .node_common import NodeCommon
-from .node_shader_cycles import *
-from .node_compositor import *
 from .bl_types import BlTypes
 
 
@@ -57,7 +51,9 @@ class NodeTree:
         # first - preordered nodes, next - all other nodes
         all_nodes = preordered_nodes + nodes
         for node in all_nodes:
-            node_json = Node.to_json(node=node)
+            node_json = Node.to_json(
+                node=node
+            )
             node_tree_json['instance']['nodes'].append(node_json)
         # links
         for link in node_tree.links:
@@ -90,109 +86,74 @@ class NodeTree:
             #     # for NodeSocketInterfaceXXX - do nothing
             #     # for NodeSocketXXX - work in node_node_group
             #     pass
-
-            # TODO after updating to 1.9.0 remove if and else conditions, remain only block inside if
-
-            if bis_version and bis_version in ['1.9.0', '1.9.1']:
-                # 1.9.0
-                # node_tree inputs
-                for input_number, input_json in enumerate(node_tree_json['instance']['inputs']):
-                    # NodeSocketInterfaceXXX
-                    input_name = input_json['instance']['name'] if 'name' in input_json['instance'] else ''  # name can be empty
-                    new_input = node_tree.inputs.new(
-                        type=input_json['bl_socket_idname'],
-                        name=input_name
-                    )
-                    BlTypes.complex_from_json(
-                        instance=new_input,
-                        json=input_json,
-                        excluded_attributes=['bl_idname', 'name', 'type']
-                    )
-                # node outputs
-                for output_number, output_json in enumerate(node_tree_json['instance']['outputs']):
-                    # NodeSocketInterfaceXXX
-                    output_name = output_json['instance']['name'] if 'name' in output_json['instance'] else ''  # name can be empty
-                    new_output = node_tree.outputs.new(
-                        type=output_json['bl_socket_idname'],
-                        name=output_name
-                    )
-                    BlTypes.complex_from_json(
-                        instance=new_output,
-                        json=output_json,
-                        excluded_attributes=['bl_idname', 'name', 'type']
-                    )
+            # node_tree inputs
+            for input_number, input_json in enumerate(node_tree_json['instance']['inputs']):
+                # NodeSocketInterfaceXXX
+                # name can be empty
+                input_name = input_json['instance']['name'] if 'name' in input_json['instance'] else ''
+                new_input = node_tree.inputs.new(
+                    type=input_json['bl_socket_idname'],
+                    name=input_name
+                )
+                BlTypes.complex_from_json(
+                    instance=new_input,
+                    json=input_json,
+                    excluded_attributes=['bl_idname', 'name', 'type']
+                )
+            # node outputs
+            for output_number, output_json in enumerate(node_tree_json['instance']['outputs']):
+                # NodeSocketInterfaceXXX
+                # name can be empty
+                output_name = output_json['instance']['name'] if 'name' in output_json['instance'] else ''
+                new_output = node_tree.outputs.new(
+                    type=output_json['bl_socket_idname'],
+                    name=output_name
+                )
+                BlTypes.complex_from_json(
+                    instance=new_output,
+                    json=output_json,
+                    excluded_attributes=['bl_idname', 'name', 'type']
+                )
+            # Nodes
+            for current_node_in_json in node_tree_json['instance']['nodes']:
                 # Nodes
-                for current_node_in_json in node_tree_json['instance']['nodes']:
-                    # Nodes
-                    node = None
-                    try:
-                        # current node type may not exists - if node saved from future version of Blender
-                        node = node_tree.nodes.new(type=current_node_in_json['class'])
-                    except Exception as exception:
-                        if cfg.show_debug_err:
-                            print(repr(exception))
-                    if node:
-                        Node.from_json(
-                            node=node,
-                            node_json=current_node_in_json,
-                            attachments_path=attachments_path
+                node = None
+                try:
+                    # current node type may not exists - if node saved from future version of Blender
+                    node = node_tree.nodes.new(type=current_node_in_json['class'])
+                except Exception as exception:
+                    if cfg.show_debug_err:
+                        print(repr(exception))
+                if node:
+                    Node.from_json(
+                        node=node,
+                        node_json=current_node_in_json,
+                        attachments_path=attachments_path
+                    )
+                    # frames (NodeFrame nodes must be processed in first order, before all other nodes)
+                    if 'parent' in current_node_in_json['instance']:
+                        parent_node = cls._node_by_bis_id(
+                            node_tree=node_tree,
+                            bis_node_id=current_node_in_json['instance']['parent']['instance']['bis_node_uid']
                         )
-                        # frames (NodeFrame nodes must be processed in first order, before all other nodes)
-                        if 'parent' in current_node_in_json['instance']:
-                            parent_node = cls._node_by_bis_id(node_tree=node_tree, bis_node_id=current_node_in_json['instance']['parent']['instance']['bis_node_uid'])
-                            node.parent = parent_node
-                            node.location += parent_node.location
-                # links
-                for link_json in node_tree_json['instance']['links']:
-                    from_node = cls._node_by_bis_id(node_tree=node_tree, bis_node_id=link_json[0])
-                    to_node = cls._node_by_bis_id(node_tree=node_tree, bis_node_id=link_json[2])
-                    if from_node and to_node:
-                        # for group nodes and group inputs/output nodes - by number, for other nodes - by identifier
-                        if isinstance(link_json[1], str):
-                            from_output = cls._output_by_identifier(from_node, link_json[1])
-                        else:
-                            from_output = from_node.outputs[link_json[1]]
-                        if isinstance(link_json[3], str):
-                            to_input = cls._input_by_identifier(to_node, link_json[3])
-                        else:
-                            to_input = to_node.inputs[link_json[3]]
-                        if from_output and to_input:
-                            node_tree.links.new(from_output, to_input)
-            else:
-                # older compatibility - remove after update to 1.9.0
-                # Nodes
-                for current_node_in_json in node_tree_json['nodes']:
-                    node_class = NodeCommon
-                    node_class_str = 'Node' + current_node_in_json['bl_idname']
-                    if current_node_in_json['type'] == 'GROUP':
-                        from . import node_node_group  # import here to prevent cycle import in node_node_group
-                        node_class = getattr(node_node_group, node_class_str)
+                        node.parent = parent_node
+                        node.location += parent_node.location
+            # links
+            for link_json in node_tree_json['instance']['links']:
+                from_node = cls._node_by_bis_id(node_tree=node_tree, bis_node_id=link_json[0])
+                to_node = cls._node_by_bis_id(node_tree=node_tree, bis_node_id=link_json[2])
+                if from_node and to_node:
+                    # for group nodes and group inputs/output nodes - by number, for other nodes - by identifier
+                    if isinstance(link_json[1], str):
+                        from_output = cls._output_by_identifier(from_node, link_json[1])
                     else:
-                        if hasattr(sys.modules[__name__], node_class_str):
-                            node_class = getattr(sys.modules[__name__], node_class_str)
-                    node_class.json_to_node(node_tree=node_tree, node_json=current_node_in_json, attachments_path=attachments_path)
-                # links
-                for link_json in node_tree_json['links']:
-                    from_node = cls._node_by_bis_id(node_tree=node_tree, bis_node_id=link_json[0])
-                    to_node = cls._node_by_bis_id(node_tree=node_tree, bis_node_id=link_json[2])
-                    if from_node and to_node:
-                        # for group nodes and group inputs/output nodes - by number, for other nodes - by identifier
-                        if isinstance(link_json[1], str):
-                            from_output = cls._output_by_identifier(from_node, link_json[1])
-                        else:
-                            from_output = from_node.outputs[link_json[1]]
-                        if isinstance(link_json[3], str):
-                            to_input = cls._input_by_identifier(to_node, link_json[3])
-                        else:
-                            to_input = to_node.inputs[link_json[3]]
-                        if from_output and to_input:
-                            node_tree.links.new(from_output, to_input)
-                # Frames
-                for c_node in node_tree.nodes:
-                    if c_node['parent_str']:
-                        parent_node = node_tree.nodes[c_node['parent_str']]
-                        c_node.parent = parent_node
-                        c_node.location += parent_node.location
+                        from_output = from_node.outputs[link_json[1]]
+                    if isinstance(link_json[3], str):
+                        to_input = cls._input_by_identifier(to_node, link_json[3])
+                    else:
+                        to_input = to_node.inputs[link_json[3]]
+                    if from_output and to_input:
+                        node_tree.links.new(from_output, to_input)
 
     @staticmethod
     def clear(node_tree, exclude_output_nodes=False):
@@ -218,8 +179,7 @@ class NodeTree:
     def _node_by_bis_id(node_tree, bis_node_id):
         rez = None
         for node in node_tree.nodes:
-            if 'bis_node_uid' in node and node['bis_node_uid'] == bis_node_id or \
-                    'BIS_node_id' in node and node['BIS_node_id'] == bis_node_id:   # TODO remove this string of condition after update to 1.9.0
+            if 'bis_node_uid' in node and node['bis_node_uid'] == bis_node_id:
                 rez = node
         return rez
 
@@ -228,7 +188,8 @@ class NodeTree:
         # returns input by its identifier
         rez = None
         if identifier:
-            input_with_identifier = [node_input for node_input in node.inputs[:] if node_input.identifier == identifier]
+            input_with_identifier = [node_input for node_input in node.inputs[:]
+                                     if node_input.identifier == identifier]
             if input_with_identifier:
                 rez = input_with_identifier[0]
         return rez
@@ -238,7 +199,8 @@ class NodeTree:
         # returns output by its identifier
         rez = None
         if identifier:
-            output_with_identifier = [node_output for node_output in node.outputs[:] if node_output.identifier == identifier]
+            output_with_identifier = [node_output for node_output in node.outputs[:]
+                                      if node_output.identifier == identifier]
             if output_with_identifier:
                 rez = output_with_identifier[0]
         return rez

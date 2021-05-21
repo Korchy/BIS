@@ -1,5 +1,9 @@
 Version history:
 -
+1.10.0
+- Remove old versions compatibility
+- Mesh storage modified to store from 'import' principles
+
 1.9.2
 - Fixed issue with textures path-names
 

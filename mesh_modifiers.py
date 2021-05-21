@@ -1,7 +1,15 @@
 # Nikita Akimov
 # interplanety@interplanety.org
+#
+# GitHub
+#   https://github.com/Korchy/BIS
+
 
 # Mesh Modifiers
+
+# -------------------------------------------------
+# old - remove after recreating meshes through import
+# -------------------------------------------------
 
 import os
 import bpy

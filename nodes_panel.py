@@ -1,7 +1,10 @@
 # Nikita Akimov
 # interplanety@interplanety.org
+#
+# GitHub
+#   https://github.com/Korchy/BIS
 
-import bpy
+
 from bpy.types import Panel
 from bpy.utils import register_class, unregister_class
 from .WebRequests import WebAuthVars
@@ -36,7 +39,11 @@ class BISNodesPanel(Panel):
             layout.prop(context.window_manager.bis_get_nodes_info_from_storage_vars, 'update_previews')
             layout.separator()
             layout.separator()
-            layout.template_icon_view(context.window_manager.bis_get_nodes_info_from_storage_vars, 'items', show_labels=True)
+            layout.template_icon_view(
+                context.window_manager.bis_get_nodes_info_from_storage_vars,
+                'items',
+                show_labels=True
+            )
             layout.separator()
             layout.separator()
             layout.prop(context.window_manager.bis_add_nodegroup_to_storage_vars, 'tags')

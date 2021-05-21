@@ -1,7 +1,10 @@
 # Nikita Akimov
 # interplanety@interplanety.org
+#
+# GitHub
+#   https://github.com/Korchy/BIS
 
-import bpy
+
 from bpy.types import Operator, PropertyGroup, WindowManager
 from bpy.props import PointerProperty, StringProperty, BoolProperty, IntProperty, EnumProperty
 from bpy.utils import register_class, unregister_class

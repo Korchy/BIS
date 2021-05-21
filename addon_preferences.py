@@ -1,5 +1,8 @@
 # Nikita Akimov
 # interplanety@interplanety.org
+#
+# GitHub
+#   https://github.com/Korchy/BIS
 
 from bpy.types import AddonPreferences
 from bpy.props import BoolProperty, EnumProperty

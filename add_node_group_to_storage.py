@@ -38,7 +38,8 @@ class BISAddNodeToStorage(Operator):
         elif subtype == 'CompositorNodeTree':
             tags = 'compositing'
         # Save Node Group (in Compositor work only with Node Groups)
-        if context.preferences.addons[__package__].preferences.use_node_group_as == 'NODEGROUP' or subtype == 'CompositorNodeTree':
+        if context.preferences.addons[__package__].preferences.use_node_group_as == 'NODEGROUP' or \
+                subtype == 'CompositorNodeTree':
             active_node = NodeManager.active_node(context=context)
             if active_node and active_node.type == 'GROUP':
                 data_to_save = active_node  # save active node group

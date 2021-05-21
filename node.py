@@ -89,7 +89,10 @@ class Node:
         # for node groups - node tree
         if node.type == 'GROUP':
             from .node_tree import NodeTree     # import here to prevent cyclic import
-            node_json['instance']['node_tree'] = NodeTree.to_json(node_tree_parent=node, node_tree=node.node_tree)
+            node_json['instance']['node_tree'] = NodeTree.to_json(
+                node_tree_parent=node,
+                node_tree=node.node_tree
+            )
         # for current node specification
         cls._node_to_json_spec(node_json, node)
         return node_json
@@ -107,8 +110,13 @@ class Node:
             # node attributes
             # if node = node group - add node tree
             if node.type == 'GROUP':
-                tree_type = node_json['instance']['node_tree']['instance']['bl_idname'] if 'bl_idname' in node_json['instance']['node_tree']['instance'] else 'ShaderNodeTree'
-                node.node_tree = bpy.data.node_groups.new(type=tree_type, name=node_json['instance']['node_tree']['instance']['name'])
+                tree_type = node_json['instance']['node_tree']['instance']['bl_idname'] \
+                    if 'bl_idname' in node_json['instance']['node_tree']['instance'] \
+                    else 'ShaderNodeTree'
+                node.node_tree = bpy.data.node_groups.new(
+                    type=tree_type,
+                    name=node_json['instance']['node_tree']['instance']['name']
+                )
                 from .node_tree import NodeTree  # import here to prevent cyclic import
                 NodeTree.from_json(
                     node_tree_parent=node,
@@ -160,7 +168,10 @@ class Node:
                     current_input = node.inputs[input_number]
                 else:
                     # for other nodes - by identifier
-                    current_input = cls.input_by_identifier(node=node, identifier=input_json['identifier'])
+                    current_input = cls.input_by_identifier(
+                        node=node,
+                        identifier=input_json['identifier']
+                    )
                 if current_input:
                     BlTypes.complex_from_json(
                         instance=current_input,
@@ -174,7 +185,10 @@ class Node:
                     current_output = node.outputs[output_number]
                 else:
                     # for other nodes - by identifier
-                    current_output = cls.output_by_identifier(node=node, identifier=output_json['identifier'])
+                    current_output = cls.output_by_identifier(
+                        node=node,
+                        identifier=output_json['identifier']
+                    )
                 if current_output:
                     BlTypes.complex_from_json(
                         instance=current_output,
