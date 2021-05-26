@@ -107,7 +107,7 @@ class WebAuth(Operator):
                     __class__.save_config(user_login=WebAuthVars.userLogin,
                                           token=WebAuthVars.token if self.userStayLogged else '')
                 else:
-                    bpy.ops.message.messagebox('INVOKE_DEFAULT', message=request_rez['data']['text'])
+                    bpy.ops.bis.messagebox('INVOKE_DEFAULT', message=request_rez['data']['text'])
                     __class__.log_off(context=context)
 
     @staticmethod

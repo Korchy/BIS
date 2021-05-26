@@ -50,7 +50,10 @@ class BISUpdateNodegroup(Operator):
             if cfg.show_debug_err:
                 print(request_rez['stat'] + ': ' + request_rez['data']['text'])
         if self.show_message:
-            bpy.ops.message.messagebox('INVOKE_DEFAULT', message=request_rez['stat'] + ': ' + request_rez['data']['text'])
+            bpy.ops.bis.messagebox(
+                'INVOKE_DEFAULT',
+                message=request_rez['stat'] + ': ' + request_rez['data']['text']
+            )
         return {'FINISHED'}
 
     def draw(self, context):

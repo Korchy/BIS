@@ -29,24 +29,29 @@ class BISAddMeshToStorage(Operator):
 
     def execute(self, context):
         if self.mesh_by_name:
-            mesh_list = [bpy.data.objects[self.mesh_by_name]]
+            objects = [bpy.data.objects[self.mesh_by_name]]
         else:
-            mesh_list = context.selected_objects[:]
-        if mesh_list:
-            request_rez = MeshManager.to_bis(context=context,
-                                             mesh_list=mesh_list,
-                                             name=context.window_manager.bis_add_mesh_to_storage_vars.name,
-                                             tags=context.window_manager.bis_add_mesh_to_storage_vars.tags)
+            objects = context.selected_objects[:]
+        if objects:
+            request_rez = MeshManager.to_bis(
+                context=context,
+                objects=objects,
+                name=context.window_manager.bis_add_mesh_to_storage_vars.name,
+                tags=context.window_manager.bis_add_mesh_to_storage_vars.tags
+            )
             if request_rez['stat'] == 'OK':
                 context.window_manager.bis_add_mesh_to_storage_vars.name = ''
                 context.window_manager.bis_add_mesh_to_storage_vars.tags = ''
                 if self.show_message:
-                    bpy.ops.message.messagebox('INVOKE_DEFAULT', message=request_rez['stat'] + ': ' + request_rez['data']['text'])
+                    bpy.ops.bis.messagebox(
+                        'INVOKE_DEFAULT',
+                        message=request_rez['stat'] + ': ' + request_rez['data']['text']
+                    )
             else:
                 if cfg.show_debug_err:
                     print(request_rez)
         else:
-            bpy.ops.message.messagebox('INVOKE_DEFAULT', message='No selected Meshes')
+            bpy.ops.bis.messagebox('INVOKE_DEFAULT', message='No selected Meshes')
         return {'FINISHED'}
 
     @classmethod

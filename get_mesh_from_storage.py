@@ -32,10 +32,10 @@ class GetMeshFromStorage(Operator):
             request_rez = MeshManager.from_bis(context=context, bis_item_id=self.mesh_id)
             if request_rez['stat'] == 'OK':
                 if self.show_message:
-                    bpy.ops.message.messagebox('INVOKE_DEFAULT',
+                    bpy.ops.bis.messagebox('INVOKE_DEFAULT',
                                                message=request_rez['stat'] + ': ' + request_rez['data']['text'])
         else:
-            bpy.ops.message.messagebox('INVOKE_DEFAULT', message='No Mesh To Get')
+            bpy.ops.bis.messagebox('INVOKE_DEFAULT', message='No Mesh To Get')
         return {'FINISHED'}
 
 

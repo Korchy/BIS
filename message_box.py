@@ -10,8 +10,8 @@ from bpy.types import Operator
 from bpy.utils import register_class, unregister_class
 
 
-class MessageBox(Operator):
-    bl_idname = 'message.messagebox'
+class BIS_OT_MessageBox(Operator):
+    bl_idname = 'bis.messagebox'
     bl_label = ''
 
     message: StringProperty(
@@ -52,12 +52,8 @@ class MessageBox(Operator):
 
 
 def register():
-    register_class(MessageBox)
+    register_class(BIS_OT_MessageBox)
 
 
 def unregister():
-    unregister_class(MessageBox)
-
-
-if __name__ == '__main__':
-    register()
+    unregister_class(BIS_OT_MessageBox)

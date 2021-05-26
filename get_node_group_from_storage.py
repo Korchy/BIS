@@ -35,7 +35,7 @@ class GetNodeGroupFromStorage(Operator):
             if context.area.type == 'VIEW_3D':
                 ToolsMaterials.material_from_active_object_to_selected(context=context)
         else:
-            bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['stat'] + ': ' + rez['data']['text'])
+            bpy.ops.bis.messagebox('INVOKE_DEFAULT', message=rez['stat'] + ': ' + rez['data']['text'])
         return {'FINISHED'}
 
 

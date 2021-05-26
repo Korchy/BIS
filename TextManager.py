@@ -33,9 +33,9 @@ class TextManager:
             if request_rez['stat'] == 'OK':
                 if not request_rez['data']['items']:
                     if WebAuthVars.userProStatus:
-                        bpy.ops.message.messagebox('INVOKE_DEFAULT', message='Nothing found')
+                        bpy.ops.bis.messagebox('INVOKE_DEFAULT', message='Nothing found')
                     else:
-                        bpy.ops.message.messagebox('INVOKE_DEFAULT', message='You do not have any active texts.\n \
+                        bpy.ops.bis.messagebox('INVOKE_DEFAULT', message='You do not have any active texts.\n \
                          Please log in your account on the BIS web site,\n \
                          Add some texts to the active palette,\n \
                          And press this button again.')
@@ -92,7 +92,7 @@ class TextManager:
                 if rez['stat'] == 'OK':
                     text['bis_uid'] = rez['data']['id']
                 else:
-                    bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['data']['text'])
+                    bpy.ops.bis.messagebox('INVOKE_DEFAULT', message=rez['data']['text'])
         else:
             rez['data']['text'] = 'Empty Text'
         return rez
@@ -116,7 +116,7 @@ class TextManager:
             if text:
                 text['bis_uid'] = bis_text_id
         else:
-            bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['data']['text'])
+            bpy.ops.bis.messagebox('INVOKE_DEFAULT', message=rez['data']['text'])
         return rez
 
     @staticmethod
@@ -137,7 +137,7 @@ class TextManager:
             if request:
                 rez = json.loads(request.text)
                 if rez['stat'] != 'OK':
-                    bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['data']['text'])
+                    bpy.ops.bis.messagebox('INVOKE_DEFAULT', message=rez['data']['text'])
         else:
             rez['data']['text'] = 'Empty Text'
         return rez

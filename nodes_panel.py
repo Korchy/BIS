@@ -22,7 +22,7 @@ class BISNodesPanel(Panel):
         if WebAuthVars.logged:
             row = layout.row(align=True)
             row.label(text='')
-            help_button = row.operator('message.messagebox', icon='HELP')
+            help_button = row.operator('bis.messagebox', icon='HELP')
             help_button.width = 600
             help_button.message = '- Why I can not get any materials?\n' \
                                   'At first you need to add some public materials to the active section in your account on the BIS web site.\n\n' \

@@ -71,7 +71,7 @@ class BISAddNodeToStorage(Operator):
             if cfg.show_debug_err:
                 print(rez['stat'] + ': ' + rez['data']['text'])
         if self.show_message:
-            bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['stat'] + ': ' + rez['data']['text'])
+            bpy.ops.bis.messagebox('INVOKE_DEFAULT', message=rez['stat'] + ': ' + rez['data']['text'])
         return {'FINISHED'}
 
 

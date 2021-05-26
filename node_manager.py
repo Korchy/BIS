@@ -52,12 +52,14 @@ class NodeManager:
             if request_rez['stat'] == 'OK':
                 if not request_rez['data']['items']:
                     if WebAuthVars.userProStatus:
-                        bpy.ops.message.messagebox('INVOKE_DEFAULT', message='Nothing found')
+                        bpy.ops.bis.messagebox('INVOKE_DEFAULT', message='Nothing found')
                     else:
-                        bpy.ops.message.messagebox('INVOKE_DEFAULT', message='You do not have any active materials.\n \
-                         Please log in your account on the BIS web site,\n \
-                         Add some materials to the active palette,\n \
-                         And press this button again.')
+                        bpy.ops.bis.messagebox(
+                            'INVOKE_DEFAULT',
+                            message='You do not have any active materials.\n \
+                            Please log in your account on the BIS web site,\n \
+                            Add some materials to the active palette,\n \
+                            And press this button again.')
                 preview_to_update = BISItems.update_previews_from_data(
                     data=request_rez['data']['items'],
                     list_name=cls.storage_type(context)
@@ -71,7 +73,7 @@ class NodeManager:
                             'storage': cls.storage_type(context),
                             'storage_subtype': storage_subtype,
                             'storage_subtype2': storage_subtype2,
-                            'addon_version': Addon.current_version(),
+                            'addon_version': Addon.current_version()
                         }
                     )
                     if request:
@@ -128,8 +130,12 @@ class NodeManager:
                                     zip_file_path = os.path.join(temp_dir, zip_file_name)
                                     with open(zip_file_path, 'wb') as temp_item_file_attachment:
                                         temp_item_file_attachment.write(request_file.content)
+                                    # to file (debug)
                                     if cfg.from_server_to_file:
-                                        copyfile(zip_file_path, os.path.join(FileManager.project_dir(), zip_file_name))
+                                        copyfile(
+                                            zip_file_path,
+                                            os.path.join(FileManager.project_dir(), zip_file_name)
+                                        )
                                     # unzip to project directory
                                     attachments_path = os.path.join(FileManager.attachments_path(), str(bis_item_id))
                                     FileManager.unzip_files(source_zip_path=zip_file_path, dest_dir=attachments_path)
@@ -149,8 +155,11 @@ class NodeManager:
                         item_node_tree_got = item_in_json['instance']['node_tree']
                         # if Addon.node_group_version_higher(item_version, Addon.current_version()):
                         if StrictVersion(item_version) > StrictVersion(Addon.current_version()):
-                            bpy.ops.message.messagebox('INVOKE_DEFAULT', message='This material item was saved in higher BIS version and may not load correctly.\
-                             Please download the last BIS add-on version!')
+                            bpy.ops.bis.messagebox(
+                                'INVOKE_DEFAULT',
+                                message='This material item was saved in higher BIS version and may not load correctly.\
+                                Please download the last BIS add-on version!'
+                            )
                         if item_type_got == 'Material':
                             # got Material (can be only object material)
                             if item_type == 'MATERIAL':

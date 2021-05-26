@@ -22,7 +22,7 @@ class BISTextsPanel(Panel):
         if WebAuthVars.logged:
             row = layout.row(align=True)
             row.label(text='')
-            help_button = row.operator('message.messagebox', icon='HELP')
+            help_button = row.operator('bis.messagebox', icon='HELP')
             help_button.width = 600
             help_button.message = '- Why I can not get materials?\n' \
                                   'This panel is for TEXTS! Switch to the Shader Editor window to get materials.\n'

@@ -39,7 +39,7 @@ class AddTextToStorage(Operator):
         if rez['stat'] == 'OK':
             context.window_manager.bis_add_text_to_storage_vars.tags = ''
             if self.show_message:
-                bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['data']['text'])
+                bpy.ops.bis.messagebox('INVOKE_DEFAULT', message=rez['data']['text'])
         return {'FINISHED'}
 
 

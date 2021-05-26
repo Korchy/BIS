@@ -28,11 +28,11 @@ class BISUpdateText(Operator):
             rez = TextManager.update_in_bis(context=context, bis_uid=current_text['bis_uid'], text=current_text)
             if rez['stat'] == 'OK':
                 if self.show_message:
-                    bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['stat'] + ': ' + rez['data']['text'])
+                    bpy.ops.bis.messagebox('INVOKE_DEFAULT', message=rez['stat'] + ': ' + rez['data']['text'])
             else:
-                bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['stat'] + ': ' + rez['data']['text'])
+                bpy.ops.bis.messagebox('INVOKE_DEFAULT', message=rez['stat'] + ': ' + rez['data']['text'])
         else:
-            bpy.ops.message.messagebox('INVOKE_DEFAULT', message='ERR: First save this Text to the BIS!')
+            bpy.ops.bis.messagebox('INVOKE_DEFAULT', message='ERR: First save this Text to the BIS!')
         return {'FINISHED'}
 
     def draw(self, context):

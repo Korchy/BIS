@@ -30,7 +30,7 @@ class GetTextFromStorage(Operator):
         rez = TextManager.from_bis(context=context, bis_text_id=self.text_id)
         if rez['stat'] == 'OK':
             if self.show_message:
-                bpy.ops.message.messagebox('INVOKE_DEFAULT', message=rez['data']['text'])
+                bpy.ops.bis.messagebox('INVOKE_DEFAULT', message=rez['data']['text'])
         return {'FINISHED'}
 
 

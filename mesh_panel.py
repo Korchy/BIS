@@ -22,7 +22,7 @@ class BISMeshPanel(Panel):
         row = layout.row(align=True)
         row.prop(context.preferences.addons[__package__].preferences, 'default_mode_in_3d_view', expand=True)
         row.separator()
-        help_button = row.operator('message.messagebox', icon='HELP')
+        help_button = row.operator('bis.messagebox', icon='HELP')
         help_button.width = 600
         help_button.message = '- How can I save materials to the library?\n' \
                               'Switch to the Shader Editor window.\n\n' \
