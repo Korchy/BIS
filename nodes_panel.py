@@ -25,7 +25,8 @@ class BISNodesPanel(Panel):
             help_button = row.operator('bis.messagebox', icon='HELP')
             help_button.width = 600
             help_button.message = '- Why I can not get any materials?\n' \
-                                  'At first you need to add some public materials to the active section in your account on the BIS web site.\n\n' \
+                                  'At first you need to add some public materials to the active ' \
+                                  'section in your account on the BIS web site.\n\n' \
                                   '- How to get material from BIS as node group?\n' \
                                   'Switch mode to "NodeGroup" in the switcher below.'
             if WebAuthVars.userProStatus:
