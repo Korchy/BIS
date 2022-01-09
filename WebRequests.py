@@ -119,7 +119,11 @@ class WebAuth(Operator):
 
     @staticmethod
     def check_token_valid(context, user_login='', token=''):
-        request = WebRequest.send_request(context=context, data={'userlogin': user_login, 'token': token}, host_target='blender_auth')
+        request = WebRequest.send_request(
+            context=context,
+            data={'userlogin': user_login, 'token': token},
+            host_target='blender_auth'
+        )
         if request:
             request_rez = json.loads(request.text)
             if request_rez['stat'] == 'OK':
@@ -186,7 +190,8 @@ class WebRequest:
                     request = None
                 if request_rez:
                     if request_rez['stat'] != 'OK':
-                        print(request_rez['stat'] + ': ' + (request_rez['data']['text'] if 'data' in request_rez else ''))
+                        print(request_rez['stat'] +
+                              ': ' + (request_rez['data']['text'] if 'data' in request_rez else ''))
         return request
 
 

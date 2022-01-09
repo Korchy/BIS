@@ -159,7 +159,8 @@ class NodeTree:
     def clear(node_tree, exclude_output_nodes=False):
         # clear node_tree except Output node
         for node in node_tree.nodes:
-            if not (exclude_output_nodes and node.bl_idname in ['ShaderNodeOutputMaterial', 'CompositorNodeComposite', 'ShaderNodeOutputWorld']):
+            if not (exclude_output_nodes and node.bl_idname in
+                    ['ShaderNodeOutputMaterial', 'CompositorNodeComposite', 'ShaderNodeOutputWorld']):
                 node_tree.nodes.remove(node)
 
     @staticmethod
@@ -221,4 +222,21 @@ class NodeTree:
                 rez.append({
                     'path': FileManager.abs_path(node.filepath)
                 })
+        return rez
+
+    @classmethod
+    def is_procedural(cls, node_tree):
+        # check if node tree is fully procedural
+        rez = True
+        for node in node_tree.nodes:
+            if node.type == 'GROUP':
+                rez = cls.is_procedural(node.node_tree)
+                if not rez:
+                    break
+            elif node.type == 'TEX_IMAGE':
+                rez = False
+                break
+            elif node.type == 'SCRIPT' and node.mode == 'EXTERNAL':
+                rez = False
+                break
         return rez

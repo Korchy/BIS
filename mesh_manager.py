@@ -88,7 +88,7 @@ class MeshManager:
 
     @classmethod
     def from_bis(cls, context, bis_item_id):
-        rez = {"stat": "ERR", "data": {"text": "No Id", "content": None}}
+        request_rez = {"stat": "ERR", "data": {"text": "No Id", "content": None}}
         if bis_item_id:
             request = WebRequest.send_request(
                 context=context,
@@ -137,8 +137,11 @@ class MeshManager:
                                         for obj in imported_objects:
                                             obj['bis_uid'] = bis_item_id
         else:
-            bpy.ops.bis.messagebox('INVOKE_DEFAULT',  message=rez['stat'] + ': ' + rez['data']['text'])
-        return rez
+            bpy.ops.bis.messagebox(
+                'INVOKE_DEFAULT',
+                message=request_rez['stat'] + ': ' + request_rez['data']['text']
+            )
+        return request_rez
 
     @classmethod
     def to_bis(cls, context, objects: list, name='', tags=''):
@@ -265,6 +268,7 @@ class MeshManager:
 
     @classmethod
     def export_to_blend(cls, context, objects, name, export_path):
+        # ToDo do with data_block_manager
         # saves mesh to the export_path directory in a *.blend format and zip it. Returns full path to the file
         rez = None
         if objects:
@@ -312,6 +316,7 @@ class MeshManager:
 
     @classmethod
     def import_from_blend(cls, context, zip_file_path, file_name, collection_name: str):
+        # ToDo do with data_block_manager
         # add meshes to scene from zipped archive with *.blend file
         rez = []
         if context.active_object and context.active_object.mode == 'EDIT':

@@ -6,6 +6,7 @@
 
 import bpy
 from . import cfg
+from .geometry_nodes_manager import GeometryNodesManager
 from .node_manager import NodeManager
 from .material import Material
 from bpy.utils import register_class, unregister_class
@@ -30,6 +31,8 @@ class BISAddNodeToStorage(Operator):
         tags = ''
         subtype = Material.get_subtype(context=context)
         subtype2 = Material.get_subtype2(context=context)
+        # print(subtype, subtype2)
+        # GN - GeometryNodeTree OBJECT
         if subtype == 'ShaderNodeTree':
             if subtype2 == 'WORLD':
                 tags = 'world'
@@ -45,26 +48,35 @@ class BISAddNodeToStorage(Operator):
                 data_to_save = active_node  # save active node group
             else:
                 rez['data']['text'] = 'No selected Node Group'
-        # Save Material
+        # Save whole Material or GN Modifier
         elif context.preferences.addons[__package__].preferences.use_node_group_as == 'MATERIAL':
             active_material = NodeManager.active_material(context=context)
             if active_material:
-                data_to_save = active_material  # save active material
+                data_to_save = active_material  # save active material or gn modifier
             else:
                 rez['data']['text'] = 'No material to save'
         if data_to_save:
-            if NodeManager.is_procedural(data_to_save):
-                tags += (';' if tags else '') + 'procedural'
-            tags += (';' if tags else '') + context.window.scene.render.engine
-            tags += (';' if tags else '') + '{0[0]}.{0[1]}'.format(app.version)
             if context.window_manager.bis_add_nodegroup_to_storage_vars.tags != '':
                 tags += (';' if tags else '') + context.window_manager.bis_add_nodegroup_to_storage_vars.tags
-            rez = NodeManager.to_bis(
-                context=context,
-                item=data_to_save,
-                item_type=context.preferences.addons[__package__].preferences.use_node_group_as,
-                tags=tags
-            )
+            if subtype == 'GeometryNodeTree':
+                # geometry nodes
+                rez = GeometryNodesManager.to_bis(
+                    context=context,
+                    node_tree_container=data_to_save,
+                    tags=tags
+                )
+            else:
+                # shader/compositing nodes
+                tags += (';' if tags else '') + '{0[0]}.{0[1]}'.format(app.version)
+                if NodeManager.is_procedural(data_to_save):
+                    tags += (';' if tags else '') + 'procedural'
+                tags += (';' if tags else '') + context.window.scene.render.engine
+                rez = NodeManager.to_bis(
+                    context=context,
+                    item=data_to_save,
+                    item_type=context.preferences.addons[__package__].preferences.use_node_group_as,
+                    tags=tags
+                )
         if rez['stat'] == 'OK':
             context.window_manager.bis_add_nodegroup_to_storage_vars.tags = ''
         else:
@@ -86,7 +98,9 @@ class BISAddNodeGroupToStorageVars(PropertyGroup):
 def register():
     register_class(BISAddNodeToStorage)
     register_class(BISAddNodeGroupToStorageVars)
-    WindowManager.bis_add_nodegroup_to_storage_vars = PointerProperty(type=BISAddNodeGroupToStorageVars)
+    WindowManager.bis_add_nodegroup_to_storage_vars = PointerProperty(
+        type=BISAddNodeGroupToStorageVars
+    )
 
 
 def unregister():

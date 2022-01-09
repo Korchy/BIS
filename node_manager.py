@@ -377,51 +377,107 @@ class NodeManager:
                                         factor_displacement_output = next(iter([i for i in nodegroup.outputs if i.type in ['VALUE'] and i.name.lower() in ['displace', 'displacement', 'смещение']]), None)
                                         normal_output = next(iter([i for i in nodegroup.outputs if i.type == 'VECTOR' and i.name.lower() not in ['displace', 'displacement', 'смещение']]), None)
                                         # output node
-                                        output_node = next(iter([node for node in active_node_tree.nodes if node.name in ['Material Output', 'Light Output', 'World Output']]), None)
+                                        output_node = next((node for node in active_node_tree.nodes if node.name in
+                                                            ['Material Output', 'Light Output', 'World Output']), None)
                                         if output_node:
                                             # connect outputs
                                             if shader_output:
-                                                active_node_tree.links.new(shader_output, output_node.inputs['Surface'])
+                                                active_node_tree.links.new(
+                                                    shader_output,
+                                                    output_node.inputs['Surface']
+                                                )
                                             elif color_output:
-                                                diffuse_node = active_node_tree.nodes.new(type='ShaderNodeBsdfDiffuse')
+                                                diffuse_node = active_node_tree.nodes.new(
+                                                    type='ShaderNodeBsdfDiffuse'
+                                                )
                                                 diffuse_node.location = (500.0, 0.0)
-                                                active_node_tree.links.new(color_output, diffuse_node.inputs['Color'])
-                                                active_node_tree.links.new(diffuse_node.outputs['BSDF'], output_node.inputs['Surface'])
+                                                active_node_tree.links.new(
+                                                    color_output,
+                                                    diffuse_node.inputs['Color']
+                                                )
+                                                active_node_tree.links.new(
+                                                    diffuse_node.outputs['BSDF'],
+                                                    output_node.inputs['Surface']
+                                                )
                                                 if normal_output:
-                                                    active_node_tree.links.new(normal_output, diffuse_node.inputs['Normal'])
+                                                    active_node_tree.links.new(
+                                                        normal_output,
+                                                        diffuse_node.inputs['Normal']
+                                                    )
                                             elif factor_output:
-                                                diffuse_node = active_node_tree.nodes.new(type='ShaderNodeBsdfDiffuse')
+                                                diffuse_node = active_node_tree.nodes.new(
+                                                    type='ShaderNodeBsdfDiffuse'
+                                                )
                                                 diffuse_node.location = (500.0, 0.0)
-                                                active_node_tree.links.new(factor_output, diffuse_node.inputs['Color'])
-                                                active_node_tree.links.new(diffuse_node.outputs['BSDF'], output_node.inputs['Surface'])
+                                                active_node_tree.links.new(
+                                                    factor_output,
+                                                    diffuse_node.inputs['Color']
+                                                )
+                                                active_node_tree.links.new(
+                                                    diffuse_node.outputs['BSDF'],
+                                                    output_node.inputs['Surface']
+                                                )
                                                 if normal_output:
-                                                    active_node_tree.links.new(normal_output, diffuse_node.inputs['Normal'])
+                                                    active_node_tree.links.new(
+                                                        normal_output,
+                                                        diffuse_node.inputs['Normal']
+                                                    )
                                             if volume_output:
                                                 active_node_tree.links.new(volume_output, output_node.inputs['Volume'])
                                             if vector_displacement_output:
-                                                displacement_input = next(iter([i for i in output_node.inputs if i.name == 'Displacement']), None)
+                                                displacement_input = next(
+                                                    (i for i in output_node.inputs if i.name == 'Displacement'), None)
                                                 if displacement_input:
-                                                    active_node_tree.links.new(vector_displacement_output, displacement_input)
+                                                    active_node_tree.links.new(
+                                                        vector_displacement_output,
+                                                        displacement_input
+                                                    )
                                             if factor_displacement_output:
-                                                displacement_input = next(iter([i for i in output_node.inputs if i.name == 'Displacement']), None)
+                                                displacement_input = next(
+                                                    (i for i in output_node.inputs if i.name == 'Displacement'), None)
                                                 if displacement_input:
                                                     # convert factor displacement to vector displacement
                                                     # add nodes
-                                                    combine_xyz_node = active_node_tree.nodes.new(type='ShaderNodeCombineXYZ')
-                                                    combine_xyz_node.location = (output_node.location.x - 400.0, output_node.location.y - 100.0)
-                                                    vector_displacement_node = active_node_tree.nodes.new(type='ShaderNodeVectorDisplacement')
-                                                    vector_displacement_node.location = (combine_xyz_node.location.x + 200.0, combine_xyz_node.location.y)
+                                                    combine_xyz_node = active_node_tree.nodes.new(
+                                                        type='ShaderNodeCombineXYZ'
+                                                    )
+                                                    combine_xyz_node.location = (
+                                                        output_node.location.x - 400.0,
+                                                        output_node.location.y - 100.0
+                                                    )
+                                                    vector_displacement_node = active_node_tree.nodes.new(
+                                                        type='ShaderNodeVectorDisplacement'
+                                                    )
+                                                    vector_displacement_node.location = (
+                                                        combine_xyz_node.location.x + 200.0,
+                                                        combine_xyz_node.location.y
+                                                    )
                                                     vector_displacement_node.inputs['Scale'].default_value = 0.1
                                                     # add links
-                                                    active_node_tree.links.new(factor_displacement_output, combine_xyz_node.inputs['Y'])
-                                                    active_node_tree.links.new(combine_xyz_node.outputs['Vector'], vector_displacement_node.inputs['Vector'])
-                                                    active_node_tree.links.new(vector_displacement_node.outputs['Displacement'], displacement_input)
+                                                    active_node_tree.links.new(
+                                                        factor_displacement_output,
+                                                        combine_xyz_node.inputs['Y']
+                                                    )
+                                                    active_node_tree.links.new(
+                                                        combine_xyz_node.outputs['Vector'],
+                                                        vector_displacement_node.inputs['Vector']
+                                                    )
+                                                    active_node_tree.links.new(
+                                                        vector_displacement_node.outputs['Displacement'],
+                                                        displacement_input
+                                                    )
                                         # connect inputs
-                                        vector_input = [i for i in nodegroup.inputs if i.type == 'VECTOR' and i.name.lower() in ['vector']]
+                                        vector_input = [i for i in nodegroup.inputs if i.type == 'VECTOR'
+                                                        and i.name.lower() in ['vector']]
                                         if vector_input:
-                                            texture_coordinates_node = active_node_tree.nodes.new(type='ShaderNodeTexCoord')
+                                            texture_coordinates_node = active_node_tree.nodes.new(
+                                                type='ShaderNodeTexCoord'
+                                            )
                                             texture_coordinates_node.location = (-200.0, 0.0)
-                                            active_node_tree.links.new(texture_coordinates_node.outputs['UV'], vector_input[0])
+                                            active_node_tree.links.new(
+                                                texture_coordinates_node.outputs['UV'],
+                                                vector_input[0]
+                                            )
                                     cls._deselect_all_nodes(node_tree=material.node_tree)
                 else:
                     request_rez['data']['text'] = 'BIS server not request'
@@ -523,7 +579,9 @@ class NodeManager:
                                     if request:
                                         request_rez = json.loads(request.text)
                             else:
-                                request_rez['data']['text'] = 'Saving material must be less ' + str(round(cls._material_limit_file_size/1024/1024)) + ' Mb with textures after zip export!'
+                                request_rez['data']['text'] = 'Saving material must be less ' + \
+                                                              str(round(cls._material_limit_file_size/1024/1024)) + \
+                                                              ' Mb with textures after zip export!'
                 else:
                     # non procedural but without external items
                     if not cfg.no_sending_to_server:
@@ -717,6 +775,10 @@ class NodeManager:
         elif subtype == 'CompositorNodeTree':
             if context.window.scene.use_nodes:
                 active_node_tree = context.area.spaces.active.node_tree
+        elif subtype == 'GeometryNodeTree':
+            if context.active_object.modifiers and context.active_object.modifiers.active.type == 'NODES':
+                active_node_tree = context.active_object.modifiers.active.node_group
+        # if node tree in opened node group
         if active_node_tree and NodeTree.has_node_groups(active_node_tree) and hasattr(context.space_data, 'path'):
             for i in range(len(context.space_data.path) - 1):
                 active_node_tree = active_node_tree.nodes.active.node_tree
@@ -733,28 +795,24 @@ class NodeManager:
 
     @staticmethod
     def active_material(context):
-        # returns currently active material in NODE_EDITOR window
-        active_material = None
-        if context.active_object and context.active_object.active_material:
-            active_material = context.active_object.active_material
-        return active_material
+        # returns currently active node tree container (material or modifier) for NODE_EDITOR window
+        container = None
+        if context.active_object:
+            subtype = Material.get_subtype(context=context)
+            if subtype == 'ShaderNodeTree':
+                # material
+                if context.active_object.active_material:
+                    container = context.active_object.active_material
+            elif subtype == 'GeometryNodeTree':
+                # geometry nodes modifier
+                if context.active_object.modifiers and context.active_object.modifiers.active.type == 'NODES':
+                    container = context.active_object.modifiers.active
+        return container
 
     @classmethod
     def is_procedural(cls, material):
         # check if material (nodegroup) is fully procedural
-        rez = True
-        for node in material.node_tree.nodes:
-            if node.type == 'GROUP':
-                rez = cls.is_procedural(node)
-                if not rez:
-                    break
-            elif node.type == 'TEX_IMAGE':
-                rez = False
-                break
-            elif node.type == 'SCRIPT' and node.mode == 'EXTERNAL':
-                rez = False
-                break
-        return rez
+        return NodeTree.is_procedural(node_tree=material.node_tree)
 
     @classmethod
     def cpu_render_required(cls, material):

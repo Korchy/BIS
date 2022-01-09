@@ -8,6 +8,8 @@ import bpy
 from bpy.props import IntProperty
 from bpy.utils import register_class, unregister_class
 from bpy.types import Operator
+from .geometry_nodes_manager import GeometryNodesManager
+from .material import Material
 from .node_manager import NodeManager
 from .tools_materials import ToolsMaterials
 
@@ -26,15 +28,27 @@ class GetNodeGroupFromStorage(Operator):
     def execute(self, context):
         rez = {"stat": "ERR", "data": {"text": "No Material To Get"}}
         if self.node_group_id:
-            rez = NodeManager.from_bis(context=context,
-                                       bis_item_id=self.node_group_id,
-                                       item_type='MATERIAL' if context.area.type == 'VIEW_3D' else context.preferences.addons[__package__].preferences.use_node_group_as
-                                       )
-        if rez['stat'] == 'OK':
-            # copy to all selected
-            if context.area.type == 'VIEW_3D':
-                ToolsMaterials.material_from_active_object_to_selected(context=context)
-        else:
+            subtype = Material.get_subtype(context=context)
+            if subtype == 'GeometryNodeTree':
+                # geometry node tree
+                rez = GeometryNodesManager.from_bis(
+                    context=context,
+                    bis_item_id=self.node_group_id,
+                    item_type=context.preferences.addons[__package__].preferences.use_node_group_as
+                )
+            else:
+                # shader/compositing node tree
+                rez = NodeManager.from_bis(
+                    context=context,
+                    bis_item_id=self.node_group_id,
+                    item_type=('MATERIAL' if context.area.type == 'VIEW_3D'
+                               else context.preferences.addons[__package__].preferences.use_node_group_as)
+                )
+                if rez['stat'] == 'OK':
+                    # copy to all selected
+                    if context.area.type == 'VIEW_3D':
+                        ToolsMaterials.material_from_active_object_to_selected(context=context)
+        if rez['stat'] != 'OK':
             bpy.ops.bis.messagebox('INVOKE_DEFAULT', message=rez['stat'] + ': ' + rez['data']['text'])
         return {'FINISHED'}
 

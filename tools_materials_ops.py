@@ -8,6 +8,7 @@ from bpy.types import Operator
 from bpy.utils import register_class, unregister_class
 from .tools_materials import ToolsMaterials
 
+
 class BIS_OT_tools_materials_active_to_selected(Operator):
     bl_idname = 'bis.materials_active_to_selected'
     bl_label = 'Material: Active to Selected'

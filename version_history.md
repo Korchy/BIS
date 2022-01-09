@@ -1,5 +1,8 @@
 Version history:
 -
+1.11.0
+- Added support for Geometry Nodes
+
 1.10.0
 - Remove old versions compatibility
 - Mesh storage modified to store from 'import' principles
