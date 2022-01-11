@@ -15,6 +15,7 @@ from .addon import Addon
 from .bis_items import BISItems
 from .file_manager import FileManager
 from .blender_ex import BlenderEx
+from .bpy_plus.names import Names
 from .data_block_manager import DataBlockManager
 from .material import Material
 from .node_tree import NodeTree
@@ -148,7 +149,8 @@ class GeometryNodesManager(DataBlockManager):
                                 if os.path.exists(zip_file_path):
                                     # if already exists node group with the same name - rename it
                                     if item_in_json['data_block_name'] in context.blend_data.node_groups:
-                                        context.blend_data.node_groups[item_in_json['data_block_name']].name += ''
+                                        context.blend_data.node_groups[item_in_json['data_block_name']].name = \
+                                            Names.increase(name=item_in_json['data_block_name'])
                                     # import from attachment .blend file
                                     imported_data_block_names = cls.import_from_blend(
                                         context=context,

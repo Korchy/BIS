@@ -62,7 +62,6 @@ class DataBlockManager:
                 dest_dir=path
             )
             if os.path.exists(full_path):
-                # existed_names = [data_block.name for data_block in getattr(context.blend_data, data_block_type)]
                 with bpy.data.libraries.load(full_path) as (data_from, data_to):
                     if data_block_name is None:
                         setattr(
@@ -76,9 +75,5 @@ class DataBlockManager:
                             data_block_type,
                             [name for name in getattr(data_from, data_block_type) if name == data_block_name]
                         )
-                    # appended_names = getattr(data_to, data_block_type)[:]  # list of data block names
                     rez = getattr(data_to, data_block_type)[:]  # list of data block names
-                # new_existed_names = [data_block.name for data_block in getattr(context.blend_data, data_block_type)]
-                # # difference between old existed and currently existed data blocks names
-                # rez = list(set(new_existed_names) - set(existed_names))
         return rez
