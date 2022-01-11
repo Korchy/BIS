@@ -8,7 +8,7 @@
 import bpy
 import json
 import os
-from shutil import copyfile
+import re
 import tempfile
 from . import cfg
 from .addon import Addon
@@ -33,7 +33,7 @@ class GeometryNodesManager(DataBlockManager):
     def items_from_bis(cls, context, search_filter, page, update_preview):
         # get page of items list from BIS
         rez = None
-        storage_subtype = Material.get_subtype(context)     # GeometryNodeTree
+        storage_subtype = cls.subtype(context)              # GeometryNodeTree
         storage_subtype2 = Material.get_subtype2(context)   # OBJECT
         request = WebRequest.send_request(
             context=context,
@@ -108,7 +108,7 @@ class GeometryNodesManager(DataBlockManager):
                 data={
                     'for': 'get_item',
                     'storage': cls._storage_type,
-                    'storage_subtype': Material.get_subtype(context),
+                    'storage_subtype': cls.subtype(context),
                     'storage_subtype2': Material.get_subtype2(context),
                     'id': bis_item_id,
                     'addon_version': Addon.current_version()
@@ -138,29 +138,20 @@ class GeometryNodesManager(DataBlockManager):
                                     json_data=item_in_json,
                                     attachment_file_path=zip_file_path
                                 )
-                                # if cfg.from_server_to_file:
-                                #     copyfile(
-                                #         zip_file_path,
-                                #         os.path.join(FileManager.project_dir(), zip_file_name)
-                                #     )
-                                #     with open(os.path.join(FileManager.project_dir(),
-                                #                            'received_from_server.json'), 'w') as currentFile:
-                                #         json.dump(item_in_json, currentFile, indent=4)
                                 if os.path.exists(zip_file_path):
                                     # if already exists node group with the same name - rename it
                                     if item_in_json['data_block_name'] in context.blend_data.node_groups:
                                         context.blend_data.node_groups[item_in_json['data_block_name']].name = \
                                             Names.increase(name=item_in_json['data_block_name'])
                                     # import from attachment .blend file
-                                    imported_data_block_names = cls.import_from_blend(
+                                    cls.import_from_blend(
                                         context=context,
                                         zip_file_path=zip_file_path,
                                         file_name=item_in_json['data_block_name'],
                                         data_block_type=item_in_json['data_block_type'],
                                         data_block_name=item_in_json['data_block_name']
                                     )
-                                    geometry_node_tree = next(tree for tree in context.blend_data.node_groups
-                                                              if tree.name in imported_data_block_names)
+                                    geometry_node_tree = context.blend_data.node_groups[item_in_json['data_block_name']]
                                     if geometry_node_tree:
                                         geometry_node_tree['bis_uid'] = bis_item_id
                                         # add to active object geometry nodes modifier
@@ -175,6 +166,15 @@ class GeometryNodesManager(DataBlockManager):
                                         if item_type == 'MATERIAL':
                                             # fully replace modifier node tree
                                             gn_modifier.node_group = geometry_node_tree
+                                            # set attribute names
+                                            cls.set_output_attributes_names(
+                                                gn_modifier=gn_modifier,
+                                                names=item_in_json['output_attributes']
+                                            )
+                                            cls.set_input_attributes_names(
+                                                gn_modifier=gn_modifier,
+                                                names=item_in_json['input_attributes']
+                                            )
                                         elif item_type == 'NODEGROUP':
                                             # just add as separate node group to the current modifier node tree
                                             node_group = gn_modifier.node_group.nodes.new(
@@ -200,6 +200,15 @@ class GeometryNodesManager(DataBlockManager):
                 'data_block_type': 'node_groups',
                 'data_block_name': name
             }
+            # if saving as whole node tree - add input/output attributes names
+            if node_tree_container.type == 'NODES':
+                # modifier
+                data_in_json['input_attributes'] = cls.get_input_attributes_names(
+                    gn_modifier=node_tree_container
+                )
+                data_in_json['output_attributes'] = cls.get_output_attributes_names(
+                    gn_modifier=node_tree_container
+                )
             with tempfile.TemporaryDirectory() as temp_dir:
                 attachments_path = cls.export_to_blend(
                     context=context,
@@ -209,13 +218,19 @@ class GeometryNodesManager(DataBlockManager):
                 )
                 if attachments_path and os.path.exists(attachments_path):
                     tags += (';' if tags else '') + ';'.join(cls.tags(node_tree_container=node_tree_container))
+                    # save to file (debug)
+                    FileManager.to_server_to_file(
+                        json_data=data_in_json,
+                        attachment_file_path=attachments_path
+                    )
+                    # send request to server
                     if not cfg.no_sending_to_server:
                         request = WebRequest.send_request(
                             context=context,
                             data={
                                 'for': 'add_item',
                                 'storage': cls._storage_type,
-                                'storage_subtype': Material.get_subtype(context=context),
+                                'storage_subtype': cls.subtype(context=context),
                                 'storage_subtype2': Material.get_subtype2(context=context),
                                 'item_body': json.dumps(data_in_json),
                                 'item_name': name,
@@ -233,10 +248,6 @@ class GeometryNodesManager(DataBlockManager):
                             request_rez = json.loads(request.text)
                             if request_rez['stat'] == 'OK':
                                 data_block['bis_uid'] = request_rez['data']['id']
-            # to file (debug)
-            if cfg.to_server_to_file:
-                with open(os.path.join(FileManager.project_dir(), 'send_to_server.json'), 'w') as currentFile:
-                    json.dump(data_in_json, currentFile, indent=4)
         else:
             request_rez['data']['text'] = 'No data to save'
         return request_rez
@@ -261,6 +272,15 @@ class GeometryNodesManager(DataBlockManager):
                     'data_block_type': 'node_groups',
                     'data_block_name': name
                 }
+                # if saving as whole node tree - add input/output attributes names
+                if node_tree_container.type == 'NODES':
+                    # modifier
+                    data_in_json['input_attributes'] = cls.get_input_attributes_names(
+                        gn_modifier=node_tree_container
+                    )
+                    data_in_json['output_attributes'] = cls.get_output_attributes_names(
+                        gn_modifier=node_tree_container
+                    )
                 with tempfile.TemporaryDirectory() as temp_dir:
                     attachments_path = cls.export_to_blend(
                         context=context,
@@ -282,7 +302,7 @@ class GeometryNodesManager(DataBlockManager):
                                 data={
                                     'for': 'update_item',
                                     'storage': cls._storage_type,
-                                    'storage_subtype': Material.get_subtype(context=context),
+                                    'storage_subtype': cls.subtype(context=context),
                                     'storage_subtype2': Material.get_subtype2(context=context),
                                     'item_id': bis_uid,
                                     'item_body': json.dumps(data_in_json),
@@ -301,6 +321,14 @@ class GeometryNodesManager(DataBlockManager):
         else:
             request_rez['data']['text'] = 'Cant get object to update - no active object from BIS'
         return request_rez
+
+    @staticmethod
+    def subtype(context):
+        # return subtype
+        if context.area and context.area.spaces.active.type == 'NODE_EDITOR':
+            return context.area.spaces.active.tree_type
+        else:
+            return 'GeometryNodeTree'
 
     @staticmethod
     def node_tree(node_tree_container):
@@ -359,3 +387,44 @@ class GeometryNodesManager(DataBlockManager):
                 context=context
             )
         return gn_modifier
+
+    @staticmethod
+    def get_output_attributes_names(gn_modifier):
+        # get output attributes names
+        # same order as outputs
+        return [output[1] for output in gn_modifier.items() if 'Output' in output[0]]
+
+    @staticmethod
+    def get_input_attributes_names(gn_modifier):
+        # get input attributes names
+        # same order as inputs
+        regexp = re.compile(r'^Input_\d.?$')
+        inputs = [input[0] for input in gn_modifier.items() if regexp.match(input[0])]  # [Input_2, Input_6, ...]
+        inputs_keys = [input for input in gn_modifier.keys() if 'Input' in input]
+        rez = []
+        for input in inputs:
+            if input + '_attribute_name' in inputs_keys:
+                rez.append(gn_modifier[input + '_attribute_name'])
+            else:
+                rez.append('')
+        return rez
+
+    @staticmethod
+    def set_output_attributes_names(gn_modifier, names: list):
+        # set names for output attributes
+        # same order as saved
+        id_names = [output[0] for output in gn_modifier.items() if 'Output' in output[0]]
+        for i, name in enumerate(id_names):
+            gn_modifier[name] = names[i]
+
+    @staticmethod
+    def set_input_attributes_names(gn_modifier, names: list):
+        # set names for input attributes
+        # same order as saved
+        regexp = re.compile(r'^Input_\d.?$')
+        inputs = [input[0] for input in gn_modifier.items() if regexp.match(input[0])]  # [Input_2, Input_6, ...]
+        for i, name in enumerate(names):
+            if inputs[i] + '_use_attribute' in gn_modifier:
+                gn_modifier[inputs[i] + '_use_attribute'] = 1
+            if inputs[i] + '_attribute_name' in gn_modifier:
+                gn_modifier[inputs[i] + '_attribute_name'] = name

@@ -71,7 +71,8 @@ class Material:
                 attachments_path=attachments_path,
                 bis_version=material_json['bis_version']
             )
-            material['bis_uid'] = material_json['instance']['bis_uid'] if 'bis_uid' in material_json['instance'] else None
+            material['bis_uid'] = material_json['instance']['bis_uid'] \
+                if 'bis_uid' in material_json['instance'] else None
             # to prevent .001 in name of new material if already exists some other materials with this name
             material.name = material_json['instance']['name']
             # for current material specification
@@ -118,6 +119,9 @@ class Material:
         # return subtype
         if context.area and context.area.spaces.active.type == 'NODE_EDITOR':
             return context.area.spaces.active.tree_type
+        elif context.area and context.area.spaces.active.type == 'VIEW_3D' and \
+                context.preferences.addons[__package__].preferences.default_mode_in_3d_view == 'GN':
+            return 'GeometryNodeTree'
         else:
             return 'ShaderNodeTree'
 

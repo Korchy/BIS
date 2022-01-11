@@ -369,13 +369,26 @@ class NodeManager:
                                         nodegroup.location = (0.0, 0.0)
                                         # additional nodes and links
                                         # node group output
-                                        shader_output = next(iter([i for i in nodegroup.outputs if i.type == 'SHADER' and 'volume' not in i.name.lower()]), None)
-                                        color_output = next(iter([i for i in nodegroup.outputs if i.type == 'RGBA']), None)
-                                        factor_output = next(iter([i for i in nodegroup.outputs if i.type == 'VALUE' and 'displacement' not in i.name.lower()]), None)
-                                        volume_output = next(iter([i for i in nodegroup.outputs if i.type == 'SHADER' and 'volume' in i.name.lower()]), None)
-                                        vector_displacement_output = next(iter([i for i in nodegroup.outputs if i.type in ['VECTOR'] and i.name.lower() in ['displace', 'displacement', 'смещение']]), None)
-                                        factor_displacement_output = next(iter([i for i in nodegroup.outputs if i.type in ['VALUE'] and i.name.lower() in ['displace', 'displacement', 'смещение']]), None)
-                                        normal_output = next(iter([i for i in nodegroup.outputs if i.type == 'VECTOR' and i.name.lower() not in ['displace', 'displacement', 'смещение']]), None)
+                                        shader_output = next(iter([i for i in nodegroup.outputs
+                                                                   if i.type == 'SHADER'
+                                                                   and 'volume' not in i.name.lower()]), None)
+                                        color_output = next(iter([i for i in nodegroup.outputs
+                                                                  if i.type == 'RGBA']), None)
+                                        factor_output = next(iter([i for i in nodegroup.outputs
+                                                                   if i.type == 'VALUE'
+                                                                   and 'displacement' not in i.name.lower()]), None)
+                                        volume_output = next(iter([i for i in nodegroup.outputs
+                                                                   if i.type == 'SHADER'
+                                                                   and 'volume' in i.name.lower()]), None)
+                                        vector_displacement_output = next(iter([i for i in nodegroup.outputs
+                                                                                if i.type in ['VECTOR']
+                                                                                and i.name.lower() in ['displace', 'displacement', 'смещение']]), None)
+                                        factor_displacement_output = next(iter([i for i in nodegroup.outputs
+                                                                                if i.type in ['VALUE'] and
+                                                                                i.name.lower() in ['displace', 'displacement', 'смещение']]), None)
+                                        normal_output = next(iter([i for i in nodegroup.outputs
+                                                                   if i.type == 'VECTOR'
+                                                                   and i.name.lower() not in ['displace', 'displacement', 'смещение']]), None)
                                         # output node
                                         output_node = next((node for node in active_node_tree.nodes if node.name in
                                                             ['Material Output', 'Light Output', 'World Output']), None)
@@ -505,7 +518,8 @@ class NodeManager:
             if cls.is_procedural(material=item):
                 # send to server
                 if not cfg.no_sending_to_server:
-                    bis_links = list(cls.get_bis_linked_items('bis_linked_item', item_json))    # TODO check with internal text scripts
+                    # TODO check and test with internal text scripts
+                    bis_links = list(cls.get_bis_linked_items('bis_linked_item', item_json))
                     # zip json to reduce size and convert to base64 to have a string
                     # future improvement - don't convert to base64 string, store to db raw binary after zlib
                     #   (need to use BLOB field in mysql)
@@ -552,7 +566,8 @@ class NodeManager:
                                 if not cfg.no_sending_to_server:
                                     bis_links = list(cls.get_bis_linked_items('bis_linked_item', item_json))
                                     # zip json to reduce size and convert to base64 to have a string
-                                    # future improvement - don't convert to base64 string, store to db raw binary after zlib
+                                    # future improvement - don't convert to base64 string,
+                                    #   store to db raw binary after zlib
                                     #   (need to use BLOB field in mysql)
                                     item_json_compressed = zlib.compress(json.dumps(item_json).encode('utf-8'))
                                     item_json_compressed_b64 = base64.b64encode(item_json_compressed)
@@ -686,7 +701,8 @@ class NodeManager:
                                 if not cfg.no_sending_to_server:
                                     bis_links = list(cls.get_bis_linked_items('bis_linked_item', item_json))
                                     # zip json to reduce size and convert to base64 to have a string
-                                    # future improvement - don't convert to base64 string, store to db raw binary after zlib
+                                    # future improvement - don't convert to base64 string,
+                                    #   store to db raw binary after zlib
                                     #   (need to use BLOB field in mysql)
                                     item_json_compressed = zlib.compress(json.dumps(item_json).encode('utf-8'))
                                     item_json_compressed_b64 = base64.b64encode(item_json_compressed)
@@ -776,7 +792,9 @@ class NodeManager:
             if context.window.scene.use_nodes:
                 active_node_tree = context.area.spaces.active.node_tree
         elif subtype == 'GeometryNodeTree':
-            if context.active_object.modifiers and context.active_object.modifiers.active.type == 'NODES':
+            if context.active_object.modifiers and \
+                    context.active_object.modifiers.active and \
+                    context.active_object.modifiers.active.type == 'NODES':
                 active_node_tree = context.active_object.modifiers.active.node_group
         # if node tree in opened node group
         if active_node_tree and NodeTree.has_node_groups(active_node_tree) and hasattr(context.space_data, 'path'):

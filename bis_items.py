@@ -62,11 +62,13 @@ class BISItems:
         item_dir = 0
         while item_id > item_dir:
             item_dir += 1000
-        return 'previews' + os.path.sep + list_name + os.path.sep + str(item_dir - (0 if item_dir == 0 else 1000)) + '-' + str(item_dir)
+        return 'previews' + os.path.sep + list_name + \
+               os.path.sep + str(item_dir - (0 if item_dir == 0 else 1000)) + '-' + str(item_dir)
 
     @classmethod
     def get_preview_dir(cls, item_id, list_name):
-        return os.path.dirname(__file__) + os.path.sep + cls.get_preview_relative_dir(item_id=item_id, list_name=list_name)
+        return os.path.dirname(__file__) + \
+               os.path.sep + cls.get_preview_relative_dir(item_id=item_id, list_name=list_name)
 
     @classmethod
     def get_preview_path(cls, item_id, list_name):

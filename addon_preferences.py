@@ -31,7 +31,8 @@ class BISAddonPreferences(AddonPreferences):
     default_mode_in_3d_view: EnumProperty(
         items=[
             ('MESHES', 'Meshes', 'Meshes', '', 0),
-            ('MATERIALS', 'Materials', 'Materials', '', 1)
+            ('MATERIALS', 'Materials', 'Materials', '', 1),
+            ('GN', 'Geometry Nodes', 'Geometry Nodes', '', 2)
         ],
         default='MATERIALS'
     )

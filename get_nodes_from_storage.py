@@ -10,21 +10,30 @@ from bpy.props import PointerProperty, StringProperty, BoolProperty, IntProperty
 from bpy.utils import register_class, unregister_class
 from .bis_items import BISItems
 from .node_manager import NodeManager
+from .geometry_nodes_manager import GeometryNodesManager
 
 
 class BISGetNodesInfoFromStorage(Operator):
     bl_idname = 'bis.get_nodes_info_from_storage'
     bl_label = 'BIS: get items'
-    bl_description = 'Search nodegroups in BIS'
+    bl_description = 'Search node groups in BIS'
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        NodeManager.items_from_bis(
-            context,
-            search_filter=context.window_manager.bis_get_nodes_info_from_storage_vars.search_filter,
-            page=0,
-            update_preview=context.window_manager.bis_get_nodes_info_from_storage_vars.update_previews
-        )
+        if context.preferences.addons[__package__].preferences.default_mode_in_3d_view == 'GN':
+            GeometryNodesManager.items_from_bis(
+                context=context,
+                search_filter=context.window_manager.bis_get_nodes_info_from_storage_vars.search_filter,
+                page=0,
+                update_preview=context.window_manager.bis_get_nodes_info_from_storage_vars.update_previews
+            )
+        else:
+            NodeManager.items_from_bis(
+                context=context,
+                search_filter=context.window_manager.bis_get_nodes_info_from_storage_vars.search_filter,
+                page=0,
+                update_preview=context.window_manager.bis_get_nodes_info_from_storage_vars.update_previews
+            )
         return {'FINISHED'}
 
 
@@ -35,12 +44,20 @@ class BISGetNodesInfoFromStoragePrevPage(Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        NodeManager.items_from_bis(
-            context,
-            search_filter=context.window_manager.bis_get_nodes_info_from_storage_vars.search_filter,
-            page=context.window_manager.bis_get_nodes_info_from_storage_vars.current_page - 1,
-            update_preview=context.window_manager.bis_get_nodes_info_from_storage_vars.update_previews
-        )
+        if context.preferences.addons[__package__].preferences.default_mode_in_3d_view == 'GN':
+            GeometryNodesManager.items_from_bis(
+                context=context,
+                search_filter=context.window_manager.bis_get_nodes_info_from_storage_vars.search_filter,
+                page=context.window_manager.bis_get_nodes_info_from_storage_vars.current_page - 1,
+                update_preview=context.window_manager.bis_get_nodes_info_from_storage_vars.update_previews
+            )
+        else:
+            NodeManager.items_from_bis(
+                context=context,
+                search_filter=context.window_manager.bis_get_nodes_info_from_storage_vars.search_filter,
+                page=context.window_manager.bis_get_nodes_info_from_storage_vars.current_page - 1,
+                update_preview=context.window_manager.bis_get_nodes_info_from_storage_vars.update_previews
+            )
         return {'FINISHED'}
 
     @classmethod
@@ -55,12 +72,20 @@ class BISGetNodesInfoFromStorageNextPage(Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        NodeManager.items_from_bis(
-            context,
-            search_filter=context.window_manager.bis_get_nodes_info_from_storage_vars.search_filter,
-            page=context.window_manager.bis_get_nodes_info_from_storage_vars.current_page + 1,
-            update_preview=context.window_manager.bis_get_nodes_info_from_storage_vars.update_previews
-        )
+        if context.preferences.addons[__package__].preferences.default_mode_in_3d_view == 'GN':
+            GeometryNodesManager.items_from_bis(
+                context=context,
+                search_filter=context.window_manager.bis_get_nodes_info_from_storage_vars.search_filter,
+                page=context.window_manager.bis_get_nodes_info_from_storage_vars.current_page + 1,
+                update_preview=context.window_manager.bis_get_nodes_info_from_storage_vars.update_previews
+            )
+        else:
+            NodeManager.items_from_bis(
+                context=context,
+                search_filter=context.window_manager.bis_get_nodes_info_from_storage_vars.search_filter,
+                page=context.window_manager.bis_get_nodes_info_from_storage_vars.current_page + 1,
+                update_preview=context.window_manager.bis_get_nodes_info_from_storage_vars.update_previews
+            )
         return {'FINISHED'}
 
     @classmethod
@@ -96,7 +121,9 @@ def register():
     register_class(BISGetNodesInfoFromStoragePrevPage)
     register_class(BISGetNodesInfoFromStorageNextPage)
     register_class(BISGetNodesInfoFromStorageVars)
-    WindowManager.bis_get_nodes_info_from_storage_vars = PointerProperty(type=BISGetNodesInfoFromStorageVars)
+    WindowManager.bis_get_nodes_info_from_storage_vars = PointerProperty(
+        type=BISGetNodesInfoFromStorageVars
+    )
 
 
 def unregister():

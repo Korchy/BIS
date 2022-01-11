@@ -42,9 +42,10 @@ class BIS_OT_tools_nodes_add_node_group_io(Operator):
 
     @classmethod
     def poll(cls, context):
-        active_node = NodeManager.active_node(context=context)
-        if active_node and active_node.select and active_node.type == 'GROUP':
-            return True
+        if context.active_object:
+            active_node = NodeManager.active_node(context=context)
+            if active_node and active_node.select and active_node.type == 'GROUP':
+                return True
         return False
 
 
