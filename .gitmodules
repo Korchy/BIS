@@ -1,0 +1,3 @@
+[submodule "bpy_plus"]
+	path = bpy_plus
+	url = git@github.com:Korchy/bpy_plus.git

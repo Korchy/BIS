@@ -6,11 +6,15 @@
 
 # File manager
 
+import bpy
+import json
 import os
 import re
 import tempfile
 import zipfile
-import bpy
+from ntpath import basename
+from shutil import copyfile
+from . import cfg
 
 
 class FileManager:
@@ -81,3 +85,51 @@ class FileManager:
     def attachments_path(cls):
         # returns path to bis-attachments dir
         return os.path.join(cls.project_dir(), cls.project_name() + '_bis_external')
+
+    # ----------------------------------------------------------
+    # debug section
+    # ----------------------------------------------------------
+
+    @classmethod
+    def json_to_file(cls, json_data, file_name):
+        # save json data to file in project directory
+        with open(os.path.join(cls.project_dir(), file_name), 'w') as currentFile:
+            json.dump(json_data, currentFile, indent=4)
+
+    @classmethod
+    def attachment_to_file(cls, attachment_file_path):
+        # save attachment file in project directory
+        if os.path.exists(attachment_file_path):
+            copyfile(
+                attachment_file_path,
+                os.path.join(cls.project_dir(), basename(attachment_file_path))
+            )
+
+    @classmethod
+    def to_server_to_file(cls, json_data=None, attachment_file_path=None):
+        # save data sending to server to file in project directory
+        if cfg.to_server_to_file:
+            if json_data:
+                cls.json_to_file(
+                    json_data=json_data,
+                    file_name='send_to_server.json'
+                )
+            if attachment_file_path:
+                cls.attachment_to_file(
+                    attachment_file_path=attachment_file_path
+                )
+
+    @classmethod
+    def from_server_to_file(cls, json_data=None, attachment_file_path=None):
+        # save data received from server to file in project directory
+        if cfg.from_server_to_file:
+            if json_data:
+                cls.json_to_file(
+                    json_data=json_data,
+                    file_name='received_from_server.json'
+                )
+            if attachment_file_path:
+                cls.attachment_to_file(
+                    attachment_file_path=attachment_file_path
+                )
+

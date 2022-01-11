@@ -32,7 +32,6 @@ class BISAddNodeToStorage(Operator):
         subtype = Material.get_subtype(context=context)
         subtype2 = Material.get_subtype2(context=context)
         # print(subtype, subtype2)
-        # GN - GeometryNodeTree OBJECT
         if subtype == 'ShaderNodeTree':
             if subtype2 == 'WORLD':
                 tags = 'world'

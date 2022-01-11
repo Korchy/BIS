@@ -5,17 +5,10 @@
 #   https://github.com/Korchy/BIS
 
 
-import json
 import os
-import tempfile
 import bpy
 import zipfile
-from shutil import copyfile
-from .WebRequests import WebRequest, WebAuthVars
-from .bis_items import BISItems
-from .addon import Addon
 from .file_manager import FileManager
-from . import cfg
 
 
 class DataBlockManager:
@@ -43,12 +36,6 @@ class DataBlockManager:
                 )
                 zip_file.close()
                 if os.path.exists(zip_file_path):
-                    # to file (debug)
-                    if cfg.to_server_to_file:
-                        copyfile(
-                            zip_file_path,
-                            os.path.join(FileManager.project_dir(), zip_file_name)
-                        )
                     if os.stat(zip_file_path).st_size < cls._limit_file_size:
                         rez = zip_file_path
                     else:
@@ -63,7 +50,7 @@ class DataBlockManager:
         return rez
 
     @classmethod
-    def import_from_blend(cls, zip_file_path, file_name, data_block_type, data_block_name=None):
+    def import_from_blend(cls, context, zip_file_path, file_name, data_block_type, data_block_name=None):
         # add meshes to scene from zipped archive with *.blend file
         rez = []
         # import data block from .blend file
@@ -75,8 +62,8 @@ class DataBlockManager:
                 dest_dir=path
             )
             if os.path.exists(full_path):
+                # existed_names = [data_block.name for data_block in getattr(context.blend_data, data_block_type)]
                 with bpy.data.libraries.load(full_path) as (data_from, data_to):
-                    # data_to.node_groups = [name for name in data_from.node_groups if name==node_tree_name]
                     if data_block_name is None:
                         setattr(
                             data_to,
@@ -89,6 +76,9 @@ class DataBlockManager:
                             data_block_type,
                             [name for name in getattr(data_from, data_block_type) if name == data_block_name]
                         )
-                    # rez = getattr(data_to, data_block_type)[:]
+                    # appended_names = getattr(data_to, data_block_type)[:]  # list of data block names
                     rez = getattr(data_to, data_block_type)[:]  # list of data block names
+                # new_existed_names = [data_block.name for data_block in getattr(context.blend_data, data_block_type)]
+                # # difference between old existed and currently existed data blocks names
+                # rez = list(set(new_existed_names) - set(existed_names))
         return rez

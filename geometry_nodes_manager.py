@@ -133,16 +133,25 @@ class GeometryNodesManager(DataBlockManager):
                                 with open(zip_file_path, 'wb') as temp_item_file_attachment:
                                     temp_item_file_attachment.write(request_file.content)
                                 # to file (debug)
-                                if cfg.from_server_to_file:
-                                    copyfile(
-                                        zip_file_path,
-                                        os.path.join(FileManager.project_dir(), zip_file_name)
-                                    )
-                                    with open(os.path.join(FileManager.project_dir(),
-                                                           'received_from_server.json'), 'w') as currentFile:
-                                        json.dump(item_in_json, currentFile, indent=4)
+                                FileManager.from_server_to_file(
+                                    json_data=item_in_json,
+                                    attachment_file_path=zip_file_path
+                                )
+                                # if cfg.from_server_to_file:
+                                #     copyfile(
+                                #         zip_file_path,
+                                #         os.path.join(FileManager.project_dir(), zip_file_name)
+                                #     )
+                                #     with open(os.path.join(FileManager.project_dir(),
+                                #                            'received_from_server.json'), 'w') as currentFile:
+                                #         json.dump(item_in_json, currentFile, indent=4)
                                 if os.path.exists(zip_file_path):
+                                    # if already exists node group with the same name - rename it
+                                    if item_in_json['data_block_name'] in context.blend_data.node_groups:
+                                        context.blend_data.node_groups[item_in_json['data_block_name']].name += ''
+                                    # import from attachment .blend file
                                     imported_data_block_names = cls.import_from_blend(
+                                        context=context,
                                         zip_file_path=zip_file_path,
                                         file_name=item_in_json['data_block_name'],
                                         data_block_type=item_in_json['data_block_type'],
@@ -162,8 +171,10 @@ class GeometryNodesManager(DataBlockManager):
                                                 obj=context.active_object
                                             )
                                         if item_type == 'MATERIAL':
+                                            # fully replace modifier node tree
                                             gn_modifier.node_group = geometry_node_tree
                                         elif item_type == 'NODEGROUP':
+                                            # just add as separate node group to the current modifier node tree
                                             node_group = gn_modifier.node_group.nodes.new(
                                                 type='GeometryNodeGroup'
                                             )
@@ -182,8 +193,7 @@ class GeometryNodesManager(DataBlockManager):
         if node_tree_container:
             name = cls._gn_name(node_tree_container=node_tree_container)
             # store node tree anyway
-            data_block = node_tree_container.node_tree if node_tree_container.type == 'GROUP' \
-                else node_tree_container.node_group
+            data_block = cls.node_tree(node_tree_container=node_tree_container)
             data_in_json = {
                 'data_block_type': 'node_groups',
                 'data_block_name': name
@@ -197,29 +207,30 @@ class GeometryNodesManager(DataBlockManager):
                 )
                 if attachments_path and os.path.exists(attachments_path):
                     tags += (';' if tags else '') + ';'.join(cls.tags(node_tree_container=node_tree_container))
-                    request = WebRequest.send_request(
-                        context=context,
-                        data={
-                            'for': 'add_item',
-                            'storage': cls._storage_type,
-                            'storage_subtype': Material.get_subtype(context=context),
-                            'storage_subtype2': Material.get_subtype2(context=context),
-                            'item_body': json.dumps(data_in_json),
-                            'item_name': name,
-                            'item_tags': tags.strip(),
-                            'procedural': 1 if NodeTree.is_procedural(
-                                node_tree=cls.node_tree(node_tree_container=node_tree_container)) else 0,
-                            'addon_version': Addon.current_version(),
-                            'blender_version': BlenderEx.version_str_short()
-                        },
-                        files={
-                            'attachment_file': open(attachments_path, 'rb')
-                        }
-                    )
-                    if request:
-                        request_rez = json.loads(request.text)
-                        if request_rez['stat'] == 'OK':
-                            data_block['bis_uid'] = request_rez['data']['id']
+                    if not cfg.no_sending_to_server:
+                        request = WebRequest.send_request(
+                            context=context,
+                            data={
+                                'for': 'add_item',
+                                'storage': cls._storage_type,
+                                'storage_subtype': Material.get_subtype(context=context),
+                                'storage_subtype2': Material.get_subtype2(context=context),
+                                'item_body': json.dumps(data_in_json),
+                                'item_name': name,
+                                'item_tags': tags.strip(),
+                                'procedural': 1 if NodeTree.is_procedural(
+                                    node_tree=cls.node_tree(node_tree_container=node_tree_container)) else 0,
+                                'addon_version': Addon.current_version(),
+                                'blender_version': BlenderEx.version_str_short()
+                            },
+                            files={
+                                'attachment_file': open(attachments_path, 'rb')
+                            }
+                        )
+                        if request:
+                            request_rez = json.loads(request.text)
+                            if request_rez['stat'] == 'OK':
+                                data_block['bis_uid'] = request_rez['data']['id']
             # to file (debug)
             if cfg.to_server_to_file:
                 with open(os.path.join(FileManager.project_dir(), 'send_to_server.json'), 'w') as currentFile:
@@ -228,77 +239,66 @@ class GeometryNodesManager(DataBlockManager):
             request_rez['data']['text'] = 'No data to save'
         return request_rez
 
-    # @classmethod
-    # def update_in_bis(cls, context, objects: list, bis_uid):
-    #     # update objects by active object (get bis_uid from active object and update it for all selection)
-    #     request_rez = {"stat": "ERR", "data": {"text": "Error to update"}}
-    #     if objects and bis_uid:
-    #         name = objects[0].name  # name not updated but need for make file with attachments
-    #         meshes_in_json = {
-    #             'objects': [],
-    #             'attachment_filename': name
-    #         }
-    #         for obj in objects:
-    #             # remove animation data
-    #             obj.animation_data_clear()
-    #             # mesh to json
-    #             meshes_in_json['objects'].append(obj.name)
-    #         with tempfile.TemporaryDirectory() as temp_dir:
-    #             attachments_path = cls.export_to_blend(
-    #                 context=context,
-    #                 objects=objects,
-    #                 name=name,
-    #                 export_path=temp_dir
-    #             )
-    #             if attachments_path and os.path.exists(attachments_path):
-    #                 request = WebRequest.send_request(
-    #                     context=context,
-    #                     data={
-    #                         'for': 'update_item',
-    #                         'storage': cls.storage_type(context=context),
-    #                         'item_body': json.dumps(meshes_in_json),
-    #                         'item_name': name,
-    #                         'item_id': bis_uid,
-    #                         'addon_version': Addon.current_version()
-    #                     },
-    #                     files={
-    #                         'attachment_file': open(attachments_path, 'rb')
-    #                     }
-    #                 )
-    #                 if request:
-    #                     request_rez = json.loads(request.text)
-    #                     if request_rez['stat'] == 'OK':
-    #                         for obj in objects:
-    #                             obj['bis_uid'] = request_rez['data']['id']
-    #         # to file (debug)
-    #         if cfg.to_server_to_file:
-    #             with open(os.path.join(FileManager.project_dir(), 'send_to_server.json'), 'w') as currentFile:
-    #                 json.dump(meshes_in_json, currentFile, indent=4)
-    #     else:
-    #         request_rez['data']['text'] = 'Cant get object to update - no active object from BIS'
-    #     return request_rez
-    #
-    # @staticmethod
-    # def storage_type(context=None):
-    #     # return context.area.spaces.active.type
-    #     return 'VIEW_3D'
-    #
-    # @staticmethod
-    # def get_bis_uid(context):
-    #     # get bis_uid from selected objects
-    #     bis_uid = None
-    #     if context.selected_objects:
-    #         # first bis_uid from selection
-    #         bis_uids = set((obj['bis_uid'] for obj in context.selected_objects if 'bis_uid' in obj))
-    #         if len(bis_uids) == 1:
-    #             # has ths same bis_uid in objects and objects with no bis_uid
-    #             bis_uid = bis_uids.pop()
-    #         elif len(bis_uids) > 1:
-    #             # has several bis_uid in objects - get bis_uid from active object
-    #             active = context.active_object if context.active_object in context.selected_objects else None
-    #             if active and 'bis_uid' in active:
-    #                 bis_uid = active['bis_uid']
-    #     return bis_uid
+    @classmethod
+    def update_in_bis(cls, context, node_tree_container):
+        # update current geometry node tree
+        request_rez = {"stat": "ERR", "data": {"text": "Error to update"}}
+        if node_tree_container:
+            name = cls._gn_name(node_tree_container=node_tree_container)
+            gn_node_tree = cls.node_tree(node_tree_container=node_tree_container)
+            bis_uid = None
+            if gn_node_tree:
+                if 'bis_uid' in gn_node_tree and gn_node_tree['bis_uid']:
+                    bis_uid = gn_node_tree['bis_uid']
+                else:
+                    request_rez['data']['text'] = 'Save this GN item to the BIS first!'
+            else:
+                request_rez['data']['text'] = 'Undefined GN item to update'
+            if bis_uid:
+                data_in_json = {
+                    'data_block_type': 'node_groups',
+                    'data_block_name': name
+                }
+                with tempfile.TemporaryDirectory() as temp_dir:
+                    attachments_path = cls.export_to_blend(
+                        context=context,
+                        data_block={gn_node_tree},
+                        export_path=temp_dir,
+                        export_file_name=name
+                    )
+                    if attachments_path and os.path.exists(attachments_path):
+                        # send to server
+                        # save to file (debug)
+                        FileManager.to_server_to_file(
+                            json_data=data_in_json,
+                            attachment_file_path=attachments_path
+                        )
+                        # send request
+                        if not cfg.no_sending_to_server:
+                            request = WebRequest.send_request(
+                                context=context,
+                                data={
+                                    'for': 'update_item',
+                                    'storage': cls._storage_type,
+                                    'storage_subtype': Material.get_subtype(context=context),
+                                    'storage_subtype2': Material.get_subtype2(context=context),
+                                    'item_id': bis_uid,
+                                    'item_body': json.dumps(data_in_json),
+                                    'item_name': name,
+                                    'procedural': 1 if NodeTree.is_procedural(
+                                        node_tree=cls.node_tree(node_tree_container=node_tree_container)) else 0,
+                                    'addon_version': Addon.current_version(),
+                                    'blender_version': BlenderEx.version_str_short()
+                                },
+                                files={
+                                    'attachment_file': open(attachments_path, 'rb')
+                                }
+                            )
+                            if request:
+                                request_rez = json.loads(request.text)
+        else:
+            request_rez['data']['text'] = 'Cant get object to update - no active object from BIS'
+        return request_rez
 
     @staticmethod
     def node_tree(node_tree_container):
