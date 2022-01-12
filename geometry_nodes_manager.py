@@ -147,7 +147,7 @@ class GeometryNodesManager(DataBlockManager):
                                     cls.import_from_blend(
                                         context=context,
                                         zip_file_path=zip_file_path,
-                                        file_name=item_in_json['data_block_name'],
+                                        file_name=cls._gn_name_validated(name=item_in_json['data_block_name']),
                                         data_block_type=item_in_json['data_block_type'],
                                         data_block_name=item_in_json['data_block_name']
                                     )
@@ -194,6 +194,7 @@ class GeometryNodesManager(DataBlockManager):
         request_rez = {'stat': 'ERR', 'data': {'text': 'Error to save'}}
         if node_tree_container:
             name = cls._gn_name(node_tree_container=node_tree_container)
+            name_validated = cls._gn_name_validated(name=name)
             # store node tree anyway
             data_block = cls.node_tree(node_tree_container=node_tree_container)
             data_in_json = {
@@ -214,7 +215,7 @@ class GeometryNodesManager(DataBlockManager):
                     context=context,
                     data_block={data_block},
                     export_path=temp_dir,
-                    export_file_name=name
+                    export_file_name=name_validated
                 )
                 if attachments_path and os.path.exists(attachments_path):
                     tags += (';' if tags else '') + ';'.join(cls.tags(node_tree_container=node_tree_container))
@@ -258,6 +259,7 @@ class GeometryNodesManager(DataBlockManager):
         request_rez = {"stat": "ERR", "data": {"text": "Error to update"}}
         if node_tree_container:
             name = cls._gn_name(node_tree_container=node_tree_container)
+            name_validated = cls._gn_name_validated(name=name)
             gn_node_tree = cls.node_tree(node_tree_container=node_tree_container)
             bis_uid = None
             if gn_node_tree:
@@ -286,7 +288,7 @@ class GeometryNodesManager(DataBlockManager):
                         context=context,
                         data_block={gn_node_tree},
                         export_path=temp_dir,
-                        export_file_name=name
+                        export_file_name=name_validated
                     )
                     if attachments_path and os.path.exists(attachments_path):
                         # send to server
@@ -356,6 +358,11 @@ class GeometryNodesManager(DataBlockManager):
             name = node_tree_container.node_tree.name
         elif node_tree_container.type == 'NODES':
             name = node_tree_container.node_group.name
+        return name
+
+    @classmethod
+    def _gn_name_validated(cls, name):
+        # validated name
         name = ''.join((x if x.isalnum() else '_' for x in name))
         return name
 
@@ -424,7 +431,8 @@ class GeometryNodesManager(DataBlockManager):
         regexp = re.compile(r'^Input_\d.?$')
         inputs = [input[0] for input in gn_modifier.items() if regexp.match(input[0])]  # [Input_2, Input_6, ...]
         for i, name in enumerate(names):
-            if inputs[i] + '_use_attribute' in gn_modifier:
-                gn_modifier[inputs[i] + '_use_attribute'] = 1
-            if inputs[i] + '_attribute_name' in gn_modifier:
-                gn_modifier[inputs[i] + '_attribute_name'] = name
+            if name:
+                if inputs[i] + '_use_attribute' in gn_modifier:
+                    gn_modifier[inputs[i] + '_use_attribute'] = 1
+                if inputs[i] + '_attribute_name' in gn_modifier:
+                    gn_modifier[inputs[i] + '_attribute_name'] = name
