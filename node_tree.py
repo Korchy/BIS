@@ -6,6 +6,7 @@
 
 # node_tree class
 
+import bpy
 from . import cfg
 from .file_manager import FileManager
 from .node import Node
@@ -91,10 +92,17 @@ class NodeTree:
                 # NodeSocketInterfaceXXX
                 # name can be empty
                 input_name = input_json['instance']['name'] if 'name' in input_json['instance'] else ''
-                new_input = node_tree.inputs.new(
-                    type=input_json['bl_socket_idname'],
-                    name=input_name
-                )
+                if bpy.app.version < (4, 0, 0):
+                    new_input = node_tree.inputs.new(
+                        type=input_json['bl_socket_idname'],
+                        name=input_name
+                    )
+                else:
+                    new_input = node_tree.interface.new_socket(
+                        name=input_name,
+                        in_out='INPUT',
+                        socket_type=input_json['bl_socket_idname']
+                    )
                 BlTypes.complex_from_json(
                     instance=new_input,
                     json=input_json,
@@ -105,10 +113,17 @@ class NodeTree:
                 # NodeSocketInterfaceXXX
                 # name can be empty
                 output_name = output_json['instance']['name'] if 'name' in output_json['instance'] else ''
-                new_output = node_tree.outputs.new(
-                    type=output_json['bl_socket_idname'],
-                    name=output_name
-                )
+                if bpy.app.version < (4, 0, 0):
+                    new_output = node_tree.outputs.new(
+                        type=output_json['bl_socket_idname'],
+                        name=output_name
+                    )
+                else:
+                    new_output = node_tree.interface.new_socket(
+                        name=output_name,
+                        in_out='OUTPUT',
+                        socket_type=output_json['bl_socket_idname']
+                    )
                 BlTypes.complex_from_json(
                     instance=new_output,
                     json=output_json,

@@ -1,5 +1,8 @@
 Version history:
 -
+1.11.1
+- Updated for compatibility with Blender 4.0
+
 1.11.0
 - Added support for Geometry Nodes
 

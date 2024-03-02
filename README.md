@@ -11,12 +11,12 @@ BIS website: https://bis.interplanety.org
 
 Current version:
 -
-1.11.0.
+1.11.1.
 
 Blender version:
 -
 
-2.93, 3.0, 3.1
+2.93, 3.0, 3.3, 3.6, 4.0
 
 Installation and usage:
 -
