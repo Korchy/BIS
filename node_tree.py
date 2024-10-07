@@ -101,7 +101,7 @@ class NodeTree:
                     new_input = node_tree.interface.new_socket(
                         name=input_name,
                         in_out='INPUT',
-                        socket_type=input_json['bl_socket_idname']
+                        socket_type=cls._validate_socket_idname(idname=input_json['bl_socket_idname'])
                     )
                 BlTypes.complex_from_json(
                     instance=new_input,
@@ -122,7 +122,7 @@ class NodeTree:
                     new_output = node_tree.interface.new_socket(
                         name=output_name,
                         in_out='OUTPUT',
-                        socket_type=output_json['bl_socket_idname']
+                        socket_type=cls._validate_socket_idname(idname=output_json['bl_socket_idname'])
                     )
                 BlTypes.complex_from_json(
                     instance=new_output,
@@ -255,3 +255,17 @@ class NodeTree:
                 rez = False
                 break
         return rez
+
+    @staticmethod
+    def _validate_socket_idname(idname):
+        # validate socket idname for 4.0 and later
+        if bpy.app.version < (4, 0, 0):
+            return idname
+        else:
+            if idname in ('NodeSocketFloatAngle', 'NodeSocketFloatFactor', 'NodeSocketFloatUnsigned'):
+                return 'NodeSocketFloat'
+            elif idname in ('NodeSocketVectorDirection', 'NodeSocketVectorEuler', 'NodeSocketVectorTranslation',
+                            'NodeSocketVectorXYZ'):
+                return 'NodeSocketVector'
+            else:
+                return idname

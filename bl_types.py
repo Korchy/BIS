@@ -108,6 +108,7 @@ class BlTypes:
         # fill instance from json
         if hasattr(instance_owner, instance_name):
             instance = getattr(instance_owner, instance_name)
+            # print('instance', instance, type(instance))
             # print(
             #     'bltypes attribute - ', 'instance name: ', instance_name, ',',
             #     'instance class', instance.__class__.__name__, ',',

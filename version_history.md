@@ -1,5 +1,8 @@
 Version history:
 -
+1.11.2
+- Fixed some bugs
+
 1.11.1
 - Updated for compatibility with Blender 4.0
 
