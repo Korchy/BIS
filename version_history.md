@@ -1,5 +1,8 @@
 Version history:
 -
+1.11.3
+- Fixed some older compatibility
+
 1.11.2
 - Fixed some bugs
 

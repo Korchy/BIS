@@ -108,7 +108,7 @@ class NodeTree:
                     json=input_json,
                     excluded_attributes=['bl_idname', 'name', 'type']
                 )
-            # node outputs
+            # node_tree outputs
             for output_number, output_json in enumerate(node_tree_json['instance']['outputs']):
                 # NodeSocketInterfaceXXX
                 # name can be empty
@@ -133,13 +133,19 @@ class NodeTree:
             for current_node_in_json in node_tree_json['instance']['nodes']:
                 # Nodes
                 node = None
+                # create new node
                 try:
-                    # current node type may not exists - if node saved from future version of Blender
+                    # current node type may not exist - if node saved from future version of Blender
                     node = node_tree.nodes.new(type=current_node_in_json['class'])
                 except Exception as exception:
                     if cfg.show_debug_err:
                         print(repr(exception))
                 if node:
+                    # for compatibility older materials with Blender 4.0 and later
+                    #   (since 4.0 Emission Color became [1,1,1,1] and Strength=1, older was [0,0,0,1] and Strength=0)
+                    if node.bl_idname == 'ShaderNodeBsdfPrincipled':
+                        node.inputs['Emission Color'].default_value = [0.0, 0.0, 0.0, 1.0]
+                    # node from json
                     Node.from_json(
                         node=node,
                         node_json=current_node_in_json,

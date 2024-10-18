@@ -108,7 +108,7 @@ class BlTypes:
         # fill instance from json
         if hasattr(instance_owner, instance_name):
             instance = getattr(instance_owner, instance_name)
-            # print('instance', instance, type(instance))
+            # print('instance', instance, type(instance), instance_json, instance.__class__.__name__)
             # print(
             #     'bltypes attribute - ', 'instance name: ', instance_name, ',',
             #     'instance class', instance.__class__.__name__, ',',
@@ -119,9 +119,9 @@ class BlTypes:
                 # simple type
                 setattr(instance_owner, instance_name, instance_json)
                 # setattr(instance_owner, instance_name, 'xxx')
-            elif hasattr(sys.modules[__name__], 'BL' + instance_json['class']):
+            elif hasattr(sys.modules[__name__], 'BL' + instance.__class__.__name__):
                 # complex attribute described in ths module
-                instance_class = getattr(sys.modules[__name__], 'BL' + instance_json['class'])
+                instance_class = getattr(sys.modules[__name__], 'BL' + instance.__class__.__name__)
                 instance_class.from_json(
                     instance_name=instance_name,
                     instance_owner=instance_owner,
@@ -301,8 +301,20 @@ class BLbpy_prop_array(BLBaseType):
     def json_to_instance(cls, instance_name, instance_owner, json, attachments_path=None,
                          excluded_attributes: list = None, first_attributes: list = None):
         instance = getattr(instance_owner, instance_name)
-        for i, array_item_json in enumerate(json['instance']):
-            instance[i] = array_item_json
+        if isinstance(json, (int, float, bool, set, str)):
+            # auto-convert: value to array (for older compatibility)
+            for item in instance:
+                item = json
+        elif json['class'] == 'Vector':
+            # auto-convert: Vector to array (for older compatibility)
+            instance[0] = json['instance']['x']
+            instance[1] = json['instance']['y']
+            if len(instance) > 2:
+                instance[2] = json['instance']['z']
+        else:
+            # common way - array to array
+            for i, array_item_json in enumerate(json['instance']):
+                instance[i] = array_item_json
 
 
 # class BLNodeOutputFileSlotFile(BLBaseType):
